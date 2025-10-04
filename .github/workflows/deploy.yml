@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main   # or whichever branch you want to auto-deploy
+      - main   # trigger on push to main
 
 jobs:
   deploy:
@@ -27,9 +27,11 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy latest code" \
             --parameters 'commands=[
-              "cd /srv/jagasewa-dev-claude || git clone https://github.com/muroyyy/jagasewa-dev-claude.git /srv/jagasewa-dev-claude",
+              "if [ ! -d /srv/jagasewa-dev-claude/.git ]; then git clone https://github.com/muroyyy/jagasewa-dev-claude.git /srv/jagasewa-dev-claude; fi",
               "cd /srv/jagasewa-dev-claude",
-              "git pull origin main",
+              "git fetch --all",
+              "git reset --hard origin/main",
               "sudo docker-compose down || true",
-              "sudo docker-compose up -d --build"
+              "sudo docker-compose build --no-cache",
+              "sudo docker-compose up -d"
             ]'
