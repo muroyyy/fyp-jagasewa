@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -19,10 +21,16 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform cursor-pointer">
+            <div 
+              onClick={() => navigate('/')}
+              className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform cursor-pointer"
+            >
               <Home className="w-7 h-7 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent cursor-pointer">
+            <span 
+              onClick={() => navigate('/')}
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent cursor-pointer"
+            >
               JagaSewa
             </span>
           </div>
@@ -38,10 +46,16 @@ export default function Navbar() {
             <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               About
             </a>
-            <button className="px-5 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium">
+            <button 
+              onClick={() => navigate('/login')}
+              className="px-5 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+            >
               Login
             </button>
-            <button className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-medium">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-medium"
+            >
               Sign Up
             </button>
           </div>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Users, DollarSign, Wrench, FileText, Bell, BarChart3, Shield, ArrowRight, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function Landing() {
+  const navigate = useNavigate();
   const [activeFeature, setActiveFeature] = useState(0);
 
   useEffect(() => {
@@ -55,7 +57,10 @@ export default function Landing() {
                 The all-in-one cloud platform that connects landlords and tenants. Manage properties, track payments, and handle maintenance requests effortlessly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center group">
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center group"
+                >
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
@@ -189,7 +194,10 @@ export default function Landing() {
             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-12 text-white shadow-2xl">
               <h3 className="text-3xl font-bold mb-6">Ready to Get Started?</h3>
               <p className="text-blue-100 text-lg mb-8">Join hundreds of landlords and tenants already using JagaSewa to simplify their property management.</p>
-              <button className="w-full px-8 py-4 bg-white text-blue-600 rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-bold text-lg">
+              <button 
+                onClick={() => navigate('/signup')}
+                className="w-full px-8 py-4 bg-white text-blue-600 rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-bold text-lg"
+              >
                 Create Free Account
               </button>
               <p className="text-center text-blue-100 text-sm mt-4">No credit card required • 14-day free trial</p>
