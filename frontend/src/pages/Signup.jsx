@@ -115,7 +115,7 @@ export default function Signup() {
             Already have an account?{' '}
             <Link
               to="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              className="font-semibold text-blue-600 hover:text-blue-700 transition-colors hover:underline cursor-pointer"
             >
               Sign in here
             </Link>
