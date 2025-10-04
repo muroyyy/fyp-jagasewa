@@ -48,13 +48,13 @@ export default function Navbar() {
             </a>
             <button 
               onClick={() => navigate('/login')}
-              className="px-5 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+              className="px-5 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium hover:scale-105 transform cursor-pointer"
             >
               Login
             </button>
             <button 
               onClick={() => navigate('/signup')}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-medium"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transform hover:-translate-y-0.5 hover:scale-105 transition-all font-medium cursor-pointer"
             >
               Sign Up
             </button>
