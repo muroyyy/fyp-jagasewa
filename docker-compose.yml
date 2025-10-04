@@ -3,7 +3,8 @@ version: "3.9"
 services:
   frontend:
     build: ./frontend
-    container_name: react_frontend
+    container_name: jagasewa_frontend
+    restart: always
     ports:
       - "80:80"
     depends_on:
@@ -11,7 +12,8 @@ services:
 
   backend:
     build: ./backend
-    container_name: php_backend
+    container_name: jagasewa_backend
+    restart: always
     ports:
       - "9000:80"
     volumes:
