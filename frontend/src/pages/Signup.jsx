@@ -70,7 +70,7 @@ export default function Signup() {
                 ))}
               </div>
 
-              <button className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1">
+              <button className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1 cursor-pointer">
                 Sign up as Landlord
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -101,7 +101,7 @@ export default function Signup() {
                 ))}
               </div>
 
-              <button className="w-full py-3 px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1">
+              <button className="w-full py-3 px-6 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1 cursor-pointer">
                 Sign up as Tenant
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
