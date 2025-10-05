@@ -17,11 +17,41 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Login attempt:', { ...formData, role: userRole });
-    // Add your login logic here
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("http://localhost/backend/api/auth/login.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        role: userRole
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert(`Login successful as ${userRole}!`);
+      // You can redirect to respective dashboards:
+      if (userRole === "landlord") {
+        window.location.href = "/landlord-dashboard";
+      } else {
+        window.location.href = "/tenant-dashboard";
+      }
+    } else {
+      alert(data.message || "Invalid credentials. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    alert("An error occurred while trying to log in. Please try again later.");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
