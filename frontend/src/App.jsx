@@ -6,6 +6,7 @@ import Signup from './pages/Signup';
 import SignupLandlord from './pages/SignupLandlord';
 import SignupTenant from './pages/SignupTenant';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/signup/landlord" element={<SignupLandlord />} />
         <Route path="/signup/tenant" element={<SignupTenant />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         
         {/* Add more routes here as you create more pages */}
         {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
