@@ -59,12 +59,12 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
                   onClick={() => navigate('/signup')}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center group"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center group cursor-pointer"
                 >
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="px-8 py-4 bg-white text-gray-700 rounded-xl hover:shadow-lg transition-all font-semibold text-lg border-2 border-gray-200">
+                <button className="px-8 py-4 bg-white text-gray-700 rounded-xl hover:shadow-lg transition-all font-semibold text-lg border-2 border-gray-200 cursor-pointer">
                   Watch Demo
                 </button>
               </div>
@@ -196,11 +196,90 @@ export default function Landing() {
               <p className="text-blue-100 text-lg mb-8">Join hundreds of landlords and tenants already using JagaSewa to simplify their property management.</p>
               <button 
                 onClick={() => navigate('/signup')}
-                className="w-full px-8 py-4 bg-white text-blue-600 rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-bold text-lg"
+                className="w-full px-8 py-4 bg-white text-blue-600 rounded-xl hover:shadow-xl transform hover:-translate-y-1 transition-all font-bold text-lg cursor-pointer"
               >
                 Create Free Account
               </button>
               <p className="text-center text-blue-100 text-sm mt-4">No credit card required • 14-day free trial</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">About JagaSewa</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              A modern cloud-based property management solution designed to bridge the gap between landlords and tenants
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🎯</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Mission</h3>
+              <p className="text-gray-600">
+                To simplify property management through innovative technology, making it accessible and efficient for everyone.
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">💡</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Vision</h3>
+              <p className="text-gray-600">
+                To become the leading property management platform in Malaysia, empowering property owners and tenants alike.
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">⚡</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Technology</h3>
+              <p className="text-gray-600">
+                Built with modern technologies including ReactJS, PHP, and AWS Cloud infrastructure for reliability and scalability.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 md:p-12">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Developed with Care</h3>
+                <p className="text-gray-700 mb-4">
+                  JagaSewa is a final year project developed at Asia Pacific University of Technology and Innovation (APU), showcasing the integration of cloud engineering principles with practical property management solutions.
+                </p>
+                <p className="text-gray-700">
+                  This project demonstrates how cloud technology can transform traditional property management into a seamless digital experience.
+                </p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <h4 className="font-bold text-gray-900 mb-4">Key Technologies</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                    <span className="text-gray-700">ReactJS + Tailwind CSS</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                    <span className="text-gray-700">PHP Backend</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                    <span className="text-gray-700">AWS Cloud Hosting</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                    <span className="text-gray-700">Terraform (IaC)</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
