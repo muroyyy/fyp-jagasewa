@@ -128,7 +128,7 @@ export default function Login() {
               </label>
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors hover:underline cursor-pointer"
               >
                 Forgot password?
               </Link>
@@ -154,7 +154,7 @@ export default function Login() {
               Don't have an account?{' '}
               <Link
                 to="/signup"
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors hover:underline cursor-pointer"
               >
                 Sign up now
               </Link>
