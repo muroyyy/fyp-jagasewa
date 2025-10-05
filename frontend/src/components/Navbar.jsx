@@ -42,21 +42,30 @@ export default function Navbar() {
               onClick={() => navigate('/')}
               className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent cursor-pointer"
             >
-              JagaSewaaaa
+              JagaSewa
             </span>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+            <button
+              onClick={() => scrollToSection('features')}
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium cursor-pointer"
+            >
               Features
-            </a>
-            <a href="#benefits" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+            </button>
+            <button
+              onClick={() => scrollToSection('benefits')}
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium cursor-pointer"
+            >
               Benefits
-            </a>
-            <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+            </button>
+            <button
+              onClick={() => scrollToSection('about')}
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium cursor-pointer"
+            >
               About
-            </a>
+            </button>
             <button 
               onClick={() => navigate('/login')}
               className="px-5 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium hover:scale-105 transform cursor-pointer"
