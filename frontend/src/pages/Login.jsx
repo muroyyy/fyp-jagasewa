@@ -77,7 +77,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setUserRole('landlord')}
-              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+              className={`cursor-pointer flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
                 userRole === 'landlord'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -88,7 +88,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setUserRole('tenant')}
-              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+              className={`cursor-pointer flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
                 userRole === 'tenant'
                   ? 'bg-gradient-to-r from-green-600 to-teal-600 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
