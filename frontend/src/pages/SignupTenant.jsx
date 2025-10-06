@@ -25,9 +25,9 @@ export default function SignupTenant() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match!');
       return;
@@ -38,11 +38,35 @@ export default function SignupTenant() {
       return;
     }
 
-    console.log('Tenant Registration:', formData);
-    // Add your registration logic here
-    // After successful registration, redirect to dashboard or login
-    // navigate('/tenant/dashboard');
+    try {
+      const response = await fetch("http://localhost:8000/backend/api/auth/signup.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          ic_number: formData.icNumber,
+          date_of_birth: formData.dateOfBirth,
+          password: formData.password,
+          user_role: "tenant",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("✅ Tenant account created successfully!");
+        navigate("/login");
+      } else {
+        alert(`❌ ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("⚠️ Server error. Please try again later.");
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">

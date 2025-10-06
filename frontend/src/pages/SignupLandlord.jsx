@@ -39,7 +39,7 @@ export default function SignupLandlord() {
     }
 
     try {
-      const response = await fetch("http://localhost/backend/api/auth/signup.php", {
+      const response = await fetch("http://localhost:8000/backend/api/auth/signup.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
