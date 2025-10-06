@@ -48,12 +48,15 @@ class User {
 
         // Generate verification token
         $verification_token = bin2hex(random_bytes(32));
+        
+        // Convert boolean to integer (0 or 1)
+        $is_verified = $this->is_verified ? 1 : 0;
 
         // Bind values
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password_hash", $password_hash);
         $stmt->bindParam(":user_role", $this->user_role);
-        $stmt->bindParam(":is_verified", $this->is_verified);
+        $stmt->bindParam(":is_verified", $is_verified, PDO::PARAM_INT);
         $stmt->bindParam(":verification_token", $verification_token);
 
         if($stmt->execute()) {

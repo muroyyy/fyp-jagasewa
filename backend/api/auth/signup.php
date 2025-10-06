@@ -42,7 +42,7 @@ if (
     $user->email = $data->email;
     $user->password_hash = $data->password;
     $user->user_role = $data->user_role;
-    $user->is_verified = false; // Email verification required
+    $user->is_verified = 0; // Email verification required (0 = false, 1 = true)
     
     // Check if email already exists
     if ($user->emailExists()) {
