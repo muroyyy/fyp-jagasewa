@@ -282,7 +282,7 @@ export default function SignupLandlord() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group"
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group cursor-pointer"
             >
               Create Landlord Account
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -295,7 +295,7 @@ export default function SignupLandlord() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors hover:underline cursor-pointer"
               >
                 Sign in here
               </Link>
