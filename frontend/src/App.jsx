@@ -10,6 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import LandlordDashboard from './pages/LandlordDashboard';
 import TenantDashboard from './pages/TenantDashboard';
 import LandlordProperties from './pages/LandlordProperties';
+import LandlordTenants from './pages/LandlordTenants';
 
 function App() {
   return (
@@ -29,7 +30,9 @@ function App() {
         {/* Landlord Dashboard Routes */}
         <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
         <Route path="/landlord/properties" element={<LandlordProperties />} />
+        <Route path="/landlord/tenants" element={<LandlordTenants />} />
         {/* Future landlord routes */}
+        {/* <Route path="/landlord/properties" element={<Properties />} /> */}
         {/* <Route path="/landlord/tenants" element={<Tenants />} /> */}
         {/* <Route path="/landlord/payments" element={<Payments />} /> */}
         
