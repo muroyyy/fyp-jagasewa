@@ -39,13 +39,13 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store user data with correct localStorage keys
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('userRole', userRole);
-        localStorage.setItem('session_token', data.session_token || '');
+        // Store user data with correct localStorage keys (backend returns data.data)
+        localStorage.setItem('user', JSON.stringify(data.data));
+        localStorage.setItem('userRole', data.data.user_role);
+        localStorage.setItem('session_token', data.data.session_token || '');
         
         // Navigate to respective dashboard
-        if (userRole === "landlord") {
+        if (data.data.user_role === "landlord") {
           navigate("/landlord-dashboard");
         } else {
           navigate("/tenant-dashboard");
@@ -182,11 +182,11 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group cursor-pointer ${
+              className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                 userRole === 'landlord'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
                   : 'bg-gradient-to-r from-green-600 to-teal-600'
-              } ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+              } ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isLoading ? (
                 <>

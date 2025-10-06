@@ -38,8 +38,9 @@ export const hasRole = (requiredRole) => {
 // Logout user
 export const logout = () => {
   localStorage.removeItem('user');
+  localStorage.removeItem('userRole');
   localStorage.removeItem('session_token');
-  window.location.href = '/';
+  window.location.href = '/login';
 };
 
 // Get user profile data
