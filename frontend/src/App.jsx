@@ -11,6 +11,7 @@ import LandlordDashboard from './pages/LandlordDashboard';
 import TenantDashboard from './pages/TenantDashboard';
 import LandlordProperties from './pages/LandlordProperties';
 import LandlordTenants from './pages/LandlordTenants';
+import TenantPayments from './pages/TenantPayments';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         
         {/* Tenant Dashboard Routes */}
         <Route path="/tenant-dashboard" element={<TenantDashboard />} />
+        <Route path="/tenant/payments" element={<TenantPayments />} />
         {/* Future tenant routes */}
         {/* <Route path="/tenant/payments" element={<Payments />} /> */}
         {/* <Route path="/tenant/maintenance" element={<Maintenance />} /> */}
