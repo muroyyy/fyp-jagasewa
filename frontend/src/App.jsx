@@ -7,6 +7,8 @@ import SignupLandlord from './pages/SignupLandlord';
 import SignupTenant from './pages/SignupTenant';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import LandlordDashboard from './pages/LandlordDashboard';
+import TenantDashboard from './pages/TenantDashboard';
 
 function App() {
   return (
@@ -23,18 +25,19 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         
-        {/* Add more routes here as you create more pages */}
-        {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-        {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
-        
         {/* Landlord Dashboard Routes */}
-        {/* <Route path="/landlord/dashboard" element={<LandlordDashboard />} /> */}
+        <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
+        {/* Future landlord routes */}
         {/* <Route path="/landlord/properties" element={<Properties />} /> */}
         {/* <Route path="/landlord/tenants" element={<Tenants />} /> */}
+        {/* <Route path="/landlord/payments" element={<Payments />} /> */}
         
         {/* Tenant Dashboard Routes */}
-        {/* <Route path="/tenant/dashboard" element={<TenantDashboard />} /> */}
+        <Route path="/tenant-dashboard" element={<TenantDashboard />} />
+        {/* Future tenant routes */}
         {/* <Route path="/tenant/payments" element={<Payments />} /> */}
+        {/* <Route path="/tenant/maintenance" element={<Maintenance />} /> */}
+        {/* <Route path="/tenant/documents" element={<Documents />} /> */}
       </Routes>
     </Router>
   );
