@@ -13,30 +13,30 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       name: 'E-Wallet',
       icon: Smartphone,
       providers: [
-        { id: 'tng', name: "Touch 'n Go", logo: '💳' },
-        { id: 'grabpay', name: 'GrabPay', logo: '🟢' },
-        { id: 'boost', name: 'Boost', logo: '🔴' },
-        { id: 'shopeepay', name: 'ShopeePay', logo: '🟠' }
+        { id: 'tng', name: "Touch 'n Go", logo: 'https://www.google.com/s2/favicons?domain=touchngo.com.my&sz=128' },
+        { id: 'grabpay', name: 'GrabPay', logo: 'https://www.google.com/s2/favicons?domain=grab.com&sz=128' },
+        { id: 'boost', name: 'Boost', logo: 'https://www.google.com/s2/favicons?domain=myboost.com.my&sz=128' },
+        { id: 'shopeepay', name: 'ShopeePay', logo: 'https://www.google.com/s2/favicons?domain=shopee.com.my&sz=128' }
       ]
     },
     fpx: {
       name: 'FPX Online Banking',
       icon: Building,
       providers: [
-        { id: 'maybank', name: 'Maybank', logo: '🏦' },
-        { id: 'cimb', name: 'CIMB Bank', logo: '🏦' },
-        { id: 'public', name: 'Public Bank', logo: '🏦' },
-        { id: 'rhb', name: 'RHB Bank', logo: '🏦' },
-        { id: 'hong_leong', name: 'Hong Leong Bank', logo: '🏦' },
-        { id: 'ambank', name: 'AmBank', logo: '🏦' }
+        { id: 'maybank', name: 'Maybank', logo: 'https://www.google.com/s2/favicons?domain=maybank.com.my&sz=128' },
+        { id: 'cimb', name: 'CIMB Bank', logo: 'https://www.google.com/s2/favicons?domain=cimb.com.my&sz=128' },
+        { id: 'public', name: 'Public Bank', logo: 'https://www.google.com/s2/favicons?domain=pbebank.com&sz=128' },
+        { id: 'rhb', name: 'RHB Bank', logo: 'https://www.google.com/s2/favicons?domain=rhbgroup.com&sz=128' },
+        { id: 'hong_leong', name: 'Hong Leong Bank', logo: 'https://www.google.com/s2/favicons?domain=hlb.com.my&sz=128' },
+        { id: 'ambank', name: 'AmBank', logo: 'https://www.google.com/s2/favicons?domain=ambank.com.my&sz=128' }
       ]
     },
     card: {
       name: 'Debit/Credit Card',
       icon: CreditCard,
       providers: [
-        { id: 'visa', name: 'Visa', logo: '💳' },
-        { id: 'mastercard', name: 'Mastercard', logo: '💳' }
+        { id: 'visa', name: 'Visa', logo: 'https://www.google.com/s2/favicons?domain=visa.com&sz=128' },
+        { id: 'mastercard', name: 'Mastercard', logo: 'https://www.google.com/s2/favicons?domain=mastercard.com&sz=128' }
       ]
     }
   };
@@ -209,7 +209,17 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
                             : 'border-gray-200 hover:border-green-300'
                         }`}
                       >
-                        <div className="text-3xl mb-2">{provider.logo}</div>
+                        <div className="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
+                          <img 
+                            src={provider.logo} 
+                            alt={provider.name}
+                            className="w-12 h-12 object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>';
+                            }}
+                          />
+                        </div>
                         <p className="font-medium text-sm text-gray-900">{provider.name}</p>
                       </button>
                     ))}
