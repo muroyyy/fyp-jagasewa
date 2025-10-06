@@ -1,23 +1,58 @@
 import React, { useState } from 'react';
-import { Home, Mail, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Home, Mail, ArrowRight, ArrowLeft, CheckCircle, Copy, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
+// API Base URL
+const API_BASE_URL = 'http://localhost:8000/api';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [resetData, setResetData] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsSubmitted(true);
+        // Store reset data (token and link) for display
+        if (result.dev_only) {
+          setResetData(result.dev_only);
+        }
+      } else {
+        setError(result.message || 'Failed to send reset link. Please try again.');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
       setIsLoading(false);
-      setIsSubmitted(true);
-      console.log('Password reset email sent to:', email);
-    }, 1500);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (resetData && resetData.reset_link) {
+      navigator.clipboard.writeText(resetData.reset_link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -46,9 +81,9 @@ export default function ForgotPassword() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Reset Link Generated!</h2>
               <p className="text-gray-600">
-                We've sent password reset instructions to your email address.
+                Your password reset link is ready
               </p>
             </>
           )}
@@ -58,6 +93,17 @@ export default function ForgotPassword() {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           {!isSubmitted ? (
             <>
+              {/* Error Alert */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+                  <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800 font-medium">Error</p>
+                    <p className="text-sm text-red-600 mt-1">{error}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Forgot Password Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email Field */}
@@ -74,7 +120,8 @@ export default function ForgotPassword() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={isLoading}
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -93,11 +140,11 @@ export default function ForgotPassword() {
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Sending...
+                      Generating Link...
                     </>
                   ) : (
                     <>
-                      Send Reset Link
+                      Generate Reset Link
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -117,42 +164,70 @@ export default function ForgotPassword() {
             </>
           ) : (
             <>
-              {/* Success Message */}
+              {/* Success Message with Reset Link */}
               <div className="space-y-6">
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                  <p className="text-sm text-gray-700 text-center">
-                    If an account exists for <span className="font-semibold text-gray-900">{email}</span>, you will receive a password reset link shortly.
+                {/* Development Notice */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-yellow-800 mb-1">Development Mode</p>
+                  <p className="text-xs text-yellow-700">
+                    In production, this link would be sent to your email. For FYP demonstration, the link is displayed below.
                   </p>
                 </div>
 
-                <div className="space-y-3 text-sm text-gray-600">
-                  <p className="flex items-start">
-                    <span className="mr-2">📧</span>
-                    <span>Check your email inbox and spam folder</span>
-                  </p>
-                  <p className="flex items-start">
-                    <span className="mr-2">⏱️</span>
-                    <span>The link will expire in 1 hour</span>
-                  </p>
-                  <p className="flex items-start">
-                    <span className="mr-2">🔒</span>
-                    <span>For security, we don't confirm if the email exists</span>
+                {/* Email Confirmation */}
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <p className="text-sm text-gray-700 text-center">
+                    Password reset link generated for <span className="font-semibold text-gray-900">{email}</span>
                   </p>
                 </div>
+
+                {/* Reset Link Display */}
+                {resetData && (
+                  <div className="space-y-3">
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                      <p className="text-xs font-semibold text-gray-700 mb-2">Your Reset Link:</p>
+                      <div className="bg-white border border-gray-300 rounded-lg p-3 break-all text-xs text-gray-800 font-mono">
+                        {resetData.reset_link}
+                      </div>
+                      <button
+                        onClick={handleCopyLink}
+                        className="mt-3 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium text-sm transition-all flex items-center justify-center cursor-pointer"
+                      >
+                        <Copy className="w-4 h-4 mr-2" />
+                        {copied ? 'Copied!' : 'Copy Link'}
+                      </button>
+                    </div>
+
+                    <div className="text-xs text-gray-600 space-y-2">
+                      <p className="flex items-start">
+                        <span className="mr-2">⏱️</span>
+                        <span>This link will expire in 1 hour ({new Date(resetData.expires_at).toLocaleString()})</span>
+                      </p>
+                      <p className="flex items-start">
+                        <span className="mr-2">🔒</span>
+                        <span>For security, this token can only be used once</span>
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all cursor-pointer"
-                  >
-                    Back to Login
-                  </button>
+                  {resetData && (
+                    <button
+                      onClick={() => navigate(`/reset-password?token=${resetData.token}`)}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all cursor-pointer"
+                    >
+                      Go to Reset Password
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
                       setIsSubmitted(false);
                       setEmail('');
+                      setResetData(null);
+                      setError('');
                     }}
                     className="w-full py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all cursor-pointer"
                   >

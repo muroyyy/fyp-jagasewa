@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Home, Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
+// API Base URL
+const API_BASE_URL = 'http://localhost:8000/api';
+
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -11,20 +14,37 @@ export default function ResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [tokenValid, setTokenValid] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [tokenValid, setTokenValid] = useState(null);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
   });
-  const [errors, setErrors] = useState({});
 
-  // Check if token is present
+  // Verify token on component mount
   useEffect(() => {
-    if (!token) {
-      setTokenValid(false);
-    }
-    // Here you would validate the token with your backend
-    // For now, we'll assume it's valid if present
+    const verifyToken = async () => {
+      if (!token) {
+        setTokenValid(false);
+        setIsVerifying(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/verify-reset-token.php?token=${token}`);
+        const result = await response.json();
+
+        setTokenValid(result.valid);
+        setIsVerifying(false);
+      } catch (error) {
+        console.error('Token verification error:', error);
+        setTokenValid(false);
+        setIsVerifying(false);
+      }
+    };
+
+    verifyToken();
   }, [token]);
 
   const handleChange = (e) => {
@@ -34,58 +54,69 @@ export default function ResetPassword() {
       [name]: value
     });
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
+    if (error) setError('');
   };
 
-  const validatePassword = () => {
-    const newErrors = {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
+    // Validation
     if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long';
+      setError('Password must be at least 8 characters long');
+      return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!validatePassword()) {
+      setError('Passwords do not match');
       return;
     }
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: token,
+          password: formData.password
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsSubmitted(true);
+        
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      } else {
+        setError(result.message || 'Failed to reset password. Please try again.');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
       setIsLoading(false);
-      setIsSubmitted(true);
-      console.log('Password reset successful:', { token, password: formData.password });
-      
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    }, 1500);
+    }
   };
+
+  // Loading state while verifying token
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying reset link...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Invalid or expired token view
   if (!tokenValid) {
@@ -172,6 +203,17 @@ export default function ResetPassword() {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           {!isSubmitted ? (
             <>
+              {/* Error Alert */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+                  <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800 font-medium">Error</p>
+                    <p className="text-sm text-red-600 mt-1">{error}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Reset Password Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* New Password Field */}
@@ -188,22 +230,20 @@ export default function ResetPassword() {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className={`w-full pl-11 pr-12 py-3 border ${
-                        errors.password ? 'border-red-500' : 'border-gray-300'
-                      } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                      minLength="8"
+                      disabled={isLoading}
+                      className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="••••••••"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="mt-2 text-sm text-red-500">{errors.password}</p>
-                  )}
                 </div>
 
                 {/* Confirm Password Field */}
@@ -220,22 +260,20 @@ export default function ResetPassword() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required
-                      className={`w-full pl-11 pr-12 py-3 border ${
-                        errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                      } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                      minLength="8"
+                      disabled={isLoading}
+                      className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="••••••••"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.confirmPassword && (
-                    <p className="mt-2 text-sm text-red-500">{errors.confirmPassword}</p>
-                  )}
                 </div>
 
                 {/* Password Requirements */}
@@ -287,7 +325,7 @@ export default function ResetPassword() {
                   to="/login"
                   className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
                 >
-                  Remember your password? <span className="text-blue-600">Sign in</span>
+                  Remember your password? <span className="text-blue-600 hover:underline">Sign in</span>
                 </Link>
               </div>
             </>
