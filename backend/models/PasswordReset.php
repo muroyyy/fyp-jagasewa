@@ -21,6 +21,8 @@ class PasswordReset {
      */
     public function __construct($db) {
         $this->conn = $db;
+        // Set timezone to Malaysia
+        date_default_timezone_set('Asia/Kuala_Lumpur');
     }
 
     /**
@@ -31,7 +33,8 @@ class PasswordReset {
         $token = bin2hex(random_bytes(32));
         
         // Set expiration time (1 hour from now)
-        $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        // Use time() for current Unix timestamp + 3600 seconds (1 hour)
+        $expires_at = date('Y-m-d H:i:s', time() + 3600);
 
         $query = "INSERT INTO " . $this->table_name . "
                 SET user_id = :user_id,
@@ -77,7 +80,7 @@ class PasswordReset {
                 ];
             }
 
-            // Check if token is expired
+            // Check if token is expired using current timestamp
             $current_time = date('Y-m-d H:i:s');
             if($current_time > $row['expires_at']) {
                 return [
