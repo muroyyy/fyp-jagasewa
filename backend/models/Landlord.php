@@ -189,5 +189,25 @@ class Landlord {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total'];
     }
+
+    public function getLandlordByUserId($userId) {
+    $query = "SELECT 
+                l.landlord_id,
+                l.full_name,
+                l.phone,
+                l.company_name,
+                u.email,
+                u.user_role
+              FROM landlords l
+              INNER JOIN users u ON l.user_id = u.user_id
+              WHERE l.user_id = :user_id
+              LIMIT 1";
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':user_id', $userId);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }
 ?>

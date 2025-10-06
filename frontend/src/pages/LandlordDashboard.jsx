@@ -5,15 +5,48 @@ import { getCurrentUser, logout } from '../utils/auth';
 export default function LandlordDashboard() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      setProfile(currentUser.profile);
+      fetchDashboardData();
+    } else {
+      setLoading(false);
+      window.location.href = '/login';
     }
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('session_token');
+      
+      const response = await fetch('http://localhost:8000/api/landlord/dashboard.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setProfile(data.data.profile);
+      } else {
+        setError(data.message || 'Failed to fetch dashboard data');
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('An error occurred while loading your dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -27,6 +60,17 @@ export default function LandlordDashboard() {
     { icon: DollarSign, label: 'Monthly Revenue', value: 'RM 0', color: 'purple' },
     { icon: Wrench, label: 'Pending Requests', value: '0', color: 'orange' }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -137,6 +181,13 @@ export default function LandlordDashboard() {
       {/* Main Content */}
       <main className="lg:ml-64 pt-16">
         <div className="p-4 sm:p-6 lg:p-8">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -196,7 +247,7 @@ export default function LandlordDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">Email</p>
-                <p className="text-gray-900 font-medium">{profile?.email || user?.email || 'N/A'}</p>
+                <p className="text-gray-900 font-medium">{profile?.email || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">Phone</p>
