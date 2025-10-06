@@ -13,7 +13,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       name: 'E-Wallet',
       icon: Smartphone,
       providers: [
-        { id: 'tng', name: "Touch 'n Go", logo: 'https://www.google.com/s2/favicons?domain=touchngo.com.my&sz=128' },
+        { id: 'tng', name: "Touch 'n Go", logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Touch_%27n_Go_logo.svg/1650px-Touch_%27n_Go_logo.svg.png' },
         { id: 'grabpay', name: 'GrabPay', logo: 'https://www.google.com/s2/favicons?domain=grab.com&sz=128' },
         { id: 'boost', name: 'Boost', logo: 'https://www.google.com/s2/favicons?domain=myboost.com.my&sz=128' },
         { id: 'shopeepay', name: 'ShopeePay', logo: 'https://www.google.com/s2/favicons?domain=shopee.com.my&sz=128' }
@@ -23,10 +23,10 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       name: 'FPX Online Banking',
       icon: Building,
       providers: [
-        { id: 'maybank', name: 'Maybank', logo: 'https://www.google.com/s2/favicons?domain=maybank.com.my&sz=128' },
+        { id: 'maybank', name: 'Maybank2U', logo: 'https://www.google.com/s2/favicons?domain=maybank.com.my&sz=128' },
         { id: 'cimb', name: 'CIMB Bank', logo: 'https://www.google.com/s2/favicons?domain=cimb.com.my&sz=128' },
         { id: 'public', name: 'Public Bank', logo: 'https://www.google.com/s2/favicons?domain=pbebank.com&sz=128' },
-        { id: 'rhb', name: 'RHB Bank', logo: 'https://www.google.com/s2/favicons?domain=rhbgroup.com&sz=128' },
+        { id: 'rhb', name: 'RHB Bank', logo: 'https://www.rhbgroup.com/-/media/Assets/Corporate-Website/Images/About-us/Brand-Promise/bp-rhb-logo.png' },
         { id: 'hong_leong', name: 'Hong Leong Bank', logo: 'https://www.google.com/s2/favicons?domain=hlb.com.my&sz=128' },
         { id: 'ambank', name: 'AmBank', logo: 'https://www.google.com/s2/favicons?domain=ambank.com.my&sz=128' }
       ]
