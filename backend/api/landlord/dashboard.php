@@ -51,7 +51,7 @@ if (empty($token)) {
 try {
     // Create database connection
     $database = new Database();
-    $db = $database->connect();
+    $db = $database->getConnection();
     
     // Verify token and get user from sessions table
     $query = "SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()";
