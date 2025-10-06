@@ -14,7 +14,7 @@ export default function SignupLandlord() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
+    phone: '+601',
     password: '',
     confirmPassword: '',
     companyName: '',
@@ -24,6 +24,14 @@ export default function SignupLandlord() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Prevent user from deleting the +601 prefix for phone
+    if (name === 'phone') {
+      if (!value.startsWith('+601')) {
+        return; // Don't update if trying to delete the prefix
+      }
+    }
+    
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
@@ -176,6 +184,8 @@ export default function SignupLandlord() {
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="+601x xxxx xxxx"
+                    pattern="\+601[0-9]{8,9}"
+                    title="Please enter a valid Malaysian phone number"
                   />
                 </div>
               </div>
