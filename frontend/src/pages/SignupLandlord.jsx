@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight } from 'lucide-react';
+import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
+// API Base URL
+const API_BASE_URL = 'http://localhost:8000/api';
 
 export default function SignupLandlord() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -23,47 +28,56 @@ export default function SignupLandlord() {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setError('');
+    
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
       return;
     }
 
     if (!formData.agreeToTerms) {
-      alert('Please agree to the terms and conditions');
+      setError('Please agree to the terms and conditions');
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const response = await fetch("http://localhost:8000/api/auth/signup.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch(`${API_BASE_URL}/auth/signup.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          full_name: formData.fullName,
           email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          company_name: formData.companyName,
           password: formData.password,
-          user_role: "landlord",
-        }),
+          user_role: 'landlord',
+          full_name: formData.fullName,
+          phone: formData.phone,
+          company_name: formData.companyName || null,
+          address: formData.address
+        })
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
-      if (data.success) {
-        alert("✅ Landlord account created successfully!");
-        navigate("/login");
+      if (result.success) {
+        alert('✅ Landlord account created successfully!');
+        navigate('/login');
       } else {
-        alert(`❌ ${data.message}`);
+        setError(result.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("⚠️ Server error. Please try again later.");
+      console.error('Registration error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,6 +105,17 @@ export default function SignupLandlord() {
 
         {/* Registration Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+              <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-red-800 font-medium">Registration Failed</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
@@ -106,7 +131,8 @@ export default function SignupLandlord() {
                   value={formData.fullName}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  disabled={isLoading}
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="John Doe"
                 />
               </div>
@@ -127,7 +153,8 @@ export default function SignupLandlord() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    disabled={isLoading}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -146,8 +173,9 @@ export default function SignupLandlord() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="+60 12-345 6789"
+                    disabled={isLoading}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="+601x xxxx xxxx"
                   />
                 </div>
               </div>
@@ -166,7 +194,8 @@ export default function SignupLandlord() {
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  disabled={isLoading}
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Your Property Management Company"
                 />
               </div>
@@ -185,8 +214,9 @@ export default function SignupLandlord() {
                   value={formData.address}
                   onChange={handleChange}
                   required
+                  disabled={isLoading}
                   rows="3"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Enter your full address"
                 />
               </div>
@@ -208,13 +238,15 @@ export default function SignupLandlord() {
                     onChange={handleChange}
                     required
                     minLength="8"
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    disabled={isLoading}
+                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -235,13 +267,15 @@ export default function SignupLandlord() {
                     onChange={handleChange}
                     required
                     minLength="8"
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    disabled={isLoading}
+                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -265,7 +299,8 @@ export default function SignupLandlord() {
                 checked={formData.agreeToTerms}
                 onChange={handleChange}
                 required
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
+                disabled={isLoading}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1 disabled:cursor-not-allowed"
               />
               <label htmlFor="agreeToTerms" className="ml-2 text-sm text-gray-600">
                 I agree to the{' '}
@@ -282,10 +317,24 @@ export default function SignupLandlord() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group cursor-pointer"
+              disabled={isLoading}
+              className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 cursor-pointer'
+              }`}
             >
-              Create Landlord Account
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Landlord Account
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </form>
 
@@ -295,7 +344,7 @@ export default function SignupLandlord() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors hover:underline cursor-pointer"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Sign in here
               </Link>
