@@ -25,9 +25,9 @@ export default function SignupLandlord() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match!');
       return;
@@ -38,10 +38,33 @@ export default function SignupLandlord() {
       return;
     }
 
-    console.log('Landlord Registration:', formData);
-    // Add your registration logic here
-    // After successful registration, redirect to dashboard or login
-    // navigate('/landlord/dashboard');
+    try {
+      const response = await fetch("http://localhost/backend/api/auth/signup.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          company_name: formData.companyName,
+          password: formData.password,
+          user_role: "landlord",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("✅ Landlord account created successfully!");
+        navigate("/login");
+      } else {
+        alert(`❌ ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("⚠️ Server error. Please try again later.");
+    }
   };
 
   return (
