@@ -221,7 +221,7 @@ export default function LandlordDashboard() {
               <div className="text-center py-8 text-gray-500">
                 <Building2 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No properties added yet</p>
-                <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
                   Add Property
                 </button>
               </div>
