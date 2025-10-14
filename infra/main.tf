@@ -96,3 +96,38 @@ output "app_url" {
   description = "Public URL for JagaSewa backend"
   value       = "http://${module.ec2.instance_public_ip}"
 }
+
+##########################################################
+# Application Load Balancer Module
+##########################################################
+module "alb" {
+  source              = "./modules/alb"
+  project_name        = var.project_name
+  environment         = var.environment
+  vpc_id              = module.vpc.vpc_id
+  alb_sg_id           = module.security.alb_sg_id
+  public_subnet_ids   = module.vpc.public_subnet_ids
+  acm_certificate_arn = var.acm_certificate_arn
+}
+
+##########################################################
+# EC2 Backend Module
+##########################################################
+module "ec2" {
+  source             = "./modules/ec2"
+  project_name       = var.project_name
+  environment        = var.environment
+  subnet_id          = module.vpc.public_subnet_ids[0]
+  ec2_sg_id          = module.security.ec2_sg_id
+  target_group_arn   = module.alb.target_group_arn
+}
+
+##########################################################
+# Attach EC2 Instance to ALB Target Group
+##########################################################
+resource "aws_lb_target_group_attachment" "backend_attach" {
+  target_group_arn = module.alb.target_group_arn
+  target_id        = module.ec2.instance_id
+  port             = 80
+}
+

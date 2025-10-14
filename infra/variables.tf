@@ -67,3 +67,20 @@ variable "s3_bucket_name" {
   type        = string
   default     = "jagasewa-frontend-assets"
 }
+
+variable "project_name" {
+  description = "Project name prefix"
+  type        = string
+  default     = "jagasewa"
+}
+
+variable "environment" {
+  description = "Deployment environment (dev/prod)"
+  type        = string
+  default     = "dev"
+}
+
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN for HTTPS listener"
+  type        = string
+}
