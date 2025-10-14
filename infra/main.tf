@@ -131,3 +131,16 @@ resource "aws_lb_target_group_attachment" "backend_attach" {
   port             = 80
 }
 
+##########################################################
+# RDS Module (MySQL Database)
+##########################################################
+module "rds" {
+  source             = "./modules/rds"
+  project_name       = var.project_name
+  environment        = var.environment
+  private_subnet_ids = module.vpc.private_subnet_ids
+  rds_sg_id          = module.security.rds_sg_id
+  db_name            = var.db_name
+  db_username        = var.db_username
+  db_password        = var.db_password
+}
