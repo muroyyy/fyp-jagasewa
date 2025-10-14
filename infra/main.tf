@@ -22,7 +22,7 @@ provider "aws" {
 }
 
 ##########################################################
-# 🧩 MODULES - Connect all modular components
+# MODULES - Connect all modular components
 ##########################################################
 
 module "vpc" {
@@ -73,7 +73,7 @@ module "s3" {
 }
 
 ##########################################################
-# ⚙️ OUTPUT CONNECTIONS
+# OUTPUT CONNECTIONS
 ##########################################################
 
 output "vpc_id" {
@@ -143,4 +143,17 @@ module "rds" {
   db_name            = var.db_name
   db_username        = var.db_username
   db_password        = var.db_password
+}
+
+##########################################################
+# S3 Buckets (Frontend Hosting + Artifacts Storage)
+##########################################################
+module "s3" {
+  source                 = "./modules/s3"
+  project_name           = var.project_name
+  environment            = var.environment
+  enable_versioning      = true
+  enable_static_website  = true
+  enable_lifecycle       = false
+  lifecycle_expiration_days = 90
 }
