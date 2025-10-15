@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Search, Filter, AlertCircle, Wrench, Clock, CheckCircle, XCircle, Eye, MessageSquare, Calendar, User, Building2, Image as ImageIcon } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, AlertCircle, Wrench, Clock, CheckCircle, XCircle, Eye, MessageSquare, Calendar, User, Building2, Image as ImageIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
+import LandlordLayout from '../../components/LandlordLayout';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -251,44 +252,8 @@ export default function LandlordMaintenance() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link to="/landlord-dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  JagaSewa
-                </span>
-              </Link>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <Link to="/landlord-dashboard" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/landlord/properties" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Properties
-              </Link>
-              <Link to="/landlord/tenants" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Tenants
-              </Link>
-              <Link to="/landlord/payments" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Payments
-              </Link>
-              <Link to="/landlord/maintenance" className="text-blue-600 font-semibold border-b-2 border-blue-600">
-                Maintenance
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <LandlordLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Maintenance Requests</h1>
@@ -549,7 +514,7 @@ export default function LandlordMaintenance() {
             Showing {filteredRequests.length} of {requests.length} request{requests.length !== 1 ? 's' : ''}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Detail Modal */}
       {showDetailModal && selectedRequest && (
@@ -778,6 +743,6 @@ export default function LandlordMaintenance() {
           </div>
         </div>
       )}
-    </div>
+    </LandlordLayout>
   );
 }

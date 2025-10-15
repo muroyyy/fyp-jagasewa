@@ -1,59 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Home, User, Mail, Phone, Building2, Save, Camera, Eye, EyeOff, Lock, AlertCircle, CheckCircle, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { isAuthenticated, getUserRole, logout } from '../../utils/auth';
+import { User, Mail, Phone, Building2, Camera, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import LandlordLayout from '../../components/LandlordLayout';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
 export default function LandlordSettings() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [profileImage, setProfileImage] = useState(null);
-  const [profileImagePreview, setProfileImagePreview] = useState('');
-
-  // Profile Data
+  
+  // Profile data
   const [profileData, setProfileData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     phone: '',
-    companyName: '',
+    company_name: '',
     address: '',
-    profileImage: ''
+    profile_image: ''
   });
-
-  // Password Data
+  
+  // Password data
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
   });
+  
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  });
-
-  // Check authentication
   useEffect(() => {
-    if (!isAuthenticated() || getUserRole() !== 'landlord') {
-      navigate('/login');
-    } else {
-      fetchProfileData();
-    }
-  }, [navigate]);
+    fetchProfile();
+  }, []);
 
-  const fetchProfileData = async () => {
+  const fetchProfile = async () => {
     setIsLoading(true);
     setError('');
-
+    
     try {
       const sessionToken = localStorage.getItem('session_token');
-
+      
       const response = await fetch(`${API_BASE_URL}/landlord/profile.php`, {
         method: 'GET',
         headers: {
@@ -65,21 +53,12 @@ export default function LandlordSettings() {
       const result = await response.json();
 
       if (result.success) {
-        const data = result.data;
-        setProfileData({
-          fullName: data.full_name || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          companyName: data.company_name || '',
-          address: data.address || '',
-          profileImage: data.profile_image || ''
-        });
-        
-        if (data.profile_image) {
-          setProfileImagePreview(`${API_BASE_URL}/../uploads/profiles/${data.profile_image}`);
+        setProfileData(result.data);
+        if (result.data.profile_image) {
+          setProfileImagePreview(`${API_BASE_URL}/../${result.data.profile_image}`);
         }
       } else {
-        setError(result.message || 'Failed to fetch profile data');
+        setError(result.message || 'Failed to fetch profile');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -89,22 +68,12 @@ export default function LandlordSettings() {
     }
   };
 
-  const handleProfileChange = (e) => {
+  const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData({
-      ...profileData,
+    setProfileData(prev => ({
+      ...prev,
       [name]: value
-    });
-    if (error) setError('');
-    if (success) setSuccess('');
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData({
-      ...passwordData,
-      [name]: value
-    });
+    }));
     if (error) setError('');
     if (success) setSuccess('');
   };
@@ -113,19 +82,24 @@ export default function LandlordSettings() {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select a valid image file');
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Please upload a valid image file (JPG, PNG, or GIF)');
         return;
       }
 
-      // Validate file size (max 5MB)
+      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('Image size must be less than 5MB');
         return;
       }
 
-      setProfileImage(file);
-      setProfileImagePreview(URL.createObjectURL(file));
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
       setError('');
     }
   };
@@ -139,14 +113,14 @@ export default function LandlordSettings() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       const formData = new FormData();
-
-      formData.append('full_name', profileData.fullName);
+      
+      formData.append('full_name', profileData.full_name);
       formData.append('phone', profileData.phone);
-      formData.append('company_name', profileData.companyName);
+      formData.append('company_name', profileData.company_name);
       formData.append('address', profileData.address);
-
-      if (profileImage) {
-        formData.append('profile_image', profileImage);
+      
+      if (selectedFile) {
+        formData.append('profile_image', selectedFile);
       }
 
       const response = await fetch(`${API_BASE_URL}/landlord/update-profile.php`, {
@@ -160,15 +134,16 @@ export default function LandlordSettings() {
       const result = await response.json();
 
       if (result.success) {
-        setSuccess('✅ Profile updated successfully!');
-        fetchProfileData(); // Refresh data
+        setSuccess('Profile updated successfully!');
         
-        // Update localStorage user data
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        userData.full_name = profileData.fullName;
-        localStorage.setItem('user', JSON.stringify(userData));
+        // Update localStorage
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        storedUser.full_name = profileData.full_name;
+        localStorage.setItem('user', JSON.stringify(storedUser));
         
-        // Clear success message after 3 seconds
+        // Refresh profile data
+        await fetchProfile();
+        
         setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(result.message || 'Failed to update profile');
@@ -188,21 +163,21 @@ export default function LandlordSettings() {
     setSuccess('');
 
     // Validate passwords
-    if (passwordData.newPassword.length < 8) {
-      setError('New password must be at least 8 characters long');
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setError('New passwords do not match');
       setIsSaving(false);
       return;
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError('New passwords do not match');
+    if (passwordData.new_password.length < 8) {
+      setError('New password must be at least 8 characters long');
       setIsSaving(false);
       return;
     }
 
     try {
       const sessionToken = localStorage.getItem('session_token');
-
+      
       const response = await fetch(`${API_BASE_URL}/landlord/change-password.php`, {
         method: 'POST',
         headers: {
@@ -210,22 +185,20 @@ export default function LandlordSettings() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          current_password: passwordData.currentPassword,
-          new_password: passwordData.newPassword
+          current_password: passwordData.current_password,
+          new_password: passwordData.new_password
         })
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setSuccess('✅ Password changed successfully!');
+        setSuccess('Password changed successfully!');
         setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
+          current_password: '',
+          new_password: '',
+          confirm_password: ''
         });
-        
-        // Clear success message after 3 seconds
         setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(result.message || 'Failed to change password');
@@ -238,73 +211,29 @@ export default function LandlordSettings() {
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      logout();
-      navigate('/login');
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading settings...</p>
+      <LandlordLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading settings...</p>
+          </div>
         </div>
-      </div>
+      </LandlordLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link to="/landlord-dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  JagaSewa
-                </span>
-              </Link>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <Link to="/landlord-dashboard" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/landlord/properties" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Properties
-              </Link>
-              <Link to="/landlord/tenants" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Tenants
-              </Link>
-              <Link to="/landlord/payments" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Payments
-              </Link>
-              <Link to="/landlord/maintenance" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                Maintenance
-              </Link>
-              <Link to="/landlord/settings" className="text-blue-600 font-semibold border-b-2 border-blue-600">
-                Settings
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <LandlordLayout>
+      <div className="p-8 max-w-4xl mx-auto">
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
           <p className="text-gray-600">Manage your profile and account preferences</p>
         </div>
 
-        {/* Alert Messages */}
+        {/* Success/Error Messages */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
             <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
@@ -319,89 +248,91 @@ export default function LandlordSettings() {
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start">
             <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm text-green-800 font-medium">Success</p>
-              <p className="text-sm text-green-600 mt-1">{success}</p>
+              <p className="text-sm text-green-800 font-medium">{success}</p>
             </div>
           </div>
         )}
 
         {/* Settings Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Tabs */}
-          <div className="border-b border-gray-200">
-            <nav className="flex">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
-                  activeTab === 'profile'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <User className="w-5 h-5 inline-block mr-2" />
-                Profile Information
-              </button>
-              <button
-                onClick={() => setActiveTab('security')}
-                className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
-                  activeTab === 'security'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <Lock className="w-5 h-5 inline-block mr-2" />
-                Security
-              </button>
-            </nav>
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                activeTab === 'profile'
+                  ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer'
+              }`}
+            >
+              <User className="w-5 h-5 inline-block mr-2" />
+              Profile Information
+            </button>
+            <button
+              onClick={() => setActiveTab('security')}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                activeTab === 'security'
+                  ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer'
+              }`}
+            >
+              <Lock className="w-5 h-5 inline-block mr-2" />
+              Security
+            </button>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-8">
-            {/* Profile Tab */}
-            {activeTab === 'profile' && (
+          {/* Profile Tab */}
+          {activeTab === 'profile' && (
+            <div className="p-8">
               <form onSubmit={handleProfileSubmit} className="space-y-6">
                 {/* Profile Image */}
                 <div className="flex flex-col items-center mb-8">
                   <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg">
-                      {profileImagePreview ? (
-                        <img 
-                          src={profileImagePreview} 
-                          alt="Profile" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <User className="w-16 h-16 text-white" />
-                      )}
-                    </div>
-                    <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors">
-                      <Camera className="w-5 h-5" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                        disabled={isSaving}
+                    {profileImagePreview ? (
+                      <img
+                        src={profileImagePreview}
+                        alt="Profile"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                       />
+                    ) : (
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-gray-200">
+                        {profileData.full_name ? profileData.full_name[0].toUpperCase() : 'L'}
+                      </div>
+                    )}
+                    <label
+                      htmlFor="profile-image-input"
+                      className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors shadow-lg"
+                    >
+                      <Camera className="w-5 h-5 text-white" />
                     </label>
+                    <input
+                      id="profile-image-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={isSaving}
+                    />
                   </div>
-                  <p className="text-sm text-gray-600 mt-4">Click camera icon to change profile picture</p>
-                  <p className="text-xs text-gray-500 mt-1">Maximum file size: 5MB</p>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Click camera icon to change profile picture
+                    <br />
+                    Maximum file size: 5MB
+                  </p>
                 </div>
 
                 {/* Full Name */}
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
-                      id="fullName"
-                      name="fullName"
-                      value={profileData.fullName}
-                      onChange={handleProfileChange}
+                      name="full_name"
+                      value={profileData.full_name}
+                      onChange={handleProfileInputChange}
                       required
                       disabled={isSaving}
                       className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -412,15 +343,13 @@ export default function LandlordSettings() {
 
                 {/* Email (Read-only) */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="email"
-                      id="email"
-                      name="email"
                       value={profileData.email}
                       disabled
                       className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
@@ -429,20 +358,19 @@ export default function LandlordSettings() {
                   <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
 
-                {/* Phone and Company Name - Side by Side */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Phone and Company Name */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="tel"
-                        id="phone"
                         name="phone"
                         value={profileData.phone}
-                        onChange={handleProfileChange}
+                        onChange={handleProfileInputChange}
                         required
                         disabled={isSaving}
                         className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -452,17 +380,16 @@ export default function LandlordSettings() {
                   </div>
 
                   <div>
-                    <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Company Name
                     </label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
-                        id="companyName"
-                        name="companyName"
-                        value={profileData.companyName}
-                        onChange={handleProfileChange}
+                        name="company_name"
+                        value={profileData.company_name}
+                        onChange={handleProfileInputChange}
                         disabled={isSaving}
                         className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Your Company Sdn Bhd"
@@ -473,14 +400,13 @@ export default function LandlordSettings() {
 
                 {/* Address */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Address
                   </label>
                   <textarea
-                    id="address"
                     name="address"
                     value={profileData.address}
-                    onChange={handleProfileChange}
+                    onChange={handleProfileInputChange}
                     disabled={isSaving}
                     rows="3"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -502,168 +428,121 @@ export default function LandlordSettings() {
                       </>
                     ) : (
                       <>
-                        <Save className="w-5 h-5" />
+                        <CheckCircle className="w-5 h-5" />
                         <span>Save Changes</span>
                       </>
                     )}
                   </button>
                 </div>
               </form>
-            )}
+            </div>
+          )}
 
-            {/* Security Tab */}
-            {activeTab === 'security' && (
-              <div className="space-y-8">
-                {/* Change Password Form */}
-                <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Change Password</h3>
-                    <p className="text-sm text-gray-600 mb-6">
-                      Update your password to keep your account secure
-                    </p>
-                  </div>
+          {/* Security Tab */}
+          {activeTab === 'security' && (
+            <div className="p-8">
+              <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Change Password</h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Update your password to keep your account secure
+                  </p>
+                </div>
 
-                  {/* Current Password */}
-                  <div>
-                    <label htmlFor="currentPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Current Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type={showPasswords.current ? 'text' : 'password'}
-                        id="currentPassword"
-                        name="currentPassword"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        disabled={isSaving}
-                        className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        placeholder="Enter current password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
-                        disabled={isSaving}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
-                      >
-                        {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* New Password */}
-                  <div>
-                    <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                      New Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type={showPasswords.new ? 'text' : 'password'}
-                        id="newPassword"
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        minLength="8"
-                        disabled={isSaving}
-                        className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        placeholder="Enter new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
-                        disabled={isSaving}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
-                      >
-                        {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Confirm New Password */}
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Confirm New Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type={showPasswords.confirm ? 'text' : 'password'}
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        minLength="8"
-                        disabled={isSaving}
-                        className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        placeholder="Confirm new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
-                        disabled={isSaving}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
-                      >
-                        {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Password Requirements */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-xs text-gray-700 font-medium mb-2">Password Requirements:</p>
-                    <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
-                      <li>Minimum 8 characters long</li>
-                      <li>Include a mix of letters and numbers (recommended)</li>
-                      <li>Avoid using common passwords</li>
-                    </ul>
-                  </div>
-
-                  {/* Change Password Button */}
-                  <div className="flex items-center justify-end pt-6 border-t border-gray-200">
-                    <button
-                      type="submit"
+                {/* Current Password */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Current Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="password"
+                      value={passwordData.current_password}
+                      onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})}
+                      required
                       disabled={isSaving}
-                      className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                      {isSaving ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Changing Password...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5" />
-                          <span>Change Password</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-
-                {/* Account Actions */}
-                <div className="pt-8 border-t border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Account Actions</h3>
-                  
-                  <div className="space-y-4">
-                    {/* Logout Button */}
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-center space-x-2 px-6 py-3 border-2 border-red-600 text-red-600 rounded-xl hover:bg-red-50 transition-colors font-semibold"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      <span>Logout from Account</span>
-                    </button>
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Enter current password"
+                    />
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+
+                {/* New Password */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="password"
+                      value={passwordData.new_password}
+                      onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
+                      required
+                      minLength="8"
+                      disabled={isSaving}
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm New Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="password"
+                      value={passwordData.confirm_password}
+                      onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
+                      required
+                      minLength="8"
+                      disabled={isSaving}
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Requirements */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-xs text-gray-700 font-medium mb-2">Password Requirements:</p>
+                  <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                    <li>Minimum 8 characters long</li>
+                    <li>Include a mix of letters and numbers (recommended)</li>
+                    <li>Avoid using common passwords</li>
+                  </ul>
+                </div>
+
+                {/* Change Password Button */}
+                <div className="flex items-center justify-end pt-6 border-t border-gray-200">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isSaving ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Changing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Change Password</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </LandlordLayout>
   );
 }
