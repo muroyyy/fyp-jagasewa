@@ -271,7 +271,7 @@ export default function LandlordPayments() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Status</option>
                 <option value="completed">Completed</option>
@@ -283,7 +283,7 @@ export default function LandlordPayments() {
               <select
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Months</option>
                 <option value="0">January</option>
@@ -303,7 +303,7 @@ export default function LandlordPayments() {
               {/* Export Button */}
               <button
                 onClick={exportToCSV}
-                className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all cursor-pointer"
               >
                 <Download className="w-5 h-5" />
                 <span className="font-medium">Export</span>
