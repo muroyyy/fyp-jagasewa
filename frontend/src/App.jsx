@@ -16,6 +16,9 @@ import ResetPassword from './pages/auth/ResetPassword';
 import LandlordDashboard from './pages/landlord/LandlordDashboard';
 import LandlordProperties from './pages/landlord/LandlordProperties';
 import LandlordTenants from './pages/landlord/LandlordTenants';
+import LandlordPayments from './pages/landlord/LandlordPayments';
+import LandlordMaintenance from './pages/landlord/LandlordMaintenance';
+import LandlordSettings from './pages/landlord/LandlordSettings';
 
 // 🧍‍♂️ Tenant
 import TenantDashboard from './pages/tenant/TenantDashboard';
@@ -40,6 +43,9 @@ function App() {
         <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
         <Route path="/landlord/properties" element={<LandlordProperties />} />
         <Route path="/landlord/tenants" element={<LandlordTenants />} />
+        <Route path="/landlord/payments" element={<LandlordPayments />} />
+        <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
+        <Route path="/landlord/settings" element={<LandlordSettings />} />
 
         {/* 🧍‍♂️ Tenant */}
         <Route path="/tenant-dashboard" element={<TenantDashboard />} />

@@ -1,0 +1,88 @@
+<?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+require_once '../../config/database.php';
+
+// Get authorization header
+$headers = getallheaders();
+$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+
+if (empty($authHeader) || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+
+$sessionToken = $matches[1];
+
+try {
+    $database = new Database();
+    $conn = $database->connect();
+
+    // Verify session and get landlord_id
+    $stmt = $conn->prepare("
+        SELECT s.user_id, u.user_role, l.landlord_id 
+        FROM sessions s
+        JOIN users u ON s.user_id = u.user_id
+        JOIN landlords l ON u.user_id = l.user_id
+        WHERE s.session_token = ? AND s.expires_at > NOW() AND u.user_role = 'landlord'
+    ");
+    $stmt->execute([$sessionToken]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$session) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Invalid or expired session']);
+        exit();
+    }
+
+    $landlordId = $session['landlord_id'];
+
+    // Fetch all payments for this landlord's properties
+    $stmt = $conn->prepare("
+        SELECT 
+            p.payment_id,
+            p.amount,
+            p.payment_method,
+            p.payment_provider,
+            p.transaction_id,
+            p.status,
+            p.payment_date,
+            p.created_at,
+            t.full_name as tenant_name,
+            t.tenant_id,
+            pr.property_name,
+            pr.property_id
+        FROM payments p
+        JOIN tenants t ON p.tenant_id = t.tenant_id
+        JOIN properties pr ON p.property_id = pr.property_id
+        WHERE pr.landlord_id = ?
+        ORDER BY p.payment_date DESC, p.created_at DESC
+    ");
+    $stmt->execute([$landlordId]);
+    $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'payments' => $payments,
+            'total_count' => count($payments)
+        ]
+    ]);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error: ' . $e->getMessage()
+    ]);
+}
+?>
