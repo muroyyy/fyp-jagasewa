@@ -1,52 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Building2, Users, DollarSign, Wrench, Bell, Settings, LogOut, Menu, X } from 'lucide-react';
-import { getCurrentUser, logout } from '../utils/auth';
+import { Home, DollarSign, Wrench, FileText, Bell, Settings, LogOut, Menu, X, CreditCard } from 'lucide-react';
+import { getCurrentUser, logout } from '../../utils/auth';
 
-export default function LandlordDashboard() {
+export default function TenantDashboard() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      fetchDashboardData();
-    } else {
-      setLoading(false);
-      window.location.href = '/login';
+      setProfile(currentUser.profile);
     }
   }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('session_token');
-      
-      const response = await fetch('http://localhost:8000/api/landlord/dashboard.php', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setProfile(data.data.profile);
-      } else {
-        setError(data.message || 'Failed to fetch dashboard data');
-      }
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError('An error occurred while loading your dashboard');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -55,25 +22,13 @@ export default function LandlordDashboard() {
   };
 
   const stats = [
-    { icon: Building2, label: 'Total Properties', value: '0', color: 'blue' },
-    { icon: Users, label: 'Total Tenants', value: '0', color: 'green' },
-    { icon: DollarSign, label: 'Monthly Revenue', value: 'RM 0', color: 'purple' },
-    { icon: Wrench, label: 'Pending Requests', value: '0', color: 'orange' }
+    { icon: DollarSign, label: 'Next Payment', value: 'RM 0', color: 'green', subtext: 'No payment due' },
+    { icon: Wrench, label: 'Maintenance Requests', value: '0', color: 'orange', subtext: 'Active requests' },
+    { icon: FileText, label: 'Documents', value: '0', color: 'blue', subtext: 'Available' }
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
       {/* Top Navigation */}
       <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
         <div className="px-4 sm:px-6 lg:px-8">
@@ -97,17 +52,17 @@ export default function LandlordDashboard() {
 
             <div className="flex items-center space-x-4">
               <button className="p-2 rounded-lg hover:bg-gray-100 relative">
-                <Bell className="w-5 h-5 text-gray-600" />
+                <Bell className="w-5 h-5 text-gray-600 cursor-pointer" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
               <div className="flex items-center space-x-3">
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-semibold text-gray-900">{profile?.full_name || 'Landlord'}</p>
-                  <p className="text-xs text-gray-500">Landlord Account</p>
+                  <p className="text-sm font-semibold text-gray-900">{profile?.full_name || 'Tenant'}</p>
+                  <p className="text-xs text-gray-500">Tenant Account</p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold">
-                    {profile?.full_name?.charAt(0) || 'L'}
+                    {profile?.full_name?.charAt(0) || 'T'}
                   </span>
                 </div>
               </div>
@@ -131,27 +86,23 @@ export default function LandlordDashboard() {
 
           {/* Navigation Links */}
           <nav className="flex-1 px-4 space-y-2 mt-4">
-            <a href="/landlord/dashboard" className="flex items-center space-x-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium">
+            <a href="/tenant/dashboard" className="flex items-center space-x-3 px-4 py-3 text-green-600 bg-green-50 rounded-lg font-medium">
               <Home className="w-5 h-5" />
               <span>Dashboard</span>
             </a>
-            <a href="/landlord/properties" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Building2 className="w-5 h-5" />
-              <span>Properties</span>
-            </a>
-            <a href="/landlord/tenants" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Users className="w-5 h-5" />
-              <span>Tenants</span>
-            </a>
-            <a href="/landlord/payments" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <DollarSign className="w-5 h-5" />
+            <a href="/tenant/payments" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <CreditCard className="w-5 h-5" />
               <span>Payments</span>
             </a>
-            <a href="/landlord/maintenance" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+            <a href="/tenant/maintenance" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
               <Wrench className="w-5 h-5" />
               <span>Maintenance</span>
             </a>
-            <a href="/landlord/settings" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+            <a href="/tenant/documents" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <FileText className="w-5 h-5" />
+              <span>Documents</span>
+            </a>
+            <a href="/tenant/settings" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
               <Settings className="w-5 h-5" />
               <span>Settings</span>
             </a>
@@ -181,59 +132,64 @@ export default function LandlordDashboard() {
       {/* Main Content */}
       <main className="lg:ml-64 pt-16">
         <div className="p-4 sm:p-6 lg:p-8">
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
-
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {profile?.full_name || 'Landlord'}!
+              Welcome back, {profile?.full_name || 'Tenant'}!
             </h1>
-            <p className="text-gray-600">Here's what's happening with your properties today.</p>
+            <p className="text-gray-600">Manage your rental and payments here.</p>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
             {stats.map((stat, idx) => (
               <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  </div>
+                <div className="flex items-center justify-between mb-3">
                   <div className={`w-12 h-12 bg-${stat.color}-100 rounded-xl flex items-center justify-center`}>
                     <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
                   </div>
                 </div>
+                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                <p className="text-xs text-gray-500">{stat.subtext}</p>
               </div>
             ))}
           </div>
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Recent Properties */}
+            {/* Payment Section */}
             <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Properties</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Payment History</h2>
               <div className="text-center py-8 text-gray-500">
-                <Building2 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p>No properties added yet</p>
-                <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
-                  Add Property
+                <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p>No payment history yet</p>
+                <button className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
+                  Make Payment
                 </button>
               </div>
             </div>
 
-            {/* Recent Activity */}
+            {/* Maintenance Requests */}
             <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Maintenance Requests</h2>
               <div className="text-center py-8 text-gray-500">
-                <Bell className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p>No recent activity</p>
+                <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p>No maintenance requests</p>
+                <button className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer">
+                  New Request
+                </button>
               </div>
+            </div>
+          </div>
+
+          {/* Property Information */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">My Property</h2>
+            <div className="text-center py-8 text-gray-500">
+              <Home className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p>No property assigned yet</p>
+              <p className="text-sm mt-2">Contact your landlord to get assigned to a property</p>
             </div>
           </div>
 
@@ -247,15 +203,15 @@ export default function LandlordDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">Email</p>
-                <p className="text-gray-900 font-medium">{profile?.email || 'N/A'}</p>
+                <p className="text-gray-900 font-medium">{profile?.email || user?.email || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">Phone</p>
                 <p className="text-gray-900 font-medium">{profile?.phone || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Company</p>
-                <p className="text-gray-900 font-medium">{profile?.company_name || 'N/A'}</p>
+                <p className="text-sm text-gray-600 mb-1">IC Number</p>
+                <p className="text-gray-900 font-medium">{profile?.ic_number || 'N/A'}</p>
               </div>
             </div>
           </div>

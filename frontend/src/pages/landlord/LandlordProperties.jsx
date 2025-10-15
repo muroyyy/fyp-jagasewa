@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Building2, Users, DollarSign, Wrench, Bell, Settings, LogOut, Menu, X, MapPin, Plus, Search, Filter } from 'lucide-react';
-import { logout } from '../utils/auth';
+import { logout } from '../../utils/auth';
 
 export default function LandlordProperties() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

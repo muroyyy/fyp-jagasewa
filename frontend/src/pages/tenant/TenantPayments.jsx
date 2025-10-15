@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Home, DollarSign, Wrench, FileText, Bell, Settings, LogOut, Menu, X, CreditCard, Calendar, Receipt } from 'lucide-react';
-import { getCurrentUser, logout } from '../utils/auth';
-import PaymentModal from '../components/PaymentModal';
+import { getCurrentUser, logout } from '../../utils/auth';
+import PaymentModal from '../../components/PaymentModal';
 
 export default function TenantPayments() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
