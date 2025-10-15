@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Home, DollarSign, Wrench, FileText, Bell, Settings, LogOut, Menu, X, CreditCard } from 'lucide-react';
-import { getCurrentUser, logout } from '../utils/auth';
+import { getCurrentUser, logout } from '../../utils/auth';
 
 export default function TenantDashboard() {
   const [user, setUser] = useState(null);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Users, DollarSign, Wrench, FileText, Bell, BarChart3, Shield, ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 export default function Landing() {
   const navigate = useNavigate();
