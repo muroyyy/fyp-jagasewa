@@ -52,7 +52,7 @@ export default function TenantDashboard() {
 
             <div className="flex items-center space-x-4">
               <button className="p-2 rounded-lg hover:bg-gray-100 relative">
-                <Bell className="w-5 h-5 text-gray-600" />
+                <Bell className="w-5 h-5 text-gray-600 cursor-pointer" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
               <div className="flex items-center space-x-3">
@@ -164,7 +164,7 @@ export default function TenantDashboard() {
               <div className="text-center py-8 text-gray-500">
                 <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No payment history yet</p>
-                <button className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                <button className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
                   Make Payment
                 </button>
               </div>
@@ -176,7 +176,7 @@ export default function TenantDashboard() {
               <div className="text-center py-8 text-gray-500">
                 <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No maintenance requests</p>
-                <button className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                <button className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer">
                   New Request
                 </button>
               </div>
