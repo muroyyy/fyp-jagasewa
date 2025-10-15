@@ -122,7 +122,7 @@ export default function LandlordLayout({ children }) {
             {/* User Profile Section */}
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <Bell className="w-6 h-6" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
