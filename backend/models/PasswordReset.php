@@ -106,7 +106,7 @@ class PasswordReset {
     /**
      * Mark token as used
      */
-    public function markAsUsed($token) {
+    public function markTokenAsUsed($token) {
         $query = "UPDATE " . $this->table_name . "
                 SET is_used = TRUE
                 WHERE token = :token";
