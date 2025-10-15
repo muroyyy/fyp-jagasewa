@@ -31,6 +31,27 @@ export default function SignupTenant() {
         return; // Don't update if trying to delete the prefix
       }
     }
+
+    // Auto-format IC Number with dashes
+    if (name === 'icNumber') {
+      // Remove all non-digit characters
+      const digitsOnly = value.replace(/\D/g, '');
+      
+      // Format based on length
+      let formatted = digitsOnly;
+      if (digitsOnly.length > 6) {
+        formatted = digitsOnly.slice(0, 6) + '-' + digitsOnly.slice(6);
+      }
+      if (digitsOnly.length > 8) {
+        formatted = digitsOnly.slice(0, 6) + '-' + digitsOnly.slice(6, 8) + '-' + digitsOnly.slice(8, 12);
+      }
+      
+      setFormData({
+        ...formData,
+        [name]: formatted
+      });
+      return;
+    }
     
     setFormData({
       ...formData,
@@ -207,8 +228,11 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
+                    maxLength="14"
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="XXXXXX-XX-XXXX"
+                    pattern="[0-9]{6}-[0-9]{2}-[0-9]{4}"
+                    title="Please enter a valid IC number in the format XXXXXX-XX-XXXX"
                   />
                 </div>
               </div>
