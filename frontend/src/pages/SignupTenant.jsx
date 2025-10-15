@@ -25,11 +25,48 @@ export default function SignupTenant() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // Prevent user from deleting the +601 prefix for phone
+    // Auto-format Phone Number with spaces
     if (name === 'phone') {
+      // Always ensure it starts with +601
       if (!value.startsWith('+601')) {
         return; // Don't update if trying to delete the prefix
       }
+      
+      // Remove all non-digit characters except the + at the start
+      const digitsOnly = value.slice(4).replace(/\D/g, ''); // Remove +601 prefix, get digits only
+      
+      // Limit to 9 digits after +601
+      const limitedDigits = digitsOnly.slice(0, 9);
+      
+      // Format based on length
+      let formatted = '+601';
+      if (limitedDigits.length > 0) {
+        // First digit after +601
+        formatted += limitedDigits[0];
+        
+        if (limitedDigits.length > 1) {
+          // Determine if second section is 3 or 4 digits based on total length
+          // If total is 9 digits and we want format +601x xxx xxxx (1+3+4)
+          // Or if total is 10 digits: +601x xxxx xxxx (1+4+4)
+          
+          if (limitedDigits.length <= 4) {
+            // Show: +601x xxx
+            formatted += ' ' + limitedDigits.slice(1);
+          } else if (limitedDigits.length <= 7) {
+            // Show: +601x xxx xxxx (assuming 3+4 format)
+            formatted += ' ' + limitedDigits.slice(1, 4) + ' ' + limitedDigits.slice(4);
+          } else {
+            // Show: +601x xxx xxxx (3+4 format for 9 digits)
+            formatted += ' ' + limitedDigits.slice(1, 4) + ' ' + limitedDigits.slice(4, 8);
+          }
+        }
+      }
+      
+      setFormData({
+        ...formData,
+        [name]: formatted
+      });
+      return;
     }
 
     // Auto-format IC Number with dashes
@@ -60,6 +97,8 @@ export default function SignupTenant() {
     // Clear error when user starts typing
     if (error) setError('');
   };
+
+  // End of handleChange
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,6 +148,8 @@ export default function SignupTenant() {
       setIsLoading(false);
     }
   };
+
+  // End of handleSubmit
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -203,9 +244,10 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
+                    maxLength="17"
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="+601x xxxx xxxx"
-                    pattern="\+601[0-9]{8,9}"
+                    pattern="\+601[0-9] [0-9]{3,4} [0-9]{4}"
                     title="Please enter a valid Malaysian phone number"
                   />
                 </div>
