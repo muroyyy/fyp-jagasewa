@@ -25,7 +25,7 @@ $sessionToken = $matches[1];
 
 try {
     $database = new Database();
-    $conn = $database->connect();
+    $conn = $database->getConnection();
 
     // Verify session and get user data
     $stmt = $conn->prepare("
