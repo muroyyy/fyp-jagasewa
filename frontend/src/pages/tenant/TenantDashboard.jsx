@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, DollarSign, Wrench, FileText } from 'lucide-react';
+import { Home, DollarSign, Wrench, FileText, MapPin, User as UserIcon, Phone, Mail } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/TenantLayout';
 
@@ -8,23 +8,85 @@ export default function TenantDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [property, setProperty] = useState(null);
+  const [nextPayment, setNextPayment] = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      setProfile(currentUser.profile);
-      setLoading(false);
+      fetchDashboardData();
     } else {
       window.location.href = '/login';
     }
   }, []);
 
-  const stats = [
-    { icon: DollarSign, label: 'Next Payment', value: 'RM 0', color: 'green', subtext: 'No payment due' },
-    { icon: Wrench, label: 'Maintenance Requests', value: '0', color: 'orange', subtext: 'Active requests' },
-    { icon: FileText, label: 'Documents', value: '0', color: 'blue', subtext: 'Available' }
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('session_token');
+      
+      const response = await fetch('http://localhost:8000/api/tenant/dashboard.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setProfile(data.data.profile);
+        setProperty(data.data.property);
+        setNextPayment(data.data.next_payment);
+        setStats(data.data.stats);
+      } else {
+        setError(data.message || 'Failed to fetch dashboard data');
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('An error occurred while loading your dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatAmount = (amount) => {
+    return `RM ${parseFloat(amount).toFixed(2)}`;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  const statCards = [
+    { 
+      icon: DollarSign, 
+      label: 'Next Payment', 
+      value: nextPayment ? formatAmount(nextPayment.amount) : 'RM 0', 
+      color: 'green', 
+      subtext: nextPayment ? `Due: ${formatDate(nextPayment.due_date)}` : 'No payment due' 
+    },
+    { 
+      icon: Wrench, 
+      label: 'Maintenance Requests', 
+      value: stats?.maintenance_total || '0', 
+      color: 'orange', 
+      subtext: `${stats?.maintenance_pending || 0} pending` 
+    },
+    { 
+      icon: FileText, 
+      label: 'Documents', 
+      value: '0', 
+      color: 'blue', 
+      subtext: 'Available' 
+    }
   ];
 
   if (loading) {
@@ -43,6 +105,13 @@ export default function TenantDashboard() {
   return (
     <TenantLayout>
       <div className="p-4 sm:p-6 lg:p-8">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -53,7 +122,7 @@ export default function TenantDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat, idx) => (
+          {statCards.map((stat, idx) => (
             <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -82,12 +151,23 @@ export default function TenantDashboard() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Payment History</h2>
             <div className="text-center py-8 text-gray-500">
               <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No payment history yet</p>
+              {stats?.total_payments > 0 ? (
+                <>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">
+                    {stats.total_payments} payment{stats.total_payments > 1 ? 's' : ''} made
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Total: {formatAmount(stats.total_paid)}
+                  </p>
+                </>
+              ) : (
+                <p className="mb-4">No payment history yet</p>
+              )}
               <button 
                 onClick={() => navigate('/tenant/payments')}
                 className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
               >
-                Make Payment
+                {nextPayment ? 'Make Payment' : 'View Payments'}
               </button>
             </div>
           </div>
@@ -97,7 +177,18 @@ export default function TenantDashboard() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Maintenance Requests</h2>
             <div className="text-center py-8 text-gray-500">
               <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No maintenance requests</p>
+              {stats?.maintenance_total > 0 ? (
+                <>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">
+                    {stats.maintenance_total} request{stats.maintenance_total > 1 ? 's' : ''}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {stats.maintenance_pending} pending, {stats.maintenance_completed} completed
+                  </p>
+                </>
+              ) : (
+                <p className="mb-4">No maintenance requests</p>
+              )}
               <button 
                 onClick={() => navigate('/tenant/maintenance')}
                 className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer"
@@ -111,11 +202,84 @@ export default function TenantDashboard() {
         {/* Property Information */}
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">My Property</h2>
-          <div className="text-center py-8 text-gray-500">
-            <Home className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <p>No property assigned yet</p>
-            <p className="text-sm mt-2">Contact your landlord to get assigned to a property</p>
-          </div>
+          {property ? (
+            <div className="space-y-6">
+              {/* Property Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-start space-x-3 mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Home className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{property.property_name}</h3>
+                      <p className="text-sm text-gray-600">{property.property_type}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                      <div className="text-sm text-gray-600">
+                        <p>{property.address}</p>
+                        <p>{property.city}, {property.state} {property.postal_code}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-900 font-semibold">
+                        {formatAmount(property.monthly_rent)}/month
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Home className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">
+                        Move-in date: {formatDate(property.move_in_date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Landlord Information */}
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Landlord Contact</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-900">{property.landlord.name}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">{property.landlord.email}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">{property.landlord.phone}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Property Status */}
+              <div className="pt-4 border-t border-gray-200">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  property.status === 'Active' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  Property Status: {property.status}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Home className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p>No property assigned yet</p>
+              <p className="text-sm mt-2">Contact your landlord to get assigned to a property</p>
+            </div>
+          )}
         </div>
 
         {/* Account Information */}
@@ -128,7 +292,7 @@ export default function TenantDashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">Email</p>
-              <p className="text-gray-900 font-medium">{profile?.email || user?.email || 'N/A'}</p>
+              <p className="text-gray-900 font-medium">{profile?.email || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">Phone</p>
