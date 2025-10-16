@@ -29,6 +29,22 @@ export const isAuthenticated = () => {
   return !!(user && token);
 };
 
+// Get user role from localStorage
+export const getUserRole = () => {
+  const userRole = localStorage.getItem('userRole');
+  if (userRole) {
+    return userRole;
+  }
+  // Fallback: try to get from user object
+  const user = getCurrentUser();
+  return user ? user.user_role : null;
+};
+
+// Get user data (alias for getCurrentUser for backward compatibility)
+export const getUser = () => {
+  return getCurrentUser();
+};
+
 // Check if user has specific role
 export const hasRole = (requiredRole) => {
   const user = getCurrentUser();
