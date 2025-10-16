@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, DollarSign, Wrench, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/LandlordLayout';
 
 export default function LandlordDashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,7 +123,10 @@ export default function LandlordDashboard() {
             <div className="text-center py-8 text-gray-500">
               <Building2 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
               <p>No properties added yet</p>
-              <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
+              <button 
+                onClick={() => navigate('/landlord/properties')}
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+              >
                 Add Property
               </button>
             </div>
