@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Search, Mail, Phone, Calendar, UserPlus } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/LandlordLayout';
 
 export default function LandlordTenants() {
+  const navigate = useNavigate();
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -101,7 +103,10 @@ export default function LandlordTenants() {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <button className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer">
+          <button 
+            onClick={() => navigate('/landlord/add-tenant')}
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer"
+          >
             <UserPlus className="w-5 h-5" />
             <span>Add Tenant</span>
           </button>
