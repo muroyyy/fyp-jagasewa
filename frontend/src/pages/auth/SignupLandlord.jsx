@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
+import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // API Base URL
@@ -11,6 +11,7 @@ export default function SignupLandlord() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [passwordMatch, setPasswordMatch] = useState(null); // null, true, or false
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -25,10 +26,59 @@ export default function SignupLandlord() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // Prevent user from deleting the +601 prefix for phone
+    // Handle phone number input with max length
     if (name === 'phone') {
-      if (!value.startsWith('+601')) {
-        return; // Don't update if trying to delete the prefix
+      // Remove all non-digit characters except the + at the start
+      let cleaned = value.replace(/[^\d+]/g, '');
+      
+      // Ensure it starts with +601
+      if (!cleaned.startsWith('+601')) {
+        cleaned = '+601';
+      }
+      
+      // Limit to +601 + 9 digits (total 13 characters)
+      if (cleaned.length > 13) {
+        cleaned = cleaned.slice(0, 13);
+      }
+      
+      // Format as +601X XXX XXXX
+      let formatted = cleaned;
+      if (cleaned.length > 5) {
+        formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5);
+      }
+      if (cleaned.length > 8) {
+        formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 8) + ' ' + cleaned.slice(8);
+      }
+      
+      setFormData({
+        ...formData,
+        [name]: formatted
+      });
+      
+      if (error) setError('');
+      return;
+    }
+    
+    // Handle password match checking
+    if (name === 'confirmPassword') {
+      const newConfirmPassword = value;
+      if (newConfirmPassword === '') {
+        setPasswordMatch(null);
+      } else if (formData.password === newConfirmPassword) {
+        setPasswordMatch(true);
+      } else {
+        setPasswordMatch(false);
+      }
+    }
+    
+    if (name === 'password') {
+      const newPassword = value;
+      if (formData.confirmPassword === '') {
+        setPasswordMatch(null);
+      } else if (newPassword === formData.confirmPassword) {
+        setPasswordMatch(true);
+      } else {
+        setPasswordMatch(false);
       }
     }
     
@@ -36,6 +86,7 @@ export default function SignupLandlord() {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+    
     // Clear error when user starts typing
     if (error) setError('');
   };
@@ -53,6 +104,13 @@ export default function SignupLandlord() {
       setError('Please agree to the terms and conditions');
       return;
     }
+    
+    // Validate phone number format
+    const phoneDigitsOnly = formData.phone.replace(/\D/g, '');
+    if (phoneDigitsOnly.length < 12 || phoneDigitsOnly.length > 13) {
+      setError('Please enter a valid Malaysian phone number (+601X XXX XXXX)');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -67,7 +125,7 @@ export default function SignupLandlord() {
           password: formData.password,
           user_role: 'landlord',
           full_name: formData.fullName,
-          phone: formData.phone,
+          phone: formData.phone.replace(/\s/g, ''), // Remove spaces before sending
           company_name: formData.companyName || null,
           address: formData.address
         })
@@ -175,7 +233,7 @@ export default function SignupLandlord() {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type="tel"
+                    type="text"
                     id="phone"
                     name="phone"
                     value={formData.phone}
@@ -183,11 +241,10 @@ export default function SignupLandlord() {
                     required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="+601x xxxx xxxx"
-                    pattern="\+601[0-9]{8,9}"
-                    title="Please enter a valid Malaysian phone number"
+                    placeholder="+601X XXX XXXX"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Format: +601X XXX XXXX (10-11 digits)</p>
               </div>
             </div>
 
@@ -278,7 +335,11 @@ export default function SignupLandlord() {
                     required
                     minLength="8"
                     disabled={isLoading}
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      passwordMatch === null ? 'border-gray-300 focus:ring-blue-500' :
+                      passwordMatch ? 'border-green-500 focus:ring-green-500' :
+                      'border-red-500 focus:ring-red-500'
+                    }`}
                     placeholder="••••••••"
                   />
                   <button
@@ -289,7 +350,25 @@ export default function SignupLandlord() {
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
+                  
+                  {/* Password Match Indicator */}
+                  {passwordMatch !== null && formData.confirmPassword !== '' && (
+                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+                      {passwordMatch ? (
+                        <Check className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
                 </div>
+                
+                {/* Password Match Text */}
+                {passwordMatch !== null && formData.confirmPassword !== '' && (
+                  <p className={`text-xs mt-1 ${passwordMatch ? 'text-green-600' : 'text-red-600'}`}>
+                    {passwordMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  </p>
+                )}
               </div>
             </div>
 

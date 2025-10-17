@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle } from 'lucide-react';
+import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // API Base URL
@@ -11,6 +11,7 @@ export default function SignupTenant() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [passwordMatch, setPasswordMatch] = useState(null); // null, true, or false
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -66,6 +67,8 @@ export default function SignupTenant() {
         ...formData,
         [name]: formatted
       });
+      
+      if (error) setError('');
       return;
     }
 
@@ -87,7 +90,32 @@ export default function SignupTenant() {
         ...formData,
         [name]: formatted
       });
+      
+      if (error) setError('');
       return;
+    }
+    
+    // Handle password match checking
+    if (name === 'confirmPassword') {
+      const newConfirmPassword = value;
+      if (newConfirmPassword === '') {
+        setPasswordMatch(null);
+      } else if (formData.password === newConfirmPassword) {
+        setPasswordMatch(true);
+      } else {
+        setPasswordMatch(false);
+      }
+    }
+    
+    if (name === 'password') {
+      const newPassword = value;
+      if (formData.confirmPassword === '') {
+        setPasswordMatch(null);
+      } else if (newPassword === formData.confirmPassword) {
+        setPasswordMatch(true);
+      } else {
+        setPasswordMatch(false);
+      }
     }
     
     setFormData({
@@ -246,7 +274,7 @@ export default function SignupTenant() {
                     disabled={isLoading}
                     maxLength="17"
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="+601x xxxx xxxx"
+                    placeholder="+601x xxx xxxx"
                     pattern="\+601[0-9] [0-9]{3,4} [0-9]{4}"
                     title="Please enter a valid Malaysian phone number"
                   />
@@ -345,7 +373,11 @@ export default function SignupTenant() {
                     required
                     minLength="8"
                     disabled={isLoading}
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      passwordMatch === null ? 'border-gray-300 focus:ring-green-500' :
+                      passwordMatch ? 'border-green-500 focus:ring-green-500' :
+                      'border-red-500 focus:ring-red-500'
+                    }`}
                     placeholder="••••••••"
                   />
                   <button
@@ -356,7 +388,25 @@ export default function SignupTenant() {
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
+                  
+                  {/* Password Match Indicator */}
+                  {passwordMatch !== null && formData.confirmPassword !== '' && (
+                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+                      {passwordMatch ? (
+                        <Check className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
                 </div>
+                
+                {/* Password Match Text */}
+                {passwordMatch !== null && formData.confirmPassword !== '' && (
+                  <p className={`text-xs mt-1 ${passwordMatch ? 'text-green-600' : 'text-red-600'}`}>
+                    {passwordMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  </p>
+                )}
               </div>
             </div>
 

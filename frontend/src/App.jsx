@@ -24,6 +24,9 @@ import LandlordSettings from './pages/landlord/LandlordSettings';
 // 🧍‍♂️ Tenant
 import TenantDashboard from './pages/tenant/TenantDashboard';
 import TenantPayments from './pages/tenant/TenantPayments';
+import TenantMaintenance from './pages/tenant/TenantMaintenance';
+import TenantDocuments from './pages/tenant/TenantDocuments';
+import TenantSettings from './pages/tenant/TenantSettings';
 
 function App() {
   return (
@@ -52,6 +55,9 @@ function App() {
         {/* 🧍‍♂️ Tenant */}
         <Route path="/tenant-dashboard" element={<TenantDashboard />} />
         <Route path="/tenant/payments" element={<TenantPayments />} />
+        <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
+        <Route path="/tenant/documents" element={<TenantDocuments />} />
+        <Route path="/tenant/settings" element={<TenantSettings />} />
       </Routes>
     </Router>
   );

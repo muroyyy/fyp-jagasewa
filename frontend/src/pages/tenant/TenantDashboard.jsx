@@ -1,222 +1,310 @@
 import React, { useState, useEffect } from 'react';
-import { Home, DollarSign, Wrench, FileText, Bell, Settings, LogOut, Menu, X, CreditCard } from 'lucide-react';
-import { getCurrentUser, logout } from '../../utils/auth';
+import { useNavigate } from 'react-router-dom';
+import { Home, DollarSign, Wrench, FileText, MapPin, User as UserIcon, Phone, Mail } from 'lucide-react';
+import { getCurrentUser } from '../../utils/auth';
+import TenantLayout from '../../components/TenantLayout';
 
 export default function TenantDashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [property, setProperty] = useState(null);
+  const [nextPayment, setNextPayment] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      setProfile(currentUser.profile);
+      fetchDashboardData();
+    } else {
+      window.location.href = '/login';
     }
   }, []);
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      logout();
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('session_token');
+      
+      const response = await fetch('http://localhost:8000/api/tenant/dashboard.php', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setProfile(data.data.profile);
+        setProperty(data.data.property);
+        setNextPayment(data.data.next_payment);
+        setStats(data.data.stats);
+      } else {
+        setError(data.message || 'Failed to fetch dashboard data');
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('An error occurred while loading your dashboard');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const stats = [
-    { icon: DollarSign, label: 'Next Payment', value: 'RM 0', color: 'green', subtext: 'No payment due' },
-    { icon: Wrench, label: 'Maintenance Requests', value: '0', color: 'orange', subtext: 'Active requests' },
-    { icon: FileText, label: 'Documents', value: '0', color: 'blue', subtext: 'Available' }
+  const formatAmount = (amount) => {
+    return `RM ${parseFloat(amount).toFixed(2)}`;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  const statCards = [
+    { 
+      icon: DollarSign, 
+      label: 'Next Payment', 
+      value: nextPayment ? formatAmount(nextPayment.amount) : 'RM 0', 
+      color: 'green', 
+      subtext: nextPayment ? `Due: ${formatDate(nextPayment.due_date)}` : 'No payment due' 
+    },
+    { 
+      icon: Wrench, 
+      label: 'Maintenance Requests', 
+      value: stats?.maintenance_total || '0', 
+      color: 'orange', 
+      subtext: `${stats?.maintenance_pending || 0} pending` 
+    },
+    { 
+      icon: FileText, 
+      label: 'Documents', 
+      value: '0', 
+      color: 'blue', 
+      subtext: 'Available' 
+    }
   ];
 
+  if (loading) {
+    return (
+      <TenantLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </TenantLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
-      {/* Top Navigation */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-              <div className="flex items-center space-x-3 ml-2 lg:ml-0">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-white" />
+    <TenantLayout>
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {profile?.full_name || 'Tenant'}!
+          </h1>
+          <p className="text-gray-600">Manage your rental and payments here.</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          {statCards.map((stat, idx) => (
+            <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  stat.color === 'green' ? 'bg-green-100' :
+                  stat.color === 'orange' ? 'bg-orange-100' :
+                  'bg-blue-100'
+                }`}>
+                  <stat.icon className={`w-6 h-6 ${
+                    stat.color === 'green' ? 'text-green-600' :
+                    stat.color === 'orange' ? 'text-orange-600' :
+                    'text-blue-600'
+                  }`} />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  JagaSewa
+              </div>
+              <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+              <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+              <p className="text-xs text-gray-500">{stat.subtext}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Payment Section */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Payment History</h2>
+            <div className="text-center py-8 text-gray-500">
+              <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              {stats?.total_payments > 0 ? (
+                <>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">
+                    {stats.total_payments} payment{stats.total_payments > 1 ? 's' : ''} made
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Total: {formatAmount(stats.total_paid)}
+                  </p>
+                </>
+              ) : (
+                <p className="mb-4">No payment history yet</p>
+              )}
+              <button 
+                onClick={() => navigate('/tenant/payments')}
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
+              >
+                {nextPayment ? 'Make Payment' : 'View Payments'}
+              </button>
+            </div>
+          </div>
+
+          {/* Maintenance Requests */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Maintenance Requests</h2>
+            <div className="text-center py-8 text-gray-500">
+              <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              {stats?.maintenance_total > 0 ? (
+                <>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">
+                    {stats.maintenance_total} request{stats.maintenance_total > 1 ? 's' : ''}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {stats.maintenance_pending} pending, {stats.maintenance_completed} completed
+                  </p>
+                </>
+              ) : (
+                <p className="mb-4">No maintenance requests</p>
+              )}
+              <button 
+                onClick={() => navigate('/tenant/maintenance')}
+                className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer"
+              >
+                New Request
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Property Information */}
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">My Property</h2>
+          {property ? (
+            <div className="space-y-6">
+              {/* Property Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-start space-x-3 mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Home className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{property.property_name}</h3>
+                      <p className="text-sm text-gray-600">{property.property_type}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                      <div className="text-sm text-gray-600">
+                        <p>{property.address}</p>
+                        <p>{property.city}, {property.state} {property.postal_code}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-900 font-semibold">
+                        {formatAmount(property.monthly_rent)}/month
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Home className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">
+                        Move-in date: {formatDate(property.move_in_date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Landlord Information */}
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Landlord Contact</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-900">{property.landlord.name}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">{property.landlord.email}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-600">{property.landlord.phone}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Property Status */}
+              <div className="pt-4 border-t border-gray-200">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  property.status === 'Active' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  Property Status: {property.status}
                 </span>
               </div>
             </div>
-
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-lg hover:bg-gray-100 relative">
-                <Bell className="w-5 h-5 text-gray-600 cursor-pointer" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-semibold text-gray-900">{profile?.full_name || 'Tenant'}</p>
-                  <p className="text-xs text-gray-500">Tenant Account</p>
-                </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold">
-                    {profile?.full_name?.charAt(0) || 'T'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex flex-col h-full pt-20">
-          {/* Close button for mobile */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="absolute top-4 right-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden"
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          {/* Navigation Links */}
-          <nav className="flex-1 px-4 space-y-2 mt-4">
-            <a href="/tenant/dashboard" className="flex items-center space-x-3 px-4 py-3 text-green-600 bg-green-50 rounded-lg font-medium">
-              <Home className="w-5 h-5" />
-              <span>Dashboard</span>
-            </a>
-            <a href="/tenant/payments" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <CreditCard className="w-5 h-5" />
-              <span>Payments</span>
-            </a>
-            <a href="/tenant/maintenance" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Wrench className="w-5 h-5" />
-              <span>Maintenance</span>
-            </a>
-            <a href="/tenant/documents" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <FileText className="w-5 h-5" />
-              <span>Documents</span>
-            </a>
-            <a href="/tenant/settings" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Settings className="w-5 h-5" />
-              <span>Settings</span>
-            </a>
-          </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-gray-200">
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg font-medium cursor-pointer"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        ></div>
-      )}
-
-      {/* Main Content */}
-      <main className="lg:ml-64 pt-16">
-        <div className="p-4 sm:p-6 lg:p-8">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {profile?.full_name || 'Tenant'}!
-            </h1>
-            <p className="text-gray-600">Manage your rental and payments here.</p>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`w-12 h-12 bg-${stat.color}-100 rounded-xl flex items-center justify-center`}>
-                    <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                <p className="text-xs text-gray-500">{stat.subtext}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Payment Section */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Payment History</h2>
-              <div className="text-center py-8 text-gray-500">
-                <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p>No payment history yet</p>
-                <button className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
-                  Make Payment
-                </button>
-              </div>
-            </div>
-
-            {/* Maintenance Requests */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Maintenance Requests</h2>
-              <div className="text-center py-8 text-gray-500">
-                <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p>No maintenance requests</p>
-                <button className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer">
-                  New Request
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Property Information */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">My Property</h2>
+          ) : (
             <div className="text-center py-8 text-gray-500">
               <Home className="w-12 h-12 mx-auto mb-3 text-gray-400" />
               <p>No property assigned yet</p>
               <p className="text-sm mt-2">Contact your landlord to get assigned to a property</p>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Account Information */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Account Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Full Name</p>
-                <p className="text-gray-900 font-medium">{profile?.full_name || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Email</p>
-                <p className="text-gray-900 font-medium">{profile?.email || user?.email || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Phone</p>
-                <p className="text-gray-900 font-medium">{profile?.phone || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">IC Number</p>
-                <p className="text-gray-900 font-medium">{profile?.ic_number || 'N/A'}</p>
-              </div>
+        {/* Account Information */}
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Account Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Full Name</p>
+              <p className="text-gray-900 font-medium">{profile?.full_name || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Email</p>
+              <p className="text-gray-900 font-medium">{profile?.email || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Phone</p>
+              <p className="text-gray-900 font-medium">{profile?.phone || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">IC Number</p>
+              <p className="text-gray-900 font-medium">{profile?.ic_number || 'N/A'}</p>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </TenantLayout>
   );
 }
