@@ -15,8 +15,10 @@ import ResetPassword from './pages/auth/ResetPassword';
 // 🏠 Landlord
 import LandlordDashboard from './pages/landlord/LandlordDashboard';
 import LandlordProperties from './pages/landlord/LandlordProperties';
+import LandlordEditProperty from './pages/landlord/LandlordEditProperty';
 import LandlordTenants from './pages/landlord/LandlordTenants';
 import LandlordAddTenant from './pages/landlord/LandlordAddTenant';
+import LandlordEditTenant from './pages/landlord/LandlordEditTenant'; 
 import LandlordPayments from './pages/landlord/LandlordPayments';
 import LandlordMaintenance from './pages/landlord/LandlordMaintenance';
 import LandlordSettings from './pages/landlord/LandlordSettings';
@@ -46,8 +48,10 @@ function App() {
         {/* 🏠 Landlord */}
         <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
         <Route path="/landlord/properties" element={<LandlordProperties />} />
+        <Route path="/landlord/properties/edit/:id" element={<LandlordEditProperty />} />
         <Route path="/landlord/tenants" element={<LandlordTenants />} />
         <Route path="/landlord/add-tenant" element={<LandlordAddTenant />} />
+        <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
         <Route path="/landlord/payments" element={<LandlordPayments />} />
         <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
         <Route path="/landlord/settings" element={<LandlordSettings />} />
