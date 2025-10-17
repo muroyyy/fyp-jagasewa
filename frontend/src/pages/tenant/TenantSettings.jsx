@@ -100,7 +100,7 @@ export default function TenantSettings() {
                   setError(null);
                   setSuccess(null);
                 }}
-                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 font-semibold transition-colors ${
+                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 font-semibold transition-colors cursor-pointer ${
                   activeTab === tab.id
                     ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -130,21 +130,7 @@ export default function TenantSettings() {
           </div>
         </div>
 
-        {/* Logout Section */}
-        <div className="mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Logout</h3>
-          <p className="text-gray-600 mb-4">Sign out of your account</p>
-          <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to logout?')) {
-                logout();
-              }
-            }}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold cursor-pointer"
-          >
-            Logout from Account
-          </button>
-        </div>
+
       </div>
     </TenantLayout>
   );
