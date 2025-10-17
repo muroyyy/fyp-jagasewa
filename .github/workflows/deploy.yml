@@ -27,8 +27,8 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy latest code" \
             --parameters 'commands=[
-              "if [ ! -d /srv/jagasewa-dev-claude/.git ]; then git clone https://github.com/muroyyy/jagasewa-dev-claude.git /srv/jagasewa-dev-claude; fi",
-              "cd /srv/jagasewa-dev-claude",
+              "if [ ! -d /srv/fyp-jagasewa/.git ]; then git clone https://github.com/muroyyy/fyp-jagasewa.git /srv/fyp-jagasewa; fi",
+              "cd /srv/fyp-jagasewa",
               "git fetch --all",
               "git reset --hard origin/main",
               "sudo docker-compose down || true",
