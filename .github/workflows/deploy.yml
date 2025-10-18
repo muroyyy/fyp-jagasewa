@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 via S3
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main   # trigger on push to main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,18 +20,65 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy with SSM
+      - name: Create deployment package
+        run: |
+          # Create a timestamped zip file
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          ZIP_NAME="jagasewa-${TIMESTAMP}.zip"
+          zip -r $ZIP_NAME . -x "*.git*" "node_modules/*" ".env*"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp ${{ env.ZIP_NAME }} s3://${{ secrets.S3_BUCKET_NAME }}/deployments/${{ env.ZIP_NAME }}
+          # Update latest.txt to point to the newest deployment
+          echo ${{ env.ZIP_NAME }} > latest.txt
+          aws s3 cp latest.txt s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt
+
+      - name: Trigger EC2 deployment
         run: |
           aws ssm send-command \
             --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy latest code" \
+            --comment "Deploy from S3: ${{ env.ZIP_NAME }}" \
             --parameters 'commands=[
-              "if [ ! -d /srv/fyp-jagasewa/.git ]; then git clone https://github.com/muroyyy/fyp-jagasewa.git /srv/fyp-jagasewa; fi",
-              "cd /srv/fyp-jagasewa",
-              "git fetch --all",
-              "git reset --hard origin/main",
+              "echo \"Starting deployment...\"",
+              "cd /srv",
+              "LATEST=$(aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt - 2>/dev/null || echo \"\")",
+              "if [ -z \"$LATEST\" ]; then echo \"Error: Could not read latest.txt\"; exit 1; fi",
+              "echo \"Downloading: $LATEST\"",
+              "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/$LATEST /tmp/$LATEST",
+              "echo \"Stopping containers...\"",
+              "cd /srv/fyp-jagasewa || mkdir -p /srv/fyp-jagasewa",
               "sudo docker-compose down || true",
+              "echo \"Extracting new code...\"",
+              "rm -rf /srv/fyp-jagasewa/*",
+              "unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
+              "cd /srv/fyp-jagasewa",
+              "echo \"Building containers...\"",
               "sudo docker-compose build --no-cache",
-              "sudo docker-compose up -d"
+              "echo \"Starting containers...\"",
+              "sudo docker-compose up -d",
+              "echo \"Cleaning up...\"",
+              "rm /tmp/$LATEST",
+              "echo \"Deployment complete!\"",
+              "sudo docker-compose ps"
             ]'
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting 10 seconds for deployment to start..."
+          sleep 10
+          
+      - name: Check deployment status
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Check deployment status" \
+            --parameters 'commands=["cd /srv/fyp-jagasewa && sudo docker-compose ps"]' \
+            --query "Command.CommandId" \
+            --output text)
+          
+          echo "Deployment status check command ID: $COMMAND_ID"

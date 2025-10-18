@@ -2,9 +2,9 @@
 
 ## 👨‍💻 Developer: Amirul Faiz bin Mohd Redzuan
 
-Institution: Asia Pacific University of Technology & Innovation (APU)
-Programme: BSc (Hons) in Information Technology with a Specialism in Cloud Engineering
-Project Type: Final Year Project (FYP)
+- Institution: Asia Pacific University of Technology & Innovation (APU)
+- Programme: BSc (Hons) in Information Technology with a Specialism in Cloud Engineering
+- Project Type: Final Year Project (FYP)
 
 ---
 

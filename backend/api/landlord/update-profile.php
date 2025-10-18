@@ -37,7 +37,7 @@ if (empty($fullName) || empty($phone)) {
 
 try {
     $database = new Database();
-    $conn = $database->connect();
+    $conn = $database->getConnection();
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("

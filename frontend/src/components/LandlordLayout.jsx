@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Building2, Users, DollarSign, Wrench, Settings, LogOut, Bell } from 'lucide-react';
+import { Home, Building2, Users, DollarSign, Wrench, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 
 export default function LandlordLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [userData, setUserData] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -26,6 +27,11 @@ export default function LandlordLayout({ children }) {
     }
   }, [navigate]);
 
+  // Close sidebar when route changes (mobile)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem('session_token');
     localStorage.removeItem('user');
@@ -35,6 +41,10 @@ export default function LandlordLayout({ children }) {
 
   const isActivePath = (path) => {
     return location.pathname === path;
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const navItems = [
@@ -58,10 +68,25 @@ export default function LandlordLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={toggleSidebar}
+        ></div>
+      )}
+
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-white border-r border-gray-200 flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
         {/* Logo Section */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <Link to="/landlord-dashboard" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <Home className="w-6 h-6 text-white" />
@@ -70,10 +95,18 @@ export default function LandlordLayout({ children }) {
               JagaSewa
             </span>
           </Link>
+          
+          {/* Close button for mobile */}
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden text-gray-500 hover:text-gray-700 p-2 cursor-pointer"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = isActivePath(item.path);
@@ -110,32 +143,39 @@ export default function LandlordLayout({ children }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
-            {/* Page Title - Can be overridden by children */}
+            {/* Left side: Burger menu (mobile) */}
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <button
+                onClick={toggleSidebar}
+                className="lg:hidden text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {/* This will be filled by the page content */}
               </h1>
             </div>
 
             {/* User Profile Section */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications */}
               <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <Bell className="w-6 h-6" />
+                <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
 
               {/* User Info */}
-              <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
-                <div className="text-right">
+              <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 border-l border-gray-200">
+                <div className="hidden sm:block text-right">
                   <p className="text-sm font-semibold text-gray-900">
                     {userData?.full_name || 'Landlord'}
                   </p>
                   <p className="text-xs text-gray-500">Landlord Account</p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base">
                   {getUserInitials()}
                 </div>
               </div>
