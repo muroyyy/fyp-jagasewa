@@ -43,6 +43,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy from S3: ${{ env.ZIP_NAME }}" \
             --parameters 'commands=[
+              "#!/bin/bash",
               "set -e",
               "echo \"🚀 Starting deployment...\"",
               "cd /srv",
@@ -50,21 +51,23 @@ jobs:
               "if [ -z \"$LATEST\" ]; then echo \"❌ Error: Could not read latest.txt\"; exit 1; fi",
               "echo \"📦 Downloading: $LATEST\"",
               "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/$LATEST /tmp/$LATEST",
-              "echo \"🛑 Stopping containers...\"",
+              "echo \"🛑 Stopping and removing old containers...\"",
               "cd /srv/fyp-jagasewa || mkdir -p /srv/fyp-jagasewa",
-              "sudo docker-compose down || true",
+              "docker compose down -v 2>/dev/null || docker-compose down -v 2>/dev/null || true",
+              "docker rm -f jagasewa_backend jagasewa_frontend 2>/dev/null || true",
+              "docker network prune -f 2>/dev/null || true",
               "echo \"📂 Extracting new code...\"",
-              "sudo rm -rf /srv/fyp-jagasewa/*",
-              "sudo unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
+              "rm -rf /srv/fyp-jagasewa/* || true",
+              "unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
               "cd /srv/fyp-jagasewa",
               "echo \"🔨 Building containers...\"",
-              "sudo docker-compose build --no-cache",
+              "docker compose build --no-cache || docker-compose build --no-cache",
               "echo \"▶️  Starting containers...\"",
-              "sudo docker-compose up -d",
+              "docker compose up -d || docker-compose up -d",
               "echo \"🧹 Cleaning up...\"",
               "rm /tmp/$LATEST",
               "echo \"✅ Deployment complete!\"",
-              "sudo docker-compose ps"
+              "docker ps"
             ]' \
             --output text \
             --query "Command.CommandId")
