@@ -3,7 +3,7 @@ name: Deploy to EC2 via S3
 on:
   push:
     branches:
-      - main   # trigger on push to main
+      - main
 
 jobs:
   build-and-deploy:
@@ -22,7 +22,6 @@ jobs:
 
       - name: Create deployment package
         run: |
-          # Create a timestamped zip file
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           ZIP_NAME="jagasewa-${TIMESTAMP}.zip"
           zip -r $ZIP_NAME . -x "*.git*" "node_modules/*" ".env*"
@@ -32,53 +31,95 @@ jobs:
       - name: Upload to S3
         run: |
           aws s3 cp ${{ env.ZIP_NAME }} s3://${{ secrets.S3_BUCKET_NAME }}/deployments/${{ env.ZIP_NAME }}
-          # Update latest.txt to point to the newest deployment
           echo ${{ env.ZIP_NAME }} > latest.txt
           aws s3 cp latest.txt s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt
+          echo "✅ Uploaded to S3: ${{ env.ZIP_NAME }}"
 
       - name: Trigger EC2 deployment
+        id: deploy
         run: |
-          aws ssm send-command \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy from S3: ${{ env.ZIP_NAME }}" \
             --parameters 'commands=[
-              "echo \"Starting deployment...\"",
+              "set -e",
+              "echo \"🚀 Starting deployment...\"",
               "cd /srv",
               "LATEST=$(aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt - 2>/dev/null || echo \"\")",
-              "if [ -z \"$LATEST\" ]; then echo \"Error: Could not read latest.txt\"; exit 1; fi",
-              "echo \"Downloading: $LATEST\"",
+              "if [ -z \"$LATEST\" ]; then echo \"❌ Error: Could not read latest.txt\"; exit 1; fi",
+              "echo \"📦 Downloading: $LATEST\"",
               "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/$LATEST /tmp/$LATEST",
-              "echo \"Stopping containers...\"",
+              "echo \"🛑 Stopping containers...\"",
               "cd /srv/fyp-jagasewa || mkdir -p /srv/fyp-jagasewa",
               "sudo docker-compose down || true",
-              "echo \"Extracting new code...\"",
-              "rm -rf /srv/fyp-jagasewa/*",
-              "unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
+              "echo \"📂 Extracting new code...\"",
+              "sudo rm -rf /srv/fyp-jagasewa/*",
+              "sudo unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
               "cd /srv/fyp-jagasewa",
-              "echo \"Building containers...\"",
+              "echo \"🔨 Building containers...\"",
               "sudo docker-compose build --no-cache",
-              "echo \"Starting containers...\"",
+              "echo \"▶️  Starting containers...\"",
               "sudo docker-compose up -d",
-              "echo \"Cleaning up...\"",
+              "echo \"🧹 Cleaning up...\"",
               "rm /tmp/$LATEST",
-              "echo \"Deployment complete!\"",
+              "echo \"✅ Deployment complete!\"",
               "sudo docker-compose ps"
-            ]'
+            ]' \
+            --output text \
+            --query "Command.CommandId")
+          
+          echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+          echo "📡 Command ID: $COMMAND_ID"
 
-      - name: Wait for deployment
+      - name: Wait for deployment to complete
         run: |
-          echo "Waiting 10 seconds for deployment to start..."
-          sleep 10
+          echo "⏳ Waiting for deployment to complete..."
           
-      - name: Check deployment status
+          for i in {1..30}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "${{ env.COMMAND_ID }}" \
+              --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+              --query "Status" \
+              --output text 2>/dev/null || echo "Pending")
+            
+            echo "Status check $i/30: $STATUS"
+            
+            if [ "$STATUS" = "Success" ]; then
+              echo "✅ Deployment completed successfully!"
+              exit 0
+            elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ] || [ "$STATUS" = "TimedOut" ]; then
+              echo "❌ Deployment failed with status: $STATUS"
+              aws ssm get-command-invocation \
+                --command-id "${{ env.COMMAND_ID }}" \
+                --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+                --query "StandardErrorContent" \
+                --output text
+              exit 1
+            fi
+            
+            sleep 10
+          done
+          
+          echo "⚠️ Deployment timed out after 5 minutes"
+          exit 1
+
+      - name: Verify deployment
+        if: success()
         run: |
-          COMMAND_ID=$(aws ssm send-command \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+          echo "🔍 Verifying containers are running..."
+          
+          VERIFY_CMD=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Check deployment status" \
             --parameters 'commands=["cd /srv/fyp-jagasewa && sudo docker-compose ps"]' \
-            --query "Command.CommandId" \
-            --output text)
+            --output text \
+            --query "Command.CommandId")
           
-          echo "Deployment status check command ID: $COMMAND_ID"
+          sleep 5
+          
+          aws ssm get-command-invocation \
+            --command-id "$VERIFY_CMD" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query "StandardOutputContent" \
+            --output text
