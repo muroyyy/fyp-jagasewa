@@ -3,23 +3,35 @@ function getDbCredentials() {
     $secretName = "jagasewa/db/credentials";
     $region = "ap-southeast-1";
     
-    // Use AWS CLI to get secret (requires AWS CLI installed in container)
+    // Suppress AWS CLI pager output
+    putenv('AWS_PAGER=');
+    
+    error_log("Attempting to retrieve database credentials from AWS Secrets Manager...");
+    
+    // Retrieve secret from AWS Secrets Manager
     $command = "aws secretsmanager get-secret-value --secret-id $secretName --region $region --query SecretString --output text 2>&1";
     $output = shell_exec($command);
     
-    if ($output) {
+    // Check if retrieval was successful
+    if ($output && strpos($output, 'error') === false && strpos($output, 'Unable') === false) {
         $credentials = json_decode($output, true);
-        if ($credentials) {
+        
+        if ($credentials && is_array($credentials) && isset($credentials['password'])) {
+            error_log("✅ Successfully retrieved database credentials from AWS Secrets Manager");
             return $credentials;
         }
     }
     
-    // Fallback to environment variables
-    return [
-        'host' => getenv('DB_HOST') ?: '172.17.0.1',
-        'dbname' => getenv('DB_NAME') ?: 'jagasewa_db',
-        'username' => getenv('DB_USER') ?: 'jagasewa_user',
-        'password' => getenv('DB_PASSWORD') ?: ''
-    ];
+    // Fail explicitly - no fallback
+    error_log("❌ CRITICAL ERROR: Failed to retrieve database credentials from AWS Secrets Manager");
+    error_log("Output: " . substr($output, 0, 200)); // Log first 200 chars for debugging
+    
+    throw new Exception(
+        "Unable to retrieve database credentials from AWS Secrets Manager. " .
+        "Please ensure: " .
+        "1) EC2 instance has IAM role with secretsmanager:GetSecretValue permission " .
+        "2) Secret 'jagasewa/db/credentials' exists in ap-southeast-1 " .
+        "3) AWS CLI is properly installed in the container"
+    );
 }
 ?>
