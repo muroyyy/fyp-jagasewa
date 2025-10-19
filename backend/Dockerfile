@@ -13,24 +13,26 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && ./aws/install \
     && rm -rf aws awscliv2.zip
 
-# CRITICAL: Install PHP PDO MySQL extension
+# Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-# Enable error logging
-RUN echo "log_errors = On" >> /usr/local/etc/php/php.ini-production && \
-    echo "error_log = /var/log/php_errors.log" >> /usr/local/etc/php/php.ini-production && \
-    echo "display_errors = Off" >> /usr/local/etc/php/php.ini-production && \
-    cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+# Enable Apache modules
+RUN a2enmod rewrite headers
 
-# Enable Apache rewrite module
-RUN a2enmod rewrite
-
-# Set ServerName to suppress Apache warning
+# Set ServerName
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Configure Apache to allow .htaccess
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
 
+# Copy backend files
 COPY . .
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
 EXPOSE 80
 
