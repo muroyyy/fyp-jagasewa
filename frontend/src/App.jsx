@@ -21,6 +21,7 @@ import LandlordAddTenant from './pages/landlord/LandlordAddTenant';
 import LandlordEditTenant from './pages/landlord/LandlordEditTenant'; 
 import LandlordPayments from './pages/landlord/LandlordPayments';
 import LandlordMaintenance from './pages/landlord/LandlordMaintenance';
+import LandlordDocuments from './pages/landlord/LandlordDocuments';
 import LandlordSettings from './pages/landlord/LandlordSettings';
 
 // 🧍‍♂️ Tenant
@@ -54,6 +55,7 @@ function App() {
         <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
         <Route path="/landlord/payments" element={<LandlordPayments />} />
         <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
+        <Route path="/landlord/documents" element={<LandlordDocuments />} />
         <Route path="/landlord/settings" element={<LandlordSettings />} />
 
         {/* 🧍‍♂️ Tenant */}

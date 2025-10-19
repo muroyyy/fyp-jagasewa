@@ -1,6 +1,6 @@
 <?php
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Methods: DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json');
 
@@ -23,21 +23,14 @@ if (empty($authHeader) || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches))
 
 $sessionToken = $matches[1];
 
-// Get request body
-$data = json_decode(file_get_contents('php://input'), true);
+// Get document_id from query parameter
+$documentId = isset($_GET['document_id']) ? $_GET['document_id'] : null;
 
-if (!isset($data['request_id']) || !isset($data['status']) || !isset($data['response'])) {
+if (!$documentId) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+    echo json_encode(['success' => false, 'message' => 'Document ID required']);
     exit();
 }
-
-$requestId = $data['request_id'];
-$status = $data['status'];
-$response = $data['response'];
-$estimatedCompletion = isset($data['estimated_completion']) && !empty($data['estimated_completion']) 
-    ? $data['estimated_completion'] 
-    : null;
 
 try {
     $database = new Database();
@@ -62,38 +55,41 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Verify this request belongs to landlord's property
+    // Get document details and verify ownership
     $stmt = $conn->prepare("
-        SELECT m.request_id
-        FROM maintenance_requests m
-        JOIN properties p ON m.property_id = p.property_id
-        WHERE m.request_id = ? AND p.landlord_id = ?
+        SELECT file_path 
+        FROM documents 
+        WHERE document_id = ? AND landlord_id = ?
     ");
-    $stmt->execute([$requestId, $landlordId]);
-    
-    if (!$stmt->fetch()) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Not authorized to update this request']);
+    $stmt->execute([$documentId, $landlordId]);
+    $document = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$document) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Document not found or access denied']);
         exit();
     }
 
-    // Update the maintenance request
+    // Soft delete (set is_active = 0)
     $stmt = $conn->prepare("
-        UPDATE maintenance_requests 
-        SET 
-            status = ?,
-            landlord_response = ?,
-            response_date = NOW(),
-            estimated_completion = ?,
-            updated_at = NOW()
-        WHERE request_id = ?
+        UPDATE documents 
+        SET is_active = 0, updated_at = NOW()
+        WHERE document_id = ?
     ");
-    
-    $stmt->execute([$status, $response, $estimatedCompletion, $requestId]);
+    $stmt->execute([$documentId]);
+
+    // Optionally, delete physical file
+    // Uncomment below if need to permanently delete files
+    /*
+    $filePath = '../../' . $document['file_path'];
+    if (file_exists($filePath)) {
+        unlink($filePath);
+    }
+    */
 
     echo json_encode([
         'success' => true,
-        'message' => 'Request updated successfully'
+        'message' => 'Document deleted successfully'
     ]);
 
 } catch (PDOException $e) {
