@@ -2,15 +2,15 @@
 # Multi-stage build for optimized production image
 
 # Stage 1: Build the React application
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including devDependencies needed for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
