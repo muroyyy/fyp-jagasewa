@@ -1,22 +1,25 @@
-version: "3.9"
+# docker-compose.yml - FOR LOCAL DEVELOPMENT ONLY
+version: '3.8'
 
 services:
   frontend:
     build: ./frontend
-    container_name: jagasewa_frontend
-    restart: always
     ports:
-      - "80:80"
-    depends_on:
-      - backend
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
 
   backend:
     build: ./backend
-    container_name: jagasewa_backend
-    restart: always
     ports:
-      - "8080:80"
+      - "8000:8000"
     volumes:
       - ./backend:/var/www/html
-    extra_hosts:
-      - "host.docker.internal:172.17.0.1"  # Allow backend to access EC2 MariaDB
+    environment:
+      - DB_HOST=localhost
+      - DB_NAME=jagasewa_db
+      - DB_USER=root
+      - DB_PASSWORD=

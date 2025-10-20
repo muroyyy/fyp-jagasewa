@@ -1,0 +1,48 @@
+# docker-compose.prod.yml - FOR PRODUCTION DEPLOYMENT ON EC2
+version: '3.8'
+
+services:
+  frontend:
+    image: ${ECR_REGISTRY}/jagasewa-frontend:${IMAGE_TAG:-latest}
+    container_name: jagasewa-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://54.179.253.183:8000/api
+    restart: unless-stopped
+    networks:
+      - jagasewa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend:
+    image: ${ECR_REGISTRY}/jagasewa-backend:${IMAGE_TAG:-latest}
+    container_name: jagasewa-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - backend-uploads:/var/www/html/uploads
+    restart: unless-stopped
+    networks:
+      - jagasewa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  backend-uploads:
+    driver: local
+
+networks:
+  jagasewa-network:
+    driver: bridge
