@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Building2, Users, DollarSign, Wrench, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
+import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 
 export default function LandlordLayout({ children }) {
@@ -53,6 +53,7 @@ export default function LandlordLayout({ children }) {
     { path: '/landlord/tenants', icon: Users, label: 'Tenants' },
     { path: '/landlord/payments', icon: DollarSign, label: 'Payments' },
     { path: '/landlord/maintenance', icon: Wrench, label: 'Maintenance' },
+    { path: '/landlord/documents', icon: FileText, label: 'Documents' }, 
     { path: '/landlord/settings', icon: Settings, label: 'Settings' },
   ];
 

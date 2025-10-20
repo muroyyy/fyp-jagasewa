@@ -490,14 +490,14 @@ export default function LandlordMaintenance() {
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => handleViewDetails(request)}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors"
+                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
                   >
                     <Eye className="w-4 h-4" />
                     <span className="font-medium">View Details</span>
                   </button>
                   <button
                     onClick={() => handleRespond(request)}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all"
+                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span className="font-medium">Respond</span>
@@ -518,14 +518,14 @@ export default function LandlordMaintenance() {
 
       {/* Detail Modal */}
       {showDetailModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 sticky top-0 bg-white">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Request Details</h2>
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 >
                   <XCircle className="w-6 h-6" />
                 </button>
@@ -630,7 +630,7 @@ export default function LandlordMaintenance() {
                   setShowDetailModal(false);
                   handleRespond(selectedRequest);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold cursor-pointer"
               >
                 Respond to Request
               </button>
@@ -641,14 +641,14 @@ export default function LandlordMaintenance() {
 
       {/* Response Modal */}
       {showResponseModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Respond to Request</h2>
                 <button
                   onClick={() => setShowResponseModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                   disabled={isSubmitting}
                 >
                   <XCircle className="w-6 h-6" />
@@ -667,7 +667,7 @@ export default function LandlordMaintenance() {
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 cursor-pointer"
                 >
                   <option value="pending">Pending</option>
                   <option value="in_progress">In Progress</option>
@@ -721,14 +721,14 @@ export default function LandlordMaintenance() {
               <button
                 onClick={() => setShowResponseModal(false)}
                 disabled={isSubmitting}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitResponse}
                 disabled={isSubmitting || !responseText.trim()}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
