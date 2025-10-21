@@ -2,7 +2,7 @@
 function setCorsHeaders() {
     $allowed_origins = [
         'http://localhost:5173',  // Development
-        'http://EC2_PUBLIC_IP'    // Production EC2
+        'http://'    // Production EC2
     ];
     
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

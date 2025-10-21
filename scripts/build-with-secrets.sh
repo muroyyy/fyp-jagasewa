@@ -8,7 +8,7 @@ EC2_IP=$(aws secretsmanager get-secret-value \
     --secret-id "$SECRET_ARN" \
     --region ap-southeast-1 \
     --query 'SecretString' \
-    --output text | jq -r '.ec2_public_ip')
+    --output text | jq -r '.EC2_PUBLIC_IP')
 
 # Create production env file with actual IP
 echo "VITE_API_URL=http://$EC2_IP:8000/api" > frontend/.env.production
