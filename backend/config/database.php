@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/secrets.php';
-
 class Database {
     private $host;
     private $db_name;
@@ -9,11 +7,16 @@ class Database {
     public $conn;
 
     public function __construct() {
-        $credentials = getDbCredentials();
-        $this->host = $credentials['host'];
-        $this->db_name = $credentials['dbname'];
-        $this->username = $credentials['username'];
-        $this->password = $credentials['password'];
+        // Use environment variables instead of AWS Secrets Manager
+        $this->host = $_ENV['DB_HOST'] ?? getenv('DB_HOST');
+        $this->db_name = $_ENV['DB_NAME'] ?? getenv('DB_NAME');
+        $this->username = $_ENV['DB_USER'] ?? getenv('DB_USER');
+        $this->password = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD');
+        
+        // Validate required environment variables
+        if (!$this->host || !$this->db_name || !$this->username || !$this->password) {
+            throw new Exception("Database configuration missing. Required environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD");
+        }
     }
 
     public function getConnection() {

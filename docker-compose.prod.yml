@@ -26,13 +26,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - AWS_DEFAULT_REGION=ap-southeast-1
-      - AWS_REGION=ap-southeast-1
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
       - APP_ENV=${APP_ENV:-production}
-    # Mount AWS credentials from EC2 instance
     volumes:
       - backend-uploads:/var/www/html/uploads
-      - /home/ubuntu/.aws:/root/.aws:ro
     restart: unless-stopped
     networks:
       - jagasewa-network

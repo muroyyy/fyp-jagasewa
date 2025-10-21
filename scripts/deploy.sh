@@ -59,12 +59,12 @@ cd /home/ubuntu/jagasewa
 
 # Stop and remove old containers
 echo "🛑 Stopping old containers..."
-docker-compose -f docker-compose.yml down 2>/dev/null || true
+docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
 echo "✅ Old containers stopped"
 
 # Start new containers
 echo "🚀 Starting new containers..."
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose.prod.yml up -d
 echo "✅ New containers started"
 
 # Wait for services to be ready
