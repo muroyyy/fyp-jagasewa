@@ -97,18 +97,30 @@ try {
         exit();
     }
 
-    // Get payment statistics
-    $stmt = $conn->prepare("
-        SELECT 
-            COUNT(*) as total_payments,
-            SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as total_paid,
-            MAX(payment_date) as last_payment_date
-        FROM payments
-        WHERE tenant_id = :tenant_id
-    ");
-    $stmt->bindParam(':tenant_id', $tenant_id);
-    $stmt->execute();
-    $payment_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Get payment statistics (simplified - avoid potential table issues)
+    $payment_stats = [
+        'total_payments' => 0,
+        'total_paid' => 0,
+        'last_payment_date' => null
+    ];
+    
+    // Try to get payment stats if table exists
+    try {
+        $stmt = $conn->prepare("
+            SELECT 
+                COUNT(*) as total_payments,
+                COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0) as total_paid,
+                MAX(payment_date) as last_payment_date
+            FROM payments
+            WHERE tenant_id = :tenant_id
+        ");
+        $stmt->bindParam(':tenant_id', $tenant_id);
+        $stmt->execute();
+        $payment_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Table might not exist, use defaults
+        error_log("Payment stats error: " . $e->getMessage());
+    }
 
     // Get next payment due (assuming monthly rent)
     $next_payment = null;
@@ -118,23 +130,30 @@ try {
         if ($last_payment) {
             $next_due = date('Y-m-d', strtotime($last_payment . ' +1 month'));
         } else {
-            // If no payments yet, use move-in date as reference
-            $next_due = date('Y-m-d', strtotime($tenant['move_in_date'] . ' +1 month'));
+            // If no payments yet, use move-in date as reference or current date
+            $move_in_date = $tenant['move_in_date'] ?: date('Y-m-d');
+            $next_due = date('Y-m-d', strtotime($move_in_date . ' +1 month'));
         }
         
         // Check if payment is already made for current month
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) as count
-            FROM payments
-            WHERE tenant_id = :tenant_id
-            AND YEAR(payment_date) = YEAR(:next_due)
-            AND MONTH(payment_date) = MONTH(:next_due)
-            AND status = 'completed'
-        ");
-        $stmt->bindParam(':tenant_id', $tenant_id);
-        $stmt->bindParam(':next_due', $next_due);
-        $stmt->execute();
-        $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
+        $payment_check = ['count' => 0];
+        try {
+            $stmt = $conn->prepare("
+                SELECT COUNT(*) as count
+                FROM payments
+                WHERE tenant_id = :tenant_id
+                AND YEAR(payment_date) = YEAR(:next_due)
+                AND MONTH(payment_date) = MONTH(:next_due)
+                AND status = 'completed'
+            ");
+            $stmt->bindParam(':tenant_id', $tenant_id);
+            $stmt->bindParam(':next_due', $next_due);
+            $stmt->execute();
+            $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Table might not exist, assume no payment made
+            error_log("Payment check error: " . $e->getMessage());
+        }
         
         if ($payment_check['count'] == 0) {
             $next_payment = [
@@ -145,19 +164,32 @@ try {
         }
     }
 
-    // Get maintenance request statistics
-    $stmt = $conn->prepare("
-        SELECT 
-            COUNT(*) as total_requests,
-            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
-            SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_requests,
-            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_requests
-        FROM maintenance_requests
-        WHERE tenant_id = :tenant_id
-    ");
-    $stmt->bindParam(':tenant_id', $tenant_id);
-    $stmt->execute();
-    $maintenance_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Get maintenance request statistics (simplified - avoid potential table issues)
+    $maintenance_stats = [
+        'total_requests' => 0,
+        'pending_requests' => 0,
+        'in_progress_requests' => 0,
+        'completed_requests' => 0
+    ];
+    
+    // Try to get maintenance stats if table exists
+    try {
+        $stmt = $conn->prepare("
+            SELECT 
+                COUNT(*) as total_requests,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
+                SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_requests,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_requests
+            FROM maintenance_requests
+            WHERE tenant_id = :tenant_id
+        ");
+        $stmt->bindParam(':tenant_id', $tenant_id);
+        $stmt->execute();
+        $maintenance_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Table might not exist, use defaults
+        error_log("Maintenance stats error: " . $e->getMessage());
+    }
 
     // Prepare property information
     $property_info = null;
