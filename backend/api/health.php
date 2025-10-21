@@ -1,7 +1,8 @@
 <?php
+include_once '../../config/cors.php';
+setCorsHeaders();
+
 // backend/api/health.php
-header('Access-Control-Allow-Origin: *');
-header('Content-Type: application/json');
 
 $response = [
     'status' => 'healthy',
