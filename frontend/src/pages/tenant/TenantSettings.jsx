@@ -24,7 +24,7 @@ export default function TenantSettings() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/profile.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/profile.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
         formDataToSend.append('profile_image', profileImage);
       }
 
-      const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/update-profile.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/update-profile.php', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -401,7 +401,7 @@ function SecurityTab({ setError, setSuccess }) {
       setSaving(true);
       const token = localStorage.getItem('session_token');
 
-      const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/change-password.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/change-password.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

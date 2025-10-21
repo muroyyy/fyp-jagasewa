@@ -79,7 +79,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       // Submit to backend
       try {
         const token = localStorage.getItem('session_token');
-        const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/make-payment.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/make-payment.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ export default function TenantDocuments() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/documents.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/documents.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
