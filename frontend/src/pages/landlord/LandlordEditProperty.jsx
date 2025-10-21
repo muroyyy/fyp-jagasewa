@@ -152,7 +152,7 @@ export default function LandlordEditProperty() {
       // Append existing images
       formDataToSend.append('existing_images', JSON.stringify(existingImages));
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/update-property.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/update-property.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
