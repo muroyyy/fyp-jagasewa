@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Building2, MapPin, Home, DollarSign, AlertCircle, Upload, X } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/LandlordLayout';
+import { getStatesList, getCitiesByState } from '../../data/malaysianLocations';
 
 export default function LandlordEditProperty() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function LandlordEditProperty() {
   const [newImages, setNewImages] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [availableCities, setAvailableCities] = useState([]);
   
   const [formData, setFormData] = useState({
     property_name: '',
@@ -52,7 +54,7 @@ export default function LandlordEditProperty() {
       
       if (data.success) {
         const property = data.data;
-        setFormData({
+        const propertyData = {
           property_name: property.property_name || '',
           property_type: property.property_type || 'Apartment',
           address: property.address || '',
@@ -64,7 +66,14 @@ export default function LandlordEditProperty() {
           description: property.description || '',
           monthly_rent: property.monthly_rent || '',
           status: property.status || 'Active'
-        });
+        };
+        setFormData(propertyData);
+        
+        // Set available cities based on current state
+        if (propertyData.state) {
+          setAvailableCities(getCitiesByState(propertyData.state));
+        }
+        
         setExistingImages(property.images || []);
       } else {
         setError(data.message);
@@ -79,10 +88,23 @@ export default function LandlordEditProperty() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle state change to update available cities
+    if (name === 'state') {
+      const cities = getCitiesByState(value);
+      setAvailableCities(cities);
+      // Reset city when state changes
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        city: '' // Reset city selection
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleNewImageChange = (e) => {
@@ -434,32 +456,39 @@ export default function LandlordEditProperty() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City *
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="City"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       State *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="State"
-                    />
+                    >
+                      <option value="">Select State</option>
+                      {getStatesList().map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City *
+                    </label>
+                    <select
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      required
+                      disabled={!formData.state}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                    >
+                      <option value="">{formData.state ? 'Select City' : 'Select State First'}</option>
+                      {availableCities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
