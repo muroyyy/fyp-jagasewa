@@ -50,7 +50,7 @@ export default function LandlordDocuments() {
         return;
       }
 
-      let url = `${import.meta.env.VITE_API_URL}/landlord/documents.php';
+      let url = `${import.meta.env.VITE_API_URL}/landlord/documents.php`;
       const params = new URLSearchParams();
       
       if (selectedCategory !== 'all') {
@@ -95,7 +95,7 @@ export default function LandlordDocuments() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/properties.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/properties.php`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -122,7 +122,7 @@ export default function LandlordDocuments() {
 
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/tenants.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/tenants.php`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -187,7 +187,7 @@ export default function LandlordDocuments() {
         formData.append('description', uploadForm.description);
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/upload-document.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/upload-document.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
