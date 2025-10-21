@@ -7,7 +7,7 @@ function setCorsHeaders() {
     
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     
-    if (in_array($origin, $allowed_origins)) {
+    if (in_array($origin, $allowed_origins) || in_array('*', $allowed_origins)) {
         header("Access-Control-Allow-Origin: $origin");
     }
     
