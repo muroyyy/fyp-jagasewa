@@ -3,7 +3,7 @@ import { Home, Mail, ArrowRight, ArrowLeft, CheckCircle, Copy, AlertCircle } fro
 import { Link, useNavigate } from 'react-router-dom';
 
 // API Base URL
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '${import.meta.env.VITE_API_URL}';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();

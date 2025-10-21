@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle } from 'lucide-react';
 import LandlordLayout from '../../components/LandlordLayout';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '${import.meta.env.VITE_API_URL}';
 
 export default function LandlordPayments() {
   const [payments, setPayments] = useState([]);

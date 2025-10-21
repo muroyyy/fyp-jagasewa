@@ -18,7 +18,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
     
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch(`http://localhost:8000/api/landlord/tenant-details.php?tenant_id=${tenantId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/tenant-details.php?tenant_id=${tenantId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

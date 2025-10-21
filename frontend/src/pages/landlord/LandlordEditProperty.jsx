@@ -42,7 +42,7 @@ export default function LandlordEditProperty() {
   const fetchPropertyData = async () => {
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch(`http://localhost:8000/api/landlord/property-details.php?property_id=${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/property-details.php?property_id=${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -152,7 +152,7 @@ export default function LandlordEditProperty() {
       // Append existing images
       formDataToSend.append('existing_images', JSON.stringify(existingImages));
 
-      const response = await fetch('http://localhost:8000/api/landlord/update-property.php', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/landlord/update-property.php', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

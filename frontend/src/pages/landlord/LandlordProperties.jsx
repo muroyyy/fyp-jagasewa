@@ -4,7 +4,7 @@ import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, I
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewPropertyModal from '../../components/ViewPropertyModal';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '${import.meta.env.VITE_API_URL}';
 
 export default function LandlordProperties() {
   const [searchQuery, setSearchQuery] = useState('');

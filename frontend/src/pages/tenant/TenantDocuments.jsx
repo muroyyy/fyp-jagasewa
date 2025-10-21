@@ -24,7 +24,7 @@ export default function TenantDocuments() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('http://localhost:8000/api/tenant/documents.php', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/tenant/documents.php', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export default function TenantDocuments() {
     try {
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch(`http://localhost:8000/api/tenant/download-document.php?document_id=${documentId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/download-document.php?document_id=${documentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
