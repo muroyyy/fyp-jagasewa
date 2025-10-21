@@ -1,6 +1,6 @@
 <?php
 function getDbCredentials() {
-    $secretName = "jagasewa/db/credentials";
+    $secretName = "jagasewa/production";
     $region = "ap-southeast-1";
     
     // Suppress AWS CLI pager output
@@ -30,7 +30,7 @@ function getDbCredentials() {
         "Unable to retrieve database credentials from AWS Secrets Manager. " .
         "Please ensure: " .
         "1) EC2 instance has IAM role with secretsmanager:GetSecretValue permission " .
-        "2) Secret 'jagasewa/db/credentials' exists in ap-southeast-1 " .
+        "2) Secret 'jagasewa/production' exists in ap-southeast-1 " .
         "3) AWS CLI is properly installed in the container"
     );
 }
