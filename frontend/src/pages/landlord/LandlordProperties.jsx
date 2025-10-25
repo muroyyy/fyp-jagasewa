@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewPropertyModal from '../../components/ViewPropertyModal';
+import { getStatesList, getCitiesByState } from '../../data/malaysianLocations';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
 export default function LandlordProperties() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,6 +17,7 @@ export default function LandlordProperties() {
   const [success, setSuccess] = useState('');
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [availableCities, setAvailableCities] = useState([]);
   const navigate = useNavigate();
   
   // View Property Modal States
@@ -82,10 +84,23 @@ export default function LandlordProperties() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle state change to update available cities
+    if (name === 'state') {
+      const cities = getCitiesByState(value);
+      setAvailableCities(cities);
+      // Reset city when state changes
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        city: '' // Reset city selection
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -485,38 +500,44 @@ export default function LandlordProperties() {
                   />
                 </div>
 
-                {/* City, State, Postal Code */}
+                {/* State, City, Postal Code */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isSaving}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="City"
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       State <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
                       required
                       disabled={isSaving}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="State"
-                    />
+                    >
+                      <option value="">Select State</option>
+                      {getStatesList().map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      required
+                      disabled={isSaving || !formData.state}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    >
+                      <option value="">{formData.state ? 'Select City' : 'Select State First'}</option>
+                      {availableCities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>

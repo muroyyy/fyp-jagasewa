@@ -1,0 +1,7 @@
+.env
+.env.production
+.env.development
+*.pem
+*.key
+aws-credentials
+.aws/

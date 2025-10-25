@@ -26,7 +26,7 @@ export default function TenantMaintenance() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('http://localhost:8000/api/tenant/maintenance.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/maintenance.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -324,7 +324,7 @@ function NewRequestModal({ onClose, onSuccess }) {
       setLoading(true);
       const token = localStorage.getItem('session_token');
 
-      const response = await fetch('http://localhost:8000/api/tenant/submit-maintenance.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/submit-maintenance.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

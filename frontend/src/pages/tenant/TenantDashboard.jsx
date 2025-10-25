@@ -29,7 +29,7 @@ export default function TenantDashboard() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('http://localhost:8000/api/tenant/dashboard.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tenant/dashboard.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

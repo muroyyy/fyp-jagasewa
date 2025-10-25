@@ -36,7 +36,7 @@ export default function LandlordAddTenant() {
       setLoadingProperties(true);
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch('http://localhost:8000/api/landlord/properties.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/properties.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ export default function LandlordAddTenant() {
       setLoading(true);
       const token = localStorage.getItem('session_token');
 
-      const response = await fetch('http://localhost:8000/api/landlord/add-tenant.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/add-tenant.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

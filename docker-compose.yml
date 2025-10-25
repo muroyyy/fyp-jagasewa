@@ -1,20 +1,25 @@
-version: "3.9"
+# docker-compose.yml - FOR LOCAL DEVELOPMENT ONLY
+version: '3.8'
 
 services:
   frontend:
     build: ./frontend
-    container_name: jagasewa_frontend
-    restart: always
     ports:
-      - "80:80"
-    depends_on:
-      - backend
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
 
   backend:
     build: ./backend
-    container_name: jagasewa_backend
-    restart: always
     ports:
-      - "9000:80"
+      - "8000:8000"
     volumes:
       - ./backend:/var/www/html
+    environment:
+      - DB_HOST=localhost
+      - DB_NAME=jagasewa_db
+      - DB_USER=root
+      - DB_PASSWORD=

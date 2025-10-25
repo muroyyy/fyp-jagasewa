@@ -36,7 +36,7 @@ export default function LandlordEditTenant() {
   const fetchTenantData = async () => {
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch(`http://localhost:8000/api/landlord/tenant-details.php?tenant_id=${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/tenant-details.php?tenant_id=${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -69,7 +69,7 @@ export default function LandlordEditTenant() {
   const fetchProperties = async () => {
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch('http://localhost:8000/api/landlord/properties.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/properties.php`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -134,7 +134,7 @@ export default function LandlordEditTenant() {
 
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch('http://localhost:8000/api/landlord/update-tenant.php', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/update-tenant.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,14 +1,26 @@
-name: Deploy to EC2 via S3
+# .github/workflows/deploy.yml
+name: Deploy JagaSewa to AWS EC2
 
 on:
   push:
-    branches:
-      - main   # trigger on push to main
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_FRONTEND_REPO: jagasewa-frontend
+  ECR_BACKEND_REPO: jagasewa-backend
+  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
 
 jobs:
-  build-and-deploy:
+  build-and-push:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
-
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,67 +30,188 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Create deployment package
-        run: |
-          # Create a timestamped zip file
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          ZIP_NAME="jagasewa-${TIMESTAMP}.zip"
-          zip -r $ZIP_NAME . -x "*.git*" "node_modules/*" ".env*"
-          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Upload to S3
+      - name: Set image metadata
+        id: meta
         run: |
-          aws s3 cp ${{ env.ZIP_NAME }} s3://${{ secrets.S3_BUCKET_NAME }}/deployments/${{ env.ZIP_NAME }}
-          # Update latest.txt to point to the newest deployment
-          echo ${{ env.ZIP_NAME }} > latest.txt
-          aws s3 cp latest.txt s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt
+          echo "tags=${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Trigger EC2 deployment
+      - name: Build and push Frontend image
+        working-directory: ./frontend
         run: |
-          aws ssm send-command \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy from S3: ${{ env.ZIP_NAME }}" \
-            --parameters 'commands=[
-              "echo \"Starting deployment...\"",
-              "cd /srv",
-              "LATEST=$(aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.txt - 2>/dev/null || echo \"\")",
-              "if [ -z \"$LATEST\" ]; then echo \"Error: Could not read latest.txt\"; exit 1; fi",
-              "echo \"Downloading: $LATEST\"",
-              "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/$LATEST /tmp/$LATEST",
-              "echo \"Stopping containers...\"",
-              "cd /srv/fyp-jagasewa || mkdir -p /srv/fyp-jagasewa",
-              "sudo docker-compose down || true",
-              "echo \"Extracting new code...\"",
-              "rm -rf /srv/fyp-jagasewa/*",
-              "unzip -o /tmp/$LATEST -d /srv/fyp-jagasewa",
-              "cd /srv/fyp-jagasewa",
-              "echo \"Building containers...\"",
-              "sudo docker-compose build --no-cache",
-              "echo \"Starting containers...\"",
-              "sudo docker-compose up -d",
-              "echo \"Cleaning up...\"",
-              "rm /tmp/$LATEST",
-              "echo \"Deployment complete!\"",
-              "sudo docker-compose ps"
-            ]'
+          IMAGE_TAG=${{ steps.meta.outputs.tags }}
+          echo "Building frontend image with tag: $IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_FRONTEND_REPO:latest
+          echo "Pushing frontend images to ECR..."
+          docker push $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_FRONTEND_REPO:latest
+          echo "✅ Frontend image pushed successfully"
 
-      - name: Wait for deployment
+      - name: Build and push Backend image
+        working-directory: ./backend
         run: |
-          echo "Waiting 10 seconds for deployment to start..."
-          sleep 10
+          IMAGE_TAG=${{ steps.meta.outputs.tags }}
+          echo "Building backend image with tag: $IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_BACKEND_REPO:latest
+          echo "Pushing backend images to ECR..."
+          docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:latest
+          echo "✅ Backend image pushed successfully"
+
+      - name: Image build summary
+        run: |
+          echo "### 🐳 Docker Images Built and Pushed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | Tag | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| $ECR_FRONTEND_REPO | ${{ steps.meta.outputs.tags }} | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+          echo "| $ECR_FRONTEND_REPO | latest | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+          echo "| $ECR_BACKEND_REPO | ${{ steps.meta.outputs.tags }} | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+          echo "| $ECR_BACKEND_REPO | latest | ✅ Pushed |" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: Deploy to EC2 via SSM
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to EC2 via SSM
+        id: deploy
+        run: |
+          echo "🚀 Starting deployment to EC2 instance: ${{ env.EC2_INSTANCE_ID }}"
           
-      - name: Check deployment status
-        run: |
           COMMAND_ID=$(aws ssm send-command \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Check deployment status" \
-            --parameters 'commands=["cd /srv/fyp-jagasewa && sudo docker-compose ps"]' \
-            --query "Command.CommandId" \
-            --output text)
+            --comment "Deploy JagaSewa - Commit ${{ github.sha }}" \
+            --parameters 'commands=[
+              "echo \"=====================================\"",
+              "echo \"JagaSewa Deployment Started\"",
+              "echo \"Commit: ${{ github.sha }}\"",
+              "echo \"=====================================\"",
+              "cd /home/ubuntu/jagasewa",
+              "export IMAGE_TAG=latest",
+              "export ECR_REGISTRY=${{ env.ECR_REGISTRY }}",
+              "bash /home/ubuntu/jagasewa/deploy.sh"
+            ]' \
+            --output text \
+            --query "Command.CommandId")
           
-          echo "Deployment status check command ID: $COMMAND_ID"
+          echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
+          echo "📋 SSM Command ID: $COMMAND_ID"
+          echo ""
+
+      - name: Wait for deployment completion
+        run: |
+          COMMAND_ID="${{ steps.deploy.outputs.command_id }}"
+          echo "⏳ Waiting for deployment to complete (max 5 minutes)..."
+          echo ""
+          
+          for i in {1..30}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+              --query "Status" \
+              --output text 2>/dev/null || echo "Pending")
+            
+            echo "Attempt $i/30: Status = $STATUS"
+            
+            if [ "$STATUS" = "Success" ]; then
+              echo ""
+              echo "✅ Deployment completed successfully!"
+              exit 0
+            elif [ "$STATUS" = "Failed" ]; then
+              echo ""
+              echo "❌ Deployment failed!"
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+                --query "StandardErrorContent" \
+                --output text
+              exit 1
+            elif [ "$STATUS" = "Cancelled" ]; then
+              echo ""
+              echo "❌ Deployment was cancelled!"
+              exit 1
+            elif [ "$STATUS" = "TimedOut" ]; then
+              echo ""
+              echo "❌ Deployment timed out!"
+              exit 1
+            fi
+            
+            sleep 10
+          done
+          
+          echo ""
+          echo "❌ Deployment timed out after 5 minutes"
+          exit 1
+
+      - name: Get deployment logs
+        if: always()
+        run: |
+          COMMAND_ID="${{ steps.deploy.outputs.command_id }}"
+          echo "📄 Deployment Output:"
+          echo "======================================"
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --query "StandardOutputContent" \
+            --output text || echo "No output available"
+          echo "======================================"
+          echo ""
+          
+          ERROR_OUTPUT=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --query "StandardErrorContent" \
+            --output text 2>/dev/null || echo "")
+          
+          if [ ! -z "$ERROR_OUTPUT" ]; then
+            echo "⚠️ Error Output:"
+            echo "======================================"
+            echo "$ERROR_OUTPUT"
+            echo "======================================"
+          fi
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "### 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Instance ID:** ${{ env.EC2_INSTANCE_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image Tag:** latest" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Application is now running on EC2" >> $GITHUB_STEP_SUMMARY
+
+      - name: Deployment failure summary
+        if: failure()
+        run: |
+          echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Instance ID:** ${{ env.EC2_INSTANCE_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Troubleshooting steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Connect to EC2: \`aws ssm start-session --target ${{ env.EC2_INSTANCE_ID }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Check deploy.sh logs: \`cd /home/ubuntu/jagasewa && cat deploy.log\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Check container status: \`docker ps -a\`" >> $GITHUB_STEP_SUMMARY
+          echo "4. Check container logs: \`docker logs jagasewa-frontend\` and \`docker logs jagasewa-backend\`" >> $GITHUB_STEP_SUMMARY

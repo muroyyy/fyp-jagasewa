@@ -3,7 +3,7 @@ import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRig
 import { Link, useNavigate } from 'react-router-dom';
 
 // API Base URL
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function SignupLandlord() {
   const navigate = useNavigate();
