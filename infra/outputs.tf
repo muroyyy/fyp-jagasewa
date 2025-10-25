@@ -2,17 +2,27 @@
 # Root Outputs
 ##########################################################
 
-output "rds_connection_string" {
-  description = "Database connection string for backend"
+output "frontend_url" {
+  description = "Frontend URL (CloudFront)"
+  value       = "https://${var.domain_name}"
+}
+
+output "backend_api_url" {
+  description = "Backend API URL (ALB)"
+  value       = "https://api.${var.domain_name}"
+}
+
+output "rds_endpoint" {
+  description = "RDS database endpoint"
   value       = module.rds.db_endpoint
 }
 
-output "backend_public_ip" {
-  description = "Public IP address of the backend EC2 instance"
-  value       = module.ec2.instance_public_ip
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID for cache invalidation"
+  value       = module.cloudfront.distribution_id
 }
 
-output "frontend_bucket_url" {
-  description = "Public S3 bucket URL hosting React build files"
-  value       = "https://${module.s3.bucket_name}.s3.amazonaws.com"
+output "route53_nameservers" {
+  description = "Route53 nameservers for domain configuration"
+  value       = module.route53.name_servers
 }

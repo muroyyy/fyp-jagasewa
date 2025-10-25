@@ -2,12 +2,17 @@
 # ALB Module Outputs
 ##########################################################
 
-output "alb_dns_name" {
+output "dns_name" {
   description = "DNS name of the Application Load Balancer"
   value       = aws_lb.this.dns_name
 }
 
-output "alb_arn" {
+output "zone_id" {
+  description = "Hosted zone ID of the Application Load Balancer"
+  value       = aws_lb.this.zone_id
+}
+
+output "arn" {
   description = "ARN of the Application Load Balancer"
   value       = aws_lb.this.arn
 }
