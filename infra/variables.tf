@@ -80,25 +80,8 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "acm_certificate_arn" {
-  description = "ACM certificate ARN for HTTPS listener"
+variable "domain_name" {
+  description = "Domain name (e.g., jagasewa.com)"
   type        = string
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "jagasewa_db"
-}
-
-variable "db_username" {
-  description = "RDS master username"
-  type        = string
-  default     = "admin"
-}
-
-variable "db_password" {
-  description = "RDS master password"
-  type        = string
-  sensitive   = true
+  default     = "jagasewa.com"
 }

@@ -19,10 +19,9 @@ variable "enable_versioning" {
   default     = true
 }
 
-variable "enable_static_website" {
-  description = "Enable static website hosting for frontend bucket"
-  type        = bool
-  default     = true
+variable "cloudfront_oac_id" {
+  description = "CloudFront Origin Access Control ID"
+  type        = string
 }
 
 variable "enable_lifecycle" {
