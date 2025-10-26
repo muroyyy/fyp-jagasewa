@@ -81,7 +81,7 @@ variable "environment" {
 }
 
 variable "domain_name" {
-  description = "Domain name (e.g., jagasewa.com)"
+  description = "Domain name (e.g., jagasewa.cloud)"
   type        = string
-  default     = "jagasewa.com"
+  default     = "jagasewa.cloud"
 }

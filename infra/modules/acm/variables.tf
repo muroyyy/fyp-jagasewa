@@ -4,7 +4,7 @@ variable "project_name" {
 }
 
 variable "domain_name" {
-  description = "Domain name (e.g., jagasewa.com)"
+  description = "Domain name (e.g., jagasewa.cloud)"
   type        = string
 }
 

@@ -2,7 +2,7 @@
 aws_region     = "ap-southeast-1"
 project_name   = "jagasewa"
 environment    = "dev"
-domain_name    = "dev.jagasewa.com"
+domain_name    = "dev.jagasewa.cloud"
 
 # Network Configuration
 vpc_cidr           = "10.0.0.0/16"
