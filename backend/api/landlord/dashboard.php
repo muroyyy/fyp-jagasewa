@@ -1,5 +1,5 @@
 <?php
-include_once '../../config/cors.php';
+include_once '../config/cors.php';
 setCorsHeaders();
 
 // Handle preflight OPTIONS request
@@ -8,8 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../../config/database.php';
-require_once '../../models/Landlord.php';
+require_once '../config/database.php';
+require_once '../models/Landlord.php';
 
 // Only allow GET requests
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

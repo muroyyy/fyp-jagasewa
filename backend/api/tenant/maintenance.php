@@ -1,5 +1,5 @@
 <?php
-include_once '../../config/cors.php';
+include_once '../config/cors.php';
 setCorsHeaders();
 
 
@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../../config/database.php';
+require_once '../config/database.php';
 
 // Get Authorization header
 $headers = getallheaders();
