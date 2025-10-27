@@ -28,8 +28,21 @@ cd $TERRAFORM_DIR
 
 # Get terraform outputs
 echo "📋 Getting Terraform outputs..."
-S3_FRONTEND="jagasewa-frontend-dev"  # Based on your S3 module naming
-S3_ARTIFACTS="jagasewa-artifacts-dev"  # Based on your S3 module naming
+
+# Try to get environment from terraform outputs or determine from existing resources
+ENVIRONMENT="prod"  # Default to prod
+
+# Check if we can determine environment from AWS resources
+if aws s3 ls | grep -q "jagasewa-frontend-prod"; then
+    ENVIRONMENT="prod"
+elif aws s3 ls | grep -q "jagasewa-frontend-dev"; then
+    ENVIRONMENT="dev"
+fi
+
+echo "🌍 Detected environment: $ENVIRONMENT"
+
+S3_FRONTEND="jagasewa-frontend-$ENVIRONMENT"
+S3_ARTIFACTS="jagasewa-artifacts-$ENVIRONMENT"
 CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo "")
 ASG_NAME=$(terraform output -raw autoscaling_group_id 2>/dev/null || echo "")
 
@@ -42,6 +55,7 @@ if [[ -z "$CLOUDFRONT_ID" || -z "$ASG_NAME" ]]; then
 fi
 
 echo "📋 Found outputs:"
+echo "  - ENVIRONMENT: $ENVIRONMENT"
 echo "  - S3_FRONTEND: $S3_FRONTEND"
 echo "  - S3_ARTIFACTS: $S3_ARTIFACTS"
 echo "  - CLOUDFRONT_ID: $CLOUDFRONT_ID"
