@@ -11,7 +11,8 @@ locals {
 # Frontend Bucket (Private - CloudFront Access Only)
 # ─────────────────────────────────────────────────────────
 resource "aws_s3_bucket" "frontend" {
-  bucket = local.frontend_bucket_name
+  bucket        = local.frontend_bucket_name
+  force_destroy = true
 
   tags = {
     Name    = local.frontend_bucket_name
@@ -82,7 +83,8 @@ data "aws_caller_identity" "current" {}
 # Artifacts Bucket (Private)
 # ─────────────────────────────────────────────────────────
 resource "aws_s3_bucket" "artifacts" {
-  bucket = local.artifacts_bucket_name
+  bucket        = local.artifacts_bucket_name
+  force_destroy = true
 
   tags = {
     Name    = local.artifacts_bucket_name

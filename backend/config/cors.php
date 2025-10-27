@@ -2,7 +2,8 @@
 function setCorsHeaders() {
     $allowed_origins = [
         'http://localhost:5173',        // Development
-        'http://54.179.253.183'          // Production EC2 (frontend on port 80)
+        'https://jagasewa.cloud',       // Production CloudFront
+        'https://dev.jagasewa.cloud'    // Development CloudFront
     ];
     
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

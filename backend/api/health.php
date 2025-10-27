@@ -23,4 +23,4 @@ try {
 }
 
 http_response_code(200);
-echo json_stringify($response);
+echo json_encode($response);

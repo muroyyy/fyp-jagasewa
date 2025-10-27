@@ -1,5 +1,5 @@
 # backend/Dockerfile
-FROM php:8.2-cli
+FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
@@ -40,12 +40,15 @@ RUN mkdir -p /var/www/html/uploads/profiles \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/uploads
 
-# Expose port 8000
-EXPOSE 8000
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Expose port 80
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health.php || exit 1
+    CMD curl -f http://localhost/api/health.php || exit 1
 
-# Start PHP built-in server
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "."]
+# Start Apache
+CMD ["apache2-foreground"]
