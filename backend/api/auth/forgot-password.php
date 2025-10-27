@@ -1,5 +1,5 @@
 <?php
-include_once '../config/cors.php';
+include_once '../../../config/cors.php';
 setCorsHeaders();
 
 /**
@@ -14,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-include_once '../config/database.php';
-include_once '../models/User.php';
-include_once '../models/PasswordReset.php';
+include_once '../../../config/database.php';
+include_once '../../../models/User.php';
+include_once '../../../models/PasswordReset.php';
 
 $database = new Database();
 $db = $database->getConnection();

@@ -1,5 +1,5 @@
 <?php
-include_once '../config/cors.php';
+include_once '../../config/cors.php';
 setCorsHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

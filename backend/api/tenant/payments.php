@@ -1,5 +1,5 @@
 <?php
-include_once '../config/cors.php';
+include_once '../../../config/cors.php';
 setCorsHeaders();
 
 
@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../config/database.php';
+require_once '../../../config/database.php';
 
 // Only allow GET requests
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
