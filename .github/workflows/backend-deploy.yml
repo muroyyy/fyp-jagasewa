@@ -29,10 +29,24 @@ jobs:
       run: |
         aws s3 cp backend-deploy.zip s3://${{ secrets.S3_ARTIFACTS_BUCKET }}/backend-deploy.zip
 
-    - name: Deploy to EC2 via SSM
+    - name: Deploy to Auto Scaling Group via SSM
       run: |
+        # Get all healthy instance IDs from ASG
+        INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
+          --auto-scaling-group-names ${{ secrets.ASG_NAME }} \
+          --query 'AutoScalingGroups[0].Instances[?LifecycleState==`InService`].InstanceId' \
+          --output text)
+        
+        if [ -z "$INSTANCE_IDS" ]; then
+          echo "❌ No healthy instances found in ASG"
+          exit 1
+        fi
+        
+        echo "🚀 Deploying to instances: $INSTANCE_IDS"
+        
+        # Deploy to all healthy instances
         aws ssm send-command \
-          --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+          --instance-ids $INSTANCE_IDS \
           --document-name "AWS-RunShellScript" \
           --parameters 'commands=[
             "cd /tmp",
