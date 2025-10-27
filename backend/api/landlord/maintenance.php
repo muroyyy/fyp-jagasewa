@@ -11,18 +11,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 
-// Get authorization header
 // Get authorization token using helper function
-$token = getBearerToken();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+$sessionToken = getBearerToken();
 
-if (empty($authHeader) || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+if (empty($sessionToken)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
-
-$sessionToken = $matches[1];
 
 try {
     $database = new Database();

@@ -22,28 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit();
 }
 
-// Get authorization header
 // Get authorization token using helper function
 $token = getBearerToken();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "No authorization token provided"
-    ]);
-    exit();
-}
-
-// Extract token from "Bearer <token>"
-$token = str_replace('Bearer ', '', $authHeader);
 
 if (empty($token)) {
     http_response_code(401);
     echo json_encode([
         "success" => false,
-        "message" => "Invalid token format"
+        "message" => "No authorization token provided"
     ]);
     exit();
 }

@@ -14,19 +14,110 @@ require_once '../../config/auth_helper.php';
 // Get Authorization header
 // Get authorization token using helper function
 $token = getBearerToken();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+// Get authorization token using helper function
+$token = getBearerToken();
 
-if (empty($authHeader)) {
+if (empty($token)) {
     http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Authorization header missing'
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
+// Get authorization token using helper function
+$token = getBearerToken();
 
-// Extract token
-$token = str_replace('Bearer ', '', $authHeader);
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+// Get authorization token using helper function
+$token = getBearerToken();
+
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
 
 try {
     $database = new Database();
