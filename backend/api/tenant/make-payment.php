@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
+require_once '../../config/auth_helper.php';
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -22,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Get authorization header
-$headers = getallheaders();
+// Get authorization token using helper function
+$token = getBearerToken();
 $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
 if (empty($authHeader)) {

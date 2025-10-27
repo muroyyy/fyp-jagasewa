@@ -8,12 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
+require_once '../../config/auth_helper.php';
 
-// Get Authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+// Get authorization token using helper function
+$token = getBearerToken();
 
-if (empty($authHeader)) {
+if (empty($token)) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
@@ -21,9 +21,6 @@ if (empty($authHeader)) {
     ]);
     exit();
 }
-
-// Extract token
-$token = str_replace('Bearer ', '', $authHeader);
 
 try {
     $database = new Database();
