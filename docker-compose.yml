@@ -23,11 +23,14 @@ services:
 =======
       - "80:80"
     environment:
-      - DB_HOST=${RDS_ENDPOINT}
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SECRET_NAME=jagasewa-db-credentials-prod
+      - AWS_DEFAULT_REGION=ap-southeast-1
       - API_URL=https://api.jagasewa.cloud
+      # Fallback environment variables
+      - DB_HOST=${RDS_ENDPOINT:-}
+      - DB_NAME=${DB_NAME:-}
+      - DB_USERNAME=${DB_USERNAME:-}
+      - DB_PASSWORD=${DB_PASSWORD:-}
 >>>>>>> 03b28fa (feat: separate CI/CD workflows and update domain to jagasewa.cloud)
     volumes:
       - ./backend:/var/www/html

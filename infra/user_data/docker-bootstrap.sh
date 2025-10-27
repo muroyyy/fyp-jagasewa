@@ -1,6 +1,6 @@
 #!/bin/bash
 # -------------------------------------------------
-# JagaSewa EC2 Bootstrap Script (Docker + SSM + S3)
+# JagaSewa EC2 Bootstrap Script (Backend Only + Secrets Manager)
 # -------------------------------------------------
 
 # Update packages
@@ -14,17 +14,22 @@ apt install -y docker.io docker-compose awscli unzip curl
 systemctl enable docker
 systemctl start docker
 
+# Add ubuntu user to docker group
+usermod -aG docker ubuntu
+
 # Install and enable AWS SSM Agent
 snap install amazon-ssm-agent --classic
 systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
 systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
 
-# Retrieve the latest build artifacts from S3
-aws s3 cp s3://${S3_BUCKET_NAME}/backend /srv/jagasewa-backend --recursive
-aws s3 cp s3://${S3_BUCKET_NAME}/frontend /srv/jagasewa-frontend --recursive
+# Create application directory
+mkdir -p /srv/jagasewa-backend
+chown ubuntu:ubuntu /srv/jagasewa-backend
 
-# Build and run Docker containers
-cd /srv/jagasewa-backend
-docker-compose up -d
+# Set up environment variables for Secrets Manager
+echo 'export AWS_DEFAULT_REGION=ap-southeast-1' >> /home/ubuntu/.bashrc
+echo 'export DB_SECRET_NAME=jagasewa-db-credentials-prod' >> /home/ubuntu/.bashrc
 
-echo "✅ EC2 instance setup complete and Docker containers running."
+echo "✅ EC2 instance setup complete. Ready for backend deployment."
+echo "📝 Backend will be deployed via CI/CD pipeline."
+echo "🔐 Database credentials will be retrieved from AWS Secrets Manager."

@@ -56,11 +56,7 @@ variable "db_username" {
   default     = "admin"
 }
 
-variable "db_password" {
-  description = "Master password for RDS"
-  type        = string
-  sensitive   = true
-}
+
 
 variable "s3_bucket_name" {
   description = "S3 bucket name for frontend assets"

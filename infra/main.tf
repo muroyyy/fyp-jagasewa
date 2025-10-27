@@ -68,7 +68,6 @@ module "s3" {
   project_name              = var.project_name
   environment               = var.environment
   enable_versioning         = true
-  enable_static_website     = false
   enable_lifecycle          = false
   lifecycle_expiration_days = 90
   cloudfront_oac_id         = module.cloudfront.origin_access_control_id
@@ -95,12 +94,25 @@ module "alb" {
 }
 
 module "ec2" {
-  source           = "./modules/ec2"
-  project_name     = var.project_name
-  environment      = var.environment
-  subnet_id        = module.vpc.public_subnet_ids[0]
-  ec2_sg_id        = module.security.ec2_sg_id
-  target_group_arn = module.alb.target_group_arn
+  source            = "./modules/ec2"
+  project_name      = var.project_name
+  environment       = var.environment
+  public_subnet_ids = module.vpc.public_subnet_ids
+  ec2_sg_id         = module.security.ec2_sg_id
+  target_group_arn  = module.alb.target_group_arn
+  min_size          = 1
+  max_size          = 3
+  desired_capacity  = 2
+}
+
+module "secrets" {
+  source       = "./modules/secrets"
+  project_name = var.project_name
+  environment  = var.environment
+  domain_name  = var.domain_name
+  db_endpoint  = module.rds.db_endpoint
+  db_name      = var.db_name
+  db_username  = var.db_username
 }
 
 module "rds" {
@@ -111,14 +123,6 @@ module "rds" {
   rds_sg_id          = module.security.rds_sg_id
   db_name            = var.db_name
   db_username        = var.db_username
-  db_password        = var.db_password
+  db_password        = module.secrets.db_password
 }
 
-##########################################################
-# Attach EC2 Instance to ALB Target Group
-##########################################################
-resource "aws_lb_target_group_attachment" "backend_attach" {
-  target_group_arn = module.alb.target_group_arn
-  target_id        = module.ec2.instance_id
-  port             = 80
-}

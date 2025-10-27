@@ -132,6 +132,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "artifacts_lifecycle" {
     id     = "expire-old-versions"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     noncurrent_version_expiration {
       noncurrent_days = var.lifecycle_expiration_days
     }

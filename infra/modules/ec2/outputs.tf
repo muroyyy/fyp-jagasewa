@@ -2,19 +2,19 @@
 # EC2 Module Outputs
 ##########################################################
 
-output "instance_id" {
-  description = "EC2 instance ID"
-  value       = aws_instance.backend.id
+output "autoscaling_group_id" {
+  description = "ID of the Auto Scaling Group"
+  value       = aws_autoscaling_group.backend.id
 }
 
-output "public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.backend.public_ip
+output "autoscaling_group_arn" {
+  description = "ARN of the Auto Scaling Group"
+  value       = aws_autoscaling_group.backend.arn
 }
 
-output "private_ip" {
-  description = "Private IP address of the EC2 instance"
-  value       = aws_instance.backend.private_ip
+output "launch_template_id" {
+  description = "ID of the Launch Template"
+  value       = aws_launch_template.backend.id
 }
 
 output "iam_role_name" {
