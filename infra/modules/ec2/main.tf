@@ -39,6 +39,12 @@ resource "aws_iam_role_policy_attachment" "s3_readonly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
+# Attach ECR Read Only Policy
+resource "aws_iam_role_policy_attachment" "ecr_readonly" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
 # Custom policy for Secrets Manager access
 resource "aws_iam_role_policy" "secrets_access" {
   name = "${var.project_name}-secrets-access"
