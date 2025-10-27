@@ -9,7 +9,7 @@ $response = [
     'service' => 'jagasewa-backend',
     'timestamp' => date('Y-m-d H:i:s'),
     'deployment' => 'v2.1-' . date('YmdHis'),
-    'trigger' => 'ecr-permissions-' . time(),
+    'trigger' => 'ssm-docker-fix-' . time(),
     'php_version' => phpversion(),
 ];
 

@@ -14,8 +14,9 @@ apt install -y docker.io docker-compose awscli unzip curl
 systemctl enable docker
 systemctl start docker
 
-# Add ubuntu user to docker group
+# Add ubuntu and ssm-user to docker group
 usermod -aG docker ubuntu
+usermod -aG docker ssm-user
 
 # Install and enable AWS SSM Agent
 snap install amazon-ssm-agent --classic
