@@ -39,6 +39,10 @@ jobs:
         echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Deploy to Auto Scaling Group via SSM
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
         # Get all healthy instance IDs from ASG
         INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
@@ -51,18 +55,19 @@ jobs:
           exit 1
         fi
         
-        echo "🚀 Deploying image ${{ env.IMAGE_URI }} to instances: $INSTANCE_IDS"
+        IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        echo "🚀 Deploying image $IMAGE_URI to instances: $INSTANCE_IDS"
         
         # Deploy to all healthy instances
         aws ssm send-command \
           --instance-ids $INSTANCE_IDS \
           --document-name "AWS-RunShellScript" \
-          --parameters 'commands=[
-            "aws ecr get-login-password --region ap-southeast-1 | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
-            "sudo docker stop jagasewa-backend || true",
-            "sudo docker rm jagasewa-backend || true",
-            "sudo docker pull ${{ env.IMAGE_URI }}",
-            "sudo docker run -d --name jagasewa-backend -p 80:80 --restart unless-stopped -e AWS_DEFAULT_REGION=ap-southeast-1 -e DB_SECRET_NAME=jagasewa-db-credentials-prod ${{ env.IMAGE_URI }}",
-            "sudo docker system prune -f"
-          ]' \
+          --parameters "commands=[
+            \"aws ecr get-login-password --region ap-southeast-1 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY\",
+            \"sudo docker stop \$(sudo docker ps -q) || true\",
+            \"sudo docker rm \$(sudo docker ps -aq) || true\",
+            \"sudo docker pull $IMAGE_URI\",
+            \"sudo docker run -d --name jagasewa-backend -p 80:80 --restart unless-stopped -e AWS_DEFAULT_REGION=ap-southeast-1 -e DB_SECRET_NAME=jagasewa-db-credentials-prod $IMAGE_URI\",
+            \"sudo docker system prune -f\"
+          ]" \
           --region ap-southeast-1
