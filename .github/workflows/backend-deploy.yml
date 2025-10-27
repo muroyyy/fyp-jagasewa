@@ -1,9 +1,9 @@
-name: Backend Deploy to EC2
+name: Backend Deploy via ECR
 
 on:
   push:
     branches: [main]
-    paths: ['backend/**', 'docker-compose.yml']
+    paths: ['backend/**']
   workflow_dispatch:
 
 jobs:
@@ -21,13 +21,22 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-southeast-1
 
-    - name: Create deployment package
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push Docker image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        zip -r backend-deploy.zip backend/ docker-compose.yml
-        
-    - name: Upload to S3 artifacts bucket
-      run: |
-        aws s3 cp backend-deploy.zip s3://${{ secrets.S3_ARTIFACTS_BUCKET }}/backend-deploy.zip
+        cd backend
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Deploy to Auto Scaling Group via SSM
       run: |
@@ -42,22 +51,18 @@ jobs:
           exit 1
         fi
         
-        echo "🚀 Deploying to instances: $INSTANCE_IDS"
+        echo "🚀 Deploying image ${{ env.IMAGE_URI }} to instances: $INSTANCE_IDS"
         
         # Deploy to all healthy instances
         aws ssm send-command \
           --instance-ids $INSTANCE_IDS \
           --document-name "AWS-RunShellScript" \
           --parameters 'commands=[
-            "cd /tmp",
-            "aws s3 cp s3://${{ secrets.S3_ARTIFACTS_BUCKET }}/backend-deploy.zip .",
-            "unzip -o backend-deploy.zip",
-            "sudo cp -r backend/* /srv/jagasewa-backend/",
-            "sudo cp docker-compose.yml /srv/jagasewa-backend/",
-            "cd /srv/jagasewa-backend",
-            "sudo docker-compose down",
-            "sudo docker-compose build --no-cache",
-            "sudo docker-compose up -d",
+            "aws ecr get-login-password --region ap-southeast-1 | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
+            "sudo docker stop jagasewa-backend || true",
+            "sudo docker rm jagasewa-backend || true",
+            "sudo docker pull ${{ env.IMAGE_URI }}",
+            "sudo docker run -d --name jagasewa-backend -p 80:80 --restart unless-stopped -e AWS_DEFAULT_REGION=ap-southeast-1 -e DB_SECRET_NAME=jagasewa-db-credentials-prod ${{ env.IMAGE_URI }}",
             "sudo docker system prune -f"
           ]' \
           --region ap-southeast-1

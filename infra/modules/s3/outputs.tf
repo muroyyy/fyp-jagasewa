@@ -9,7 +9,7 @@ output "frontend_bucket_name" {
 
 output "frontend_bucket_domain_name" {
   description = "Frontend S3 bucket domain name for CloudFront origin"
-  value       = aws_s3_bucket.frontend.bucket_domain_name
+  value       = aws_s3_bucket.frontend.bucket_regional_domain_name
 }
 
 output "artifacts_bucket_name" {

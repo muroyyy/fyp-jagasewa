@@ -24,6 +24,12 @@ variable "cloudfront_oac_id" {
   type        = string
 }
 
+variable "cloudfront_distribution_id" {
+  description = "CloudFront Distribution ID for S3 bucket policy"
+  type        = string
+  default     = ""
+}
+
 variable "enable_lifecycle" {
   description = "Enable lifecycle rule for artifact bucket"
   type        = bool

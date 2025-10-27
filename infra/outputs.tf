@@ -41,3 +41,8 @@ output "autoscaling_group_id" {
   description = "Auto Scaling Group ID for backend instances"
   value       = module.ec2.autoscaling_group_id
 }
+
+output "ecr_repository_url" {
+  description = "ECR repository URL for backend Docker images"
+  value       = module.ecr.repository_url
+}
