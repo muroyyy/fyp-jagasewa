@@ -59,7 +59,7 @@ jobs:
         echo "🚀 Deploying image $IMAGE_URI to instances: $INSTANCE_IDS"
         
         # Deploy to all healthy instances
-        aws ssm send-command \
+        COMMAND_ID=$(aws ssm send-command \
           --instance-ids $INSTANCE_IDS \
           --document-name "AWS-RunShellScript" \
           --parameters "commands=[
@@ -70,4 +70,22 @@ jobs:
             \"sudo docker run -d --name jagasewa-backend -p 80:80 --restart unless-stopped -e AWS_DEFAULT_REGION=ap-southeast-1 -e DB_SECRET_NAME=jagasewa-db-credentials-prod $IMAGE_URI\",
             \"sudo docker system prune -f\"
           ]" \
-          --region ap-southeast-1
+          --region ap-southeast-1 \
+          --query 'Command.CommandId' --output text)
+        
+        echo "📋 Command ID: $COMMAND_ID"
+        echo "⏳ Waiting for deployment to complete..."
+        
+        # Wait for command completion
+        aws ssm wait command-executed --command-id $COMMAND_ID --region ap-southeast-1
+        
+        # Check results
+        FAILED_COUNT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --region ap-southeast-1 --query 'length(CommandInvocations[?Status==`Failed`])' --output text)
+        
+        if [ "$FAILED_COUNT" -gt "0" ]; then
+          echo "❌ Deployment failed on $FAILED_COUNT instances"
+          aws ssm list-command-invocations --command-id $COMMAND_ID --region ap-southeast-1 --query 'CommandInvocations[?Status==`Failed`].{InstanceId:InstanceId,StatusDetails:StatusDetails}' --output table
+          exit 1
+        fi
+        
+        echo "✅ Deployment completed successfully on all instances"
