@@ -50,7 +50,7 @@ export default function LandlordProperties() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/properties.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/properties.php`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
@@ -166,7 +166,7 @@ export default function LandlordProperties() {
         formDataToSend.append('property_images[]', image);
       });
       
-      const response = await fetch(`${API_BASE_URL}/landlord/add-property.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/add-property.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${sessionToken}`

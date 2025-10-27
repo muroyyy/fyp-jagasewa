@@ -32,7 +32,7 @@ export default function ResetPassword() {
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/verify-reset-token.php?token=${token}`);
+        const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-token.php?token=${token}`);
         const result = await response.json();
 
         setTokenValid(result.valid);
@@ -75,7 +75,7 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/reset-password.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

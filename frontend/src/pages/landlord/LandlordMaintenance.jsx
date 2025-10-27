@@ -52,7 +52,7 @@ export default function LandlordMaintenance() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/maintenance.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/maintenance.php`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
@@ -209,7 +209,7 @@ export default function LandlordMaintenance() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/update-maintenance.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/update-maintenance.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,

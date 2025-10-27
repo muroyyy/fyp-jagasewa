@@ -4,7 +4,7 @@
  * POST /api/auth/login.php
  */
 
-include_once '../../../config/cors.php';
+include_once '../../config/cors.php';
 setCorsHeaders();
 
 // Handle preflight request
@@ -13,10 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-include_once '../../../config/database.php';
-include_once '../../../models/User.php';
-include_once '../../../models/Landlord.php';
-include_once '../../../models/Tenant.php';
+// only two levels up
+include_once '../../config/database.php';
+include_once '../../models/User.php';
+include_once '../../models/Landlord.php';
+include_once '../../models/Tenant.php';
 
 // Create DB connection
 $database = new Database();

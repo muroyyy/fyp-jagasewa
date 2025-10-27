@@ -33,7 +33,7 @@ export default function LandlordPayments() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/payments.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/payments.php`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,

@@ -42,7 +42,7 @@ export default function LandlordSettings() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/profile.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/profile.php`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
@@ -123,7 +123,7 @@ export default function LandlordSettings() {
         formData.append('profile_image', selectedFile);
       }
 
-      const response = await fetch(`${API_BASE_URL}/landlord/update-profile.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/update-profile.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${sessionToken}`
@@ -178,7 +178,7 @@ export default function LandlordSettings() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/landlord/change-password.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/change-password.php`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,

@@ -1,5 +1,5 @@
 <?php
-include_once '../../../config/cors.php';
+include_once '../../config/cors.php';
 setCorsHeaders();
 
 /**
@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-require_once '../../../config/database.php';
-require_once '../../../models/PasswordReset.php';
+require_once '../../config/database.php';
+require_once '../../models/PasswordReset.php';
 
 // Get JSON input
 $json = file_get_contents('php://input');
