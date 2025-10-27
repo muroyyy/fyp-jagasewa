@@ -8,6 +8,7 @@ $response = [
     'status' => 'healthy',
     'service' => 'jagasewa-backend',
     'timestamp' => date('Y-m-d H:i:s'),
+    'deployment' => 'v2.0-' . date('YmdHis'),
     'php_version' => phpversion(),
 ];
 
@@ -18,7 +19,7 @@ try {
     $db = $database->getConnection();
     $response['database'] = 'connected';
 } catch (Exception $e) {
-    $response['database'] = 'disconnected';
+    $response['database'] = 'disconnected: ' . $e->getMessage();
     $response['status'] = 'degraded';
 }
 
