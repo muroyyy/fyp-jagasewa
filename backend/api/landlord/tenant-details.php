@@ -72,8 +72,10 @@ try {
 
     echo json_encode([
         'success' => true,
-        'tenant' => $tenant,
-        'rental_history' => $rental_history
+        'data' => [
+            'tenant' => $tenant,
+            'rental_history' => $rental_history
+        ]
     ]);
 
 } catch (Exception $e) {

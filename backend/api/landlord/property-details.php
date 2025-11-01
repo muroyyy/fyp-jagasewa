@@ -82,10 +82,19 @@ try {
     $tenant_stmt->execute();
     $recent_tenants = $tenant_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Decode images JSON if present
+    if (!empty($property['images'])) {
+        $property['images'] = json_decode($property['images'], true);
+    } else {
+        $property['images'] = [];
+    }
+    
     echo json_encode([
         'success' => true,
-        'property' => $property,
-        'recent_tenants' => $recent_tenants
+        'data' => [
+            'property' => $property,
+            'recent_tenants' => $recent_tenants
+        ]
     ]);
 
 } catch (Exception $e) {
