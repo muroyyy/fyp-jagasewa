@@ -85,7 +85,7 @@ function verifyJWT($token) {
         if ($session) {
             // Implement sliding expiration - extend session by 2 hours on activity
             $new_expiry = date('Y-m-d H:i:s', strtotime('+2 hours'));
-            $update_query = "UPDATE sessions SET expires_at = :new_expiry WHERE session_id = :session_id";
+            $update_query = "UPDATE sessions SET expires_at = :new_expiry, last_activity = NOW() WHERE session_id = :session_id";
             $update_stmt = $db->prepare($update_query);
             $update_stmt->bindParam(':new_expiry', $new_expiry);
             $update_stmt->bindParam(':session_id', $session['session_id']);

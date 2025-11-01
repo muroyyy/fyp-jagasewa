@@ -21,9 +21,24 @@ try {
     $user_data = verifyJWT($token);
     if (!$user_data || $user_data['role'] !== 'landlord') {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        echo json_encode(['success' => false, 'message' => 'Access denied', 'debug' => $user_data]);
         exit();
     }
+    
+    // Get landlord_id from landlords table
+    $landlord_query = "SELECT landlord_id FROM landlords WHERE user_id = :user_id";
+    $landlord_stmt = $conn->prepare($landlord_query);
+    $landlord_stmt->bindParam(':user_id', $user_data['user_id'], PDO::PARAM_INT);
+    $landlord_stmt->execute();
+    $landlord_data = $landlord_stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$landlord_data) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Landlord profile not found', 'user_id' => $user_data['user_id']]);
+        exit();
+    }
+    
+    $landlord_id = $landlord_data['landlord_id'];
 
     // Get property ID from query parameter
     $property_id = $_GET['property_id'] ?? null;
@@ -43,7 +58,7 @@ try {
     
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':property_id', $property_id, PDO::PARAM_INT);
-    $stmt->bindParam(':landlord_id', $user_data['user_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':landlord_id', $landlord_id, PDO::PARAM_INT);
     $stmt->execute();
 
     $property = $stmt->fetch(PDO::FETCH_ASSOC);
