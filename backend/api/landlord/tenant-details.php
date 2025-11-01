@@ -24,6 +24,21 @@ try {
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
+    
+    // Get landlord_id from landlords table
+    $landlord_query = "SELECT landlord_id FROM landlords WHERE user_id = :user_id";
+    $landlord_stmt = $conn->prepare($landlord_query);
+    $landlord_stmt->bindParam(':user_id', $user_data['user_id'], PDO::PARAM_INT);
+    $landlord_stmt->execute();
+    $landlord_data = $landlord_stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$landlord_data) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Landlord profile not found']);
+        exit();
+    }
+    
+    $landlord_id = $landlord_data['landlord_id'];
 
     // Get tenant ID from query parameter
     $tenant_id = $_GET['tenant_id'] ?? null;
@@ -46,7 +61,7 @@ try {
     
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':tenant_id', $tenant_id, PDO::PARAM_INT);
-    $stmt->bindParam(':landlord_id', $user_data['user_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':landlord_id', $landlord_id, PDO::PARAM_INT);
     $stmt->execute();
 
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -66,7 +81,7 @@ try {
     
     $history_stmt = $conn->prepare($history_query);
     $history_stmt->bindParam(':tenant_id', $tenant_id, PDO::PARAM_INT);
-    $history_stmt->bindParam(':landlord_id', $user_data['user_id'], PDO::PARAM_INT);
+    $history_stmt->bindParam(':landlord_id', $landlord_id, PDO::PARAM_INT);
     $history_stmt->execute();
     $rental_history = $history_stmt->fetchAll(PDO::FETCH_ASSOC);
 

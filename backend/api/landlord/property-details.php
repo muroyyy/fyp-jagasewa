@@ -89,13 +89,23 @@ try {
         $property['images'] = [];
     }
     
-    echo json_encode([
+    // Debug output
+    $response = [
         'success' => true,
         'data' => [
             'property' => $property,
             'recent_tenants' => $recent_tenants
+        ],
+        'debug' => [
+            'property_id' => $property_id,
+            'landlord_id' => $landlord_id,
+            'user_id' => $user_data['user_id'],
+            'property_count' => $property ? 1 : 0,
+            'tenant_count' => count($recent_tenants)
         ]
-    ]);
+    ];
+    
+    echo json_encode($response);
 
 } catch (Exception $e) {
     http_response_code(500);
