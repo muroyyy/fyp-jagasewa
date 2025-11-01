@@ -49,6 +49,13 @@ if (!empty($data->email) && !empty($data->password)) {
         } elseif ($login_result['user_role'] === 'tenant') {
             $tenant = new Tenant($db);
             $profile_data = $tenant->getByUserId($login_result['user_id']);
+        } elseif ($login_result['user_role'] === 'admin') {
+            // Get admin profile data
+            $admin_query = "SELECT full_name, phone, department, profile_image FROM admins WHERE user_id = :user_id";
+            $admin_stmt = $db->prepare($admin_query);
+            $admin_stmt->bindParam(':user_id', $login_result['user_id']);
+            $admin_stmt->execute();
+            $profile_data = $admin_stmt->fetch(PDO::FETCH_ASSOC);
         }
 
         // Generate session token

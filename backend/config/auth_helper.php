@@ -91,21 +91,25 @@ function verifyJWT($token) {
             $update_stmt->bindParam(':session_id', $session['session_id']);
             $update_stmt->execute();
             
-            // Get full name from landlords or tenants table based on role
+            // Get full name from landlords, tenants, or admins table based on role
             $full_name = '';
             if ($session['user_role'] === 'landlord') {
                 $name_query = "SELECT full_name FROM landlords WHERE user_id = :user_id";
-            } else {
+            } elseif ($session['user_role'] === 'tenant') {
                 $name_query = "SELECT full_name FROM tenants WHERE user_id = :user_id";
+            } elseif ($session['user_role'] === 'admin') {
+                $name_query = "SELECT full_name FROM admins WHERE user_id = :user_id";
             }
             
-            $name_stmt = $db->prepare($name_query);
-            $name_stmt->bindParam(':user_id', $session['user_id']);
-            $name_stmt->execute();
-            $name_result = $name_stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($name_result) {
-                $full_name = $name_result['full_name'];
+            if (isset($name_query)) {
+                $name_stmt = $db->prepare($name_query);
+                $name_stmt->bindParam(':user_id', $session['user_id']);
+                $name_stmt->execute();
+                $name_result = $name_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($name_result) {
+                    $full_name = $name_result['full_name'];
+                }
             }
             
             return [

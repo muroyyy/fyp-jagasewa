@@ -70,7 +70,7 @@ class User {
     /**
      * Login user
      */
-    public function login() {
+    public function login($requested_role = null) {
         $query = "SELECT user_id, email, password_hash, user_role, is_active, is_verified
                 FROM " . $this->table_name . "
                 WHERE email = :email
@@ -86,6 +86,11 @@ class User {
             // Check if account is active
             if(!$row['is_active']) {
                 return ['success' => false, 'message' => 'Account is deactivated'];
+            }
+
+            // Check if requested role matches user role (if specified)
+            if ($requested_role && $row['user_role'] !== $requested_role) {
+                return ['success' => false, 'message' => 'Invalid role for this account'];
             }
 
             // Verify password
