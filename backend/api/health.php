@@ -8,8 +8,8 @@ $response = [
     'status' => 'healthy',
     'service' => 'jagasewa-backend',
     'timestamp' => date('Y-m-d H:i:s'),
-    'deployment' => 'v2.1-' . date('YmdHis'),
-    'trigger' => 'ssm-docker-fix-' . time(),
+    'deployment' => 'v2.2-' . date('YmdHis'),
+    'trigger' => 'single-ec2-deployment-' . time(),
     'php_version' => phpversion(),
 ];
 
