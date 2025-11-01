@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 REPO="muroyyy/fyp-jagasewa" 
-TERRAFORM_DIR="./infra"
+TERRAFORM_DIR="${TERRAFORM_DIR:-../infra}"
 
 echo "🔄 Updating GitHub secrets from Terraform outputs..."
 

@@ -6,6 +6,14 @@
 aws-credentials
 .aws/
 
+# Project context (local development reference)
+project_context.md
+
+# ASG scaling scripts (local development)
+scale-up.sh
+scale-down.sh
+asg-commands.sh
+
 # Terraform
 **/.terraform/
 **/.terraform.lock.hcl
