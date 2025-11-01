@@ -31,6 +31,14 @@ import TenantMaintenance from './pages/tenant/TenantMaintenance';
 import TenantDocuments from './pages/tenant/TenantDocuments';
 import TenantSettings from './pages/tenant/TenantSettings';
 
+// Admin
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import PropertyManagement from './pages/admin/PropertyManagement';
+import SystemSettings from './pages/admin/SystemSettings';
+import AdminProfile from './pages/admin/AdminProfile';
+
 function App() {
   return (
     <Router>
@@ -64,6 +72,15 @@ function App() {
         <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
         <Route path="/tenant/documents" element={<TenantDocuments />} />
         <Route path="/tenant/settings" element={<TenantSettings />} />
+
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="properties" element={<PropertyManagement />} />
+          <Route path="settings" element={<SystemSettings />} />
+          <Route path="profile" element={<AdminProfile />} />
+        </Route>
       </Routes>
     </Router>
   );

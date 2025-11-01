@@ -6,7 +6,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [userRole, setUserRole] = useState('landlord'); // 'landlord' or 'tenant'
+  const [userRole, setUserRole] = useState('landlord'); // 'landlord', 'tenant', or 'admin'
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -47,8 +47,10 @@ export default function Login() {
         // Navigate to respective dashboard
         if (data.data.user_role === "landlord") {
           navigate("/landlord-dashboard");
-        } else {
+        } else if (data.data.user_role === "tenant") {
           navigate("/tenant-dashboard");
+        } else if (data.data.user_role === "admin") {
+          navigate("/admin/dashboard");
         }
       } else {
         alert(data.message || "Invalid credentials. Please try again.");
@@ -81,12 +83,12 @@ export default function Login() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           {/* Role Selection */}
-          <div className="flex gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-2 mb-8">
             <button
               type="button"
               onClick={() => setUserRole('landlord')}
               disabled={isLoading}
-              className={`cursor-pointer flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+              className={`cursor-pointer py-3 px-3 rounded-xl font-semibold transition-all text-sm ${
                 userRole === 'landlord'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -98,13 +100,25 @@ export default function Login() {
               type="button"
               onClick={() => setUserRole('tenant')}
               disabled={isLoading}
-              className={`cursor-pointer flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+              className={`cursor-pointer py-3 px-3 rounded-xl font-semibold transition-all text-sm ${
                 userRole === 'tenant'
                   ? 'bg-gradient-to-r from-green-600 to-teal-600 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Tenant
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserRole('admin')}
+              disabled={isLoading}
+              className={`cursor-pointer py-3 px-3 rounded-xl font-semibold transition-all text-sm ${
+                userRole === 'admin'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Admin
             </button>
           </div>
 
@@ -185,7 +199,9 @@ export default function Login() {
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                 userRole === 'landlord'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
-                  : 'bg-gradient-to-r from-green-600 to-teal-600'
+                  : userRole === 'tenant'
+                  ? 'bg-gradient-to-r from-green-600 to-teal-600'
+                  : 'bg-gradient-to-r from-purple-600 to-indigo-600'
               } ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isLoading ? (
