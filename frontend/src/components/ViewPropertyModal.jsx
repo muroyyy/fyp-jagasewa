@@ -28,7 +28,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
       const data = await response.json();
       
       if (data.success) {
-        setProperty(data.data);
+        setProperty(data.data.property);
         setCurrentImageIndex(0);
       } else {
         setError(data.message || 'Failed to load property details');

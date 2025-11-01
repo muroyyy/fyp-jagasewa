@@ -53,7 +53,7 @@ export default function LandlordEditProperty() {
       const data = await response.json();
       
       if (data.success) {
-        const property = data.data;
+        const property = data.data.property;
         const propertyData = {
           property_name: property.property_name || '',
           property_type: property.property_type || 'Apartment',

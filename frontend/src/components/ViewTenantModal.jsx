@@ -27,7 +27,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
       const data = await response.json();
       
       if (data.success) {
-        setTenant(data.data);
+        setTenant(data.data.tenant);
       } else {
         setError(data.message || 'Failed to load tenant details');
       }
