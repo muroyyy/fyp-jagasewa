@@ -44,12 +44,12 @@ echo "🌍 Detected environment: $ENVIRONMENT"
 S3_FRONTEND="jagasewa-frontend-$ENVIRONMENT"
 S3_ARTIFACTS="jagasewa-artifacts-$ENVIRONMENT"
 CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo "")
-ASG_NAME=$(terraform output -raw autoscaling_group_id 2>/dev/null || echo "")
+INSTANCE_ID=$(terraform output -raw instance_id 2>/dev/null || echo "")
 ECR_REPO_URL=$(terraform output -raw ecr_repository_url 2>/dev/null || echo "")
 ECR_REPO_NAME="jagasewa-backend"
 
 # Validate outputs
-if [[ -z "$CLOUDFRONT_ID" || -z "$ASG_NAME" || -z "$ECR_REPO_URL" ]]; then
+if [[ -z "$CLOUDFRONT_ID" || -z "$INSTANCE_ID" || -z "$ECR_REPO_URL" ]]; then
     echo "❌ Missing terraform outputs. Make sure terraform apply completed successfully."
     echo "Available outputs:"
     terraform output
@@ -61,7 +61,7 @@ echo "  - ENVIRONMENT: $ENVIRONMENT"
 echo "  - S3_FRONTEND: $S3_FRONTEND"
 echo "  - S3_ARTIFACTS: $S3_ARTIFACTS"
 echo "  - CLOUDFRONT_ID: $CLOUDFRONT_ID"
-echo "  - ASG_NAME: $ASG_NAME"
+echo "  - INSTANCE_ID: $INSTANCE_ID"
 echo "  - ECR_REPO_URL: $ECR_REPO_URL"
 echo "  - ECR_REPO_NAME: $ECR_REPO_NAME"
 
@@ -71,7 +71,7 @@ echo "🔐 Updating GitHub repository secrets..."
 gh secret set S3_FRONTEND_BUCKET -b"$S3_FRONTEND" -R $REPO
 gh secret set S3_ARTIFACTS_BUCKET -b"$S3_ARTIFACTS" -R $REPO  
 gh secret set CLOUDFRONT_DISTRIBUTION_ID -b"$CLOUDFRONT_ID" -R $REPO
-gh secret set ASG_NAME -b"$ASG_NAME" -R $REPO
+gh secret set INSTANCE_ID -b"$INSTANCE_ID" -R $REPO
 gh secret set ECR_REPOSITORY_URL -b"$ECR_REPO_URL" -R $REPO
 gh secret set ECR_REPOSITORY_NAME -b"$ECR_REPO_NAME" -R $REPO
 
@@ -81,7 +81,7 @@ echo "📋 Updated secrets:"
 echo "  - S3_FRONTEND_BUCKET: $S3_FRONTEND"
 echo "  - S3_ARTIFACTS_BUCKET: $S3_ARTIFACTS"
 echo "  - CLOUDFRONT_DISTRIBUTION_ID: $CLOUDFRONT_ID"
-echo "  - ASG_NAME: $ASG_NAME"
+echo "  - INSTANCE_ID: $INSTANCE_ID"
 echo "  - ECR_REPOSITORY_URL: $ECR_REPO_URL"
 echo "  - ECR_REPOSITORY_NAME: $ECR_REPO_NAME"
 echo ""

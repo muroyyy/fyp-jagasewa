@@ -7,8 +7,14 @@
 apt update -y
 apt upgrade -y
 
-# Install Docker, Compose, and AWS CLI
-apt install -y docker.io docker-compose awscli unzip curl
+# Install Docker, Compose, and dependencies
+apt install -y docker.io docker-compose unzip curl
+
+# Install AWS CLI v2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+./aws/install
+rm -rf aws awscliv2.zip
 
 # Enable and start Docker
 systemctl enable docker

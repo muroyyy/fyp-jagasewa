@@ -37,9 +37,9 @@ output "app_config_secret_name" {
   value       = module.secrets.app_config_secret_name
 }
 
-output "autoscaling_group_id" {
-  description = "Auto Scaling Group ID for backend instances"
-  value       = module.ec2.autoscaling_group_id
+output "instance_id" {
+  description = "EC2 instance ID for backend"
+  value       = module.ec2.instance_id
 }
 
 output "ecr_repository_url" {

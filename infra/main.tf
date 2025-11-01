@@ -100,9 +100,6 @@ module "ec2" {
   public_subnet_ids = module.vpc.public_subnet_ids
   ec2_sg_id         = module.security.ec2_sg_id
   target_group_arn  = module.alb.target_group_arn
-  min_size          = 1
-  max_size          = 3
-  desired_capacity  = 2
 }
 
 module "secrets" {
