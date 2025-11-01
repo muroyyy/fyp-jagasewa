@@ -262,7 +262,7 @@ const AdminProfile = () => {
               <h4 className="text-sm font-medium text-gray-900">Password</h4>
               <p className="text-sm text-gray-500">Last changed 30 days ago</p>
             </div>
-            <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer">
               Change Password
             </button>
           </div>

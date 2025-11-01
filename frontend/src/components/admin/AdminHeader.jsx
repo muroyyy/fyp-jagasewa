@@ -1,7 +1,7 @@
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-const AdminHeader = () => {
+const AdminHeader = ({ onMenuClick }) => {
   const [adminName, setAdminName] = useState('Admin User');
 
   useEffect(() => {
@@ -28,6 +28,12 @@ const AdminHeader = () => {
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+          >
+            <Menu size={24} />
+          </button>
           <h2 className="text-2xl font-semibold text-gray-800">Admin Dashboard</h2>
         </div>
 

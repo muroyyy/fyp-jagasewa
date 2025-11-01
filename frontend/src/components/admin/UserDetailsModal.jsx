@@ -52,7 +52,7 @@ const UserDetailsModal = ({ isOpen, onClose, user, onUserUpdate }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors cursor-pointer"
           >
             <X size={24} />
           </button>
@@ -164,13 +164,13 @@ const UserDetailsModal = ({ isOpen, onClose, user, onUserUpdate }) => {
                 user.is_active
                   ? 'bg-red-600 hover:bg-red-700 text-white'
                   : 'bg-green-600 hover:bg-green-700 text-white'
-              } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {loading ? 'Updating...' : user.is_active ? 'Deactivate User' : 'Activate User'}
             </button>
             <button
               onClick={onClose}
-              className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+              className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors cursor-pointer"
             >
               Close
             </button>

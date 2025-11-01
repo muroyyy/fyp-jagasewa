@@ -6,10 +6,11 @@ import {
   Settings, 
   User, 
   LogOut,
-  Shield
+  Shield,
+  X
 } from 'lucide-react';
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,14 +28,34 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col">
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        ></div>
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg flex flex-col transform transition-transform duration-300 ease-in-out lg:transform-none ${
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <Shield className="text-indigo-600" size={32} />
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">JagaSewa</h1>
-            <p className="text-sm text-gray-500">Admin Panel</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Shield className="text-indigo-600" size={32} />
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">JagaSewa</h1>
+              <p className="text-sm text-gray-500">Admin Panel</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+          >
+            <X size={20} />
+          </button>
         </div>
       </div>
 
@@ -63,13 +84,14 @@ const AdminSidebar = () => {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 w-full text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
         >
           <LogOut size={20} />
           <span className="font-medium">Logout</span>
         </button>
       </div>
     </div>
+    </>
   );
 };
 
