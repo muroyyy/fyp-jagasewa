@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // only two levels up
 include_once '../../config/database.php';
+include_once '../../config/auth_helper.php';
 include_once '../../models/User.php';
 include_once '../../models/Landlord.php';
 include_once '../../models/Tenant.php';
@@ -50,19 +51,17 @@ if (!empty($data->email) && !empty($data->password)) {
             $profile_data = $tenant->getByUserId($login_result['user_id']);
         }
 
-        // Generate session and refresh tokens
+        // Generate session token
         $session_token = bin2hex(random_bytes(32));
-        $refresh_token = generateRefreshToken();
-        $expires_at = date('Y-m-d H:i:s', strtotime('+2 hours')); // Shorter session, longer refresh
+        $expires_at = date('Y-m-d H:i:s', strtotime('+2 hours'));
 
         try {
-            // Store session in database with refresh token
-            $session_query = "INSERT INTO sessions (user_id, session_token, refresh_token, user_role, expires_at, created_at, last_activity) 
-                              VALUES (:user_id, :session_token, :refresh_token, :user_role, :expires_at, NOW(), NOW())";
+            // Store session in database (basic version until SQL update)
+            $session_query = "INSERT INTO sessions (user_id, session_token, user_role, expires_at, created_at) 
+                              VALUES (:user_id, :session_token, :user_role, :expires_at, NOW())";
             $session_stmt = $db->prepare($session_query);
             $session_stmt->bindParam(':user_id', $login_result['user_id']);
             $session_stmt->bindParam(':session_token', $session_token);
-            $session_stmt->bindParam(':refresh_token', $refresh_token);
             $session_stmt->bindParam(':user_role', $login_result['user_role']);
             $session_stmt->bindParam(':expires_at', $expires_at);
             $session_stmt->execute();
@@ -78,8 +77,7 @@ if (!empty($data->email) && !empty($data->password)) {
                     "user_role" => $login_result['user_role'],
                     "is_verified" => $login_result['is_verified'],
                     "profile" => $profile_data,
-                    "session_token" => $session_token,
-                    "refresh_token" => $refresh_token
+                    "session_token" => $session_token
                 ]
             ]);
         } catch (PDOException $e) {
