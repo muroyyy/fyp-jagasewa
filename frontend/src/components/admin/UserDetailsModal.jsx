@@ -45,10 +45,10 @@ const UserDetailsModal = ({ isOpen, onClose, user, onUserUpdate }) => {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
+        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-slate-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">User Details</h2>
-            <p className="text-blue-100 text-sm mt-1">Manage user account</p>
+            <p className="text-indigo-100 text-sm mt-1">Manage user account</p>
           </div>
           <button
             onClick={onClose}
@@ -60,9 +60,9 @@ const UserDetailsModal = ({ isOpen, onClose, user, onUserUpdate }) => {
 
         <div className="p-6 space-y-6">
           {/* User Profile */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+          <div className="bg-gradient-to-br from-indigo-50 to-slate-50 rounded-xl p-6 border border-indigo-100">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-slate-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 {user.email?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="flex-1">
@@ -95,7 +95,7 @@ const UserDetailsModal = ({ isOpen, onClose, user, onUserUpdate }) => {
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
               <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-                <User size={18} className="text-blue-600" />
+                <User size={18} className="text-indigo-600" />
                 Account Information
               </h4>
             </div>

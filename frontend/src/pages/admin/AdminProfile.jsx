@@ -117,7 +117,7 @@ const AdminProfile = () => {
         <button
           onClick={handleSaveProfile}
           disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
         >
           <Save size={20} />
           {saving ? 'Saving...' : 'Save Changes'}
@@ -136,7 +136,7 @@ const AdminProfile = () => {
         {/* Profile Image */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Camera className="text-blue-600" size={20} />
+            <Camera className="text-indigo-600" size={20} />
             Profile Picture
           </h3>
           
@@ -149,11 +149,11 @@ const AdminProfile = () => {
                   className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-slate-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg"
                   {profile.full_name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase() || 'A'}
                 </div>
               )}
-              <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer transition-colors">
+              <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full cursor-pointer transition-colors"
                 <Camera size={16} />
                 <input
                   type="file"
@@ -173,7 +173,7 @@ const AdminProfile = () => {
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <User className="text-blue-600" size={20} />
+              <User className="text-indigo-600" size={20} />
               Personal Information
             </h3>
           </div>
@@ -251,7 +251,7 @@ const AdminProfile = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Shield className="text-blue-600" size={20} />
+            <Shield className="text-indigo-600" size={20} />
             Account Security
           </h3>
         </div>

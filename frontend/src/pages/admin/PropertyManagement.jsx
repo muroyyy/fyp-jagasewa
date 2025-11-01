@@ -101,8 +101,8 @@ const PropertyManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <MapPin className="text-blue-600" size={24} />
+            <div className="p-3 bg-indigo-50 rounded-lg">
+              <MapPin className="text-indigo-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Properties</p>
@@ -127,8 +127,8 @@ const PropertyManagement = () => {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <User className="text-blue-600" size={24} />
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <User className="text-slate-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Occupied</p>
@@ -165,7 +165,7 @@ const PropertyManagement = () => {
                 placeholder="Search properties, address, or landlord..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -173,7 +173,7 @@ const PropertyManagement = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
               <option value="available">Available</option>
@@ -184,7 +184,7 @@ const PropertyManagement = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             >
               <option value="all">All Types</option>
               <option value="apartment">Apartment</option>
@@ -224,7 +224,7 @@ const PropertyManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
                   {property.property_name}
                 </h3>
-                <button className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-lg transition-colors">
+                <button className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition-colors">
                   <Eye size={18} />
                 </button>
               </div>

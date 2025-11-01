@@ -30,7 +30,7 @@ const AdminSidebar = () => {
     <div className="w-64 bg-white shadow-lg flex flex-col">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <Shield className="text-blue-600" size={32} />
+          <Shield className="text-indigo-600" size={32} />
           <div>
             <h1 className="text-xl font-bold text-gray-800">JagaSewa</h1>
             <p className="text-sm text-gray-500">Admin Panel</p>
@@ -47,7 +47,7 @@ const AdminSidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
+                      ? 'bg-indigo-50 text-indigo-600 border-r-2 border-indigo-600'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                   }`
                 }

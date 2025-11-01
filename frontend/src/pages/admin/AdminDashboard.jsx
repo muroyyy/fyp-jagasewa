@@ -76,7 +76,7 @@ const AdminDashboard = () => {
           change="+12%"
           changeType="increase"
           icon={Users}
-          color="blue"
+          color="indigo"
         />
         <AnalyticsCard
           title="Total Properties"
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
           change="+15%"
           changeType="increase"
           icon={Activity}
-          color="purple"
+          color="slate"
         />
         <AnalyticsCard
           title="Monthly Revenue"
@@ -108,8 +108,8 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <Users className="text-blue-600" size={24} />
+            <div className="p-3 bg-indigo-50 rounded-lg">
+              <Users className="text-indigo-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Landlords</p>
@@ -132,8 +132,8 @@ const AdminDashboard = () => {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <Eye className="text-yellow-600" size={24} />
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <Eye className="text-slate-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Pending Verifications</p>

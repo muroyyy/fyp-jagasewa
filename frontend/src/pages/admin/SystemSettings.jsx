@@ -92,7 +92,7 @@ const SystemSettings = () => {
         <button
           onClick={handleSaveSettings}
           disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
         >
           <Save size={20} />
           {saving ? 'Saving...' : 'Save Changes'}
@@ -111,7 +111,7 @@ const SystemSettings = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <DollarSign className="text-blue-600" size={20} />
+            <DollarSign className="text-indigo-600" size={20} />
             Platform Settings
           </h3>
         </div>
@@ -128,7 +128,7 @@ const SystemSettings = () => {
                 max="100"
                 value={settings.platform_commission_rate}
                 onChange={(e) => handleSettingChange('platform_commission_rate', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Platform commission percentage on rental transactions</p>
             </div>
@@ -184,7 +184,7 @@ const SystemSettings = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Shield className="text-blue-600" size={20} />
+            <Shield className="text-indigo-600" size={20} />
             Security Settings
           </h3>
         </div>
@@ -212,7 +212,7 @@ const SystemSettings = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Settings className="text-blue-600" size={20} />
+            <Settings className="text-indigo-600" size={20} />
             System Features
           </h3>
         </div>
