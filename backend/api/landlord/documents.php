@@ -104,8 +104,10 @@ try {
 
     echo json_encode([
         'success' => true,
-        'documents' => $documents,
-        'stats' => $stats
+        'data' => [
+            'documents' => $documents,
+            'stats' => $stats
+        ]
     ]);
 
 } catch (PDOException $e) {

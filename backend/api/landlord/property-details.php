@@ -21,7 +21,7 @@ try {
     $user_data = verifyJWT($token);
     if (!$user_data || $user_data['role'] !== 'landlord') {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Access denied', 'debug' => $user_data]);
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
@@ -34,7 +34,7 @@ try {
     
     if (!$landlord_data) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Landlord profile not found', 'user_id' => $user_data['user_id']]);
+        echo json_encode(['success' => false, 'message' => 'Landlord profile not found']);
         exit();
     }
     
@@ -89,23 +89,13 @@ try {
         $property['images'] = [];
     }
     
-    // Debug output
-    $response = [
+    echo json_encode([
         'success' => true,
         'data' => [
             'property' => $property,
             'recent_tenants' => $recent_tenants
-        ],
-        'debug' => [
-            'property_id' => $property_id,
-            'landlord_id' => $landlord_id,
-            'user_id' => $user_data['user_id'],
-            'property_count' => $property ? 1 : 0,
-            'tenant_count' => count($recent_tenants)
         ]
-    ];
-    
-    echo json_encode($response);
+    ]);
 
 } catch (Exception $e) {
     http_response_code(500);
