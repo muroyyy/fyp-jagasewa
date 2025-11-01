@@ -149,11 +149,11 @@ const AdminProfile = () => {
                   className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-slate-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg"
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-slate-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg">
                   {profile.full_name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase() || 'A'}
                 </div>
               )}
-              <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full cursor-pointer transition-colors"
+              <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full cursor-pointer transition-colors">
                 <Camera size={16} />
                 <input
                   type="file"
@@ -188,7 +188,7 @@ const AdminProfile = () => {
                   type="text"
                   value={profile.full_name}
                   onChange={(e) => handleInputChange('full_name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -219,7 +219,7 @@ const AdminProfile = () => {
                     type="tel"
                     value={profile.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="+60123456789"
                   />
                 </div>
@@ -232,7 +232,7 @@ const AdminProfile = () => {
                 <select
                   value={profile.department}
                   onChange={(e) => handleInputChange('department', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="">Select Department</option>
                   <option value="IT">Information Technology</option>
