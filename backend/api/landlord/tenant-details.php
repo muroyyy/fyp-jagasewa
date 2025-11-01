@@ -34,14 +34,14 @@ try {
     }
 
     // Get tenant details with rental history
-    $query = "SELECT u.user_id, u.full_name, u.email, u.phone, u.created_at,
-                     COUNT(DISTINCT a.application_id) as total_applications,
-                     COUNT(DISTINCT CASE WHEN a.status = 'approved' THEN a.application_id END) as approved_applications,
+    $query = "SELECT u.user_id, u.email, u.created_at, t.full_name, t.phone, t.ic_number, t.date_of_birth,
+                     COUNT(DISTINCT t2.tenant_id) as total_rentals,
                      COUNT(DISTINCT p.property_id) as properties_rented
               FROM users u 
-              LEFT JOIN applications a ON u.user_id = a.tenant_id 
-              LEFT JOIN properties p ON a.property_id = p.property_id AND p.landlord_id = :landlord_id
-              WHERE u.user_id = :tenant_id AND u.role = 'tenant'
+              LEFT JOIN tenants t ON u.user_id = t.user_id
+              LEFT JOIN tenants t2 ON u.user_id = t2.user_id 
+              LEFT JOIN properties p ON t2.property_id = p.property_id AND p.landlord_id = :landlord_id
+              WHERE u.user_id = :tenant_id AND u.user_role = 'tenant'
               GROUP BY u.user_id";
     
     $stmt = $conn->prepare($query);
@@ -58,11 +58,11 @@ try {
     }
 
     // Get rental history for this tenant with landlord's properties
-    $history_query = "SELECT a.*, p.title, p.location, p.rent_amount, a.application_date, a.status
-                      FROM applications a 
-                      JOIN properties p ON a.property_id = p.property_id 
-                      WHERE a.tenant_id = :tenant_id AND p.landlord_id = :landlord_id
-                      ORDER BY a.application_date DESC";
+    $history_query = "SELECT t.*, p.property_name, p.address, p.monthly_rent, t.move_in_date, t.created_at
+                      FROM tenants t 
+                      JOIN properties p ON t.property_id = p.property_id 
+                      WHERE t.user_id = :tenant_id AND p.landlord_id = :landlord_id
+                      ORDER BY t.created_at DESC";
     
     $history_stmt = $conn->prepare($history_query);
     $history_stmt->bindParam(':tenant_id', $tenant_id, PDO::PARAM_INT);

@@ -71,7 +71,7 @@ function verifyJWT($token) {
         $db = $database->getConnection();
         
         // Verify token in sessions table
-        $query = "SELECT s.session_id, s.user_id, s.user_role, u.email, u.full_name, s.expires_at
+        $query = "SELECT s.session_id, s.user_id, s.user_role, u.email, s.expires_at
                   FROM sessions s 
                   JOIN users u ON s.user_id = u.user_id 
                   WHERE s.session_token = :token AND s.expires_at > NOW()";
@@ -91,11 +91,28 @@ function verifyJWT($token) {
             $update_stmt->bindParam(':session_id', $session['session_id']);
             $update_stmt->execute();
             
+            // Get full name from landlords or tenants table based on role
+            $full_name = '';
+            if ($session['user_role'] === 'landlord') {
+                $name_query = "SELECT full_name FROM landlords WHERE user_id = :user_id";
+            } else {
+                $name_query = "SELECT full_name FROM tenants WHERE user_id = :user_id";
+            }
+            
+            $name_stmt = $db->prepare($name_query);
+            $name_stmt->bindParam(':user_id', $session['user_id']);
+            $name_stmt->execute();
+            $name_result = $name_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($name_result) {
+                $full_name = $name_result['full_name'];
+            }
+            
             return [
                 'user_id' => $session['user_id'],
                 'role' => $session['user_role'],
                 'email' => $session['email'],
-                'full_name' => $session['full_name']
+                'full_name' => $full_name
             ];
         }
         

@@ -33,13 +33,11 @@ try {
         exit();
     }
 
-    // Get property details with optimized query
+    // Get property details with tenant count
     $query = "SELECT p.*, 
-                     COUNT(DISTINCT a.application_id) as total_applications,
-                     COUNT(DISTINCT CASE WHEN a.status = 'pending' THEN a.application_id END) as pending_applications,
-                     COUNT(DISTINCT CASE WHEN a.status = 'approved' THEN a.application_id END) as approved_applications
+                     COUNT(DISTINCT t.tenant_id) as total_tenants
               FROM properties p 
-              LEFT JOIN applications a ON p.property_id = a.property_id 
+              LEFT JOIN tenants t ON p.property_id = t.property_id 
               WHERE p.property_id = :property_id AND p.landlord_id = :landlord_id
               GROUP BY p.property_id";
     
@@ -56,23 +54,23 @@ try {
         exit();
     }
 
-    // Get recent applications for this property
-    $app_query = "SELECT a.*, u.full_name, u.email, u.phone 
-                  FROM applications a 
-                  JOIN users u ON a.tenant_id = u.user_id 
-                  WHERE a.property_id = :property_id 
-                  ORDER BY a.application_date DESC 
-                  LIMIT 5";
+    // Get recent tenants for this property (since no applications table exists)
+    $tenant_query = "SELECT t.*, u.email 
+                     FROM tenants t 
+                     JOIN users u ON t.user_id = u.user_id 
+                     WHERE t.property_id = :property_id 
+                     ORDER BY t.created_at DESC 
+                     LIMIT 5";
     
-    $app_stmt = $conn->prepare($app_query);
-    $app_stmt->bindParam(':property_id', $property_id, PDO::PARAM_INT);
-    $app_stmt->execute();
-    $recent_applications = $app_stmt->fetchAll(PDO::FETCH_ASSOC);
+    $tenant_stmt = $conn->prepare($tenant_query);
+    $tenant_stmt->bindParam(':property_id', $property_id, PDO::PARAM_INT);
+    $tenant_stmt->execute();
+    $recent_tenants = $tenant_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         'success' => true,
         'property' => $property,
-        'recent_applications' => $recent_applications
+        'recent_tenants' => $recent_tenants
     ]);
 
 } catch (Exception $e) {
