@@ -32,12 +32,12 @@ resource "aws_lb_target_group" "backend_tg" {
   target_type = "instance"
 
   health_check {
-    path                = "/"
+    path                = "/api/health.php"
     interval            = 30
     timeout             = 5
-    healthy_threshold   = 3
+    healthy_threshold   = 2
     unhealthy_threshold = 2
-    matcher             = "200-399"
+    matcher             = "200"
   }
 
   tags = {
@@ -76,7 +76,7 @@ resource "aws_lb_listener" "https_listener" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.acm_certificate_arn
+  certificate_arn   = var.certificate_arn
 
   default_action {
     type             = "forward"

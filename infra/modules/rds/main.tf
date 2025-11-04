@@ -20,7 +20,7 @@ resource "aws_db_subnet_group" "this" {
 # RDS Instance (MySQL)
 # ─────────────────────────────────────────────────────────
 resource "aws_db_instance" "this" {
-  identifier              = "${var.project_name}-rds"
+  identifier              = "${var.project_name}-rds-prod"
   allocated_storage       = 20
   storage_type            = "gp3"
   engine                  = "mysql"

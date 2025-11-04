@@ -1,0 +1,68 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4338ca;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <circle cx="200" cy="180" r="115" fill="none" stroke="url(#blueGradient)" stroke-width="1.5" opacity="0.15"/>
+  <circle cx="200" cy="180" r="125" fill="none" stroke="url(#accentGradient)" stroke-width="1" opacity="0.1"/>
+  
+  <path d="M 200 75 L 295 108 Q 305 113 305 123 L 305 195 Q 305 250 245 285 Q 220 300 200 310 Q 180 300 155 285 Q 95 250 95 195 L 95 123 Q 95 113 105 108 Z" fill="url(#shieldGradient)" filter="url(#shadow)"/>
+  
+  <path d="M 200 85 L 285 115 Q 293 119 293 127 L 293 195 Q 293 245 200 295 Q 107 245 107 195 L 107 127 Q 107 119 115 115 Z" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.2"/>
+  
+  <path d="M 200 115 L 275 168 L 275 178 L 263 178 L 263 172 L 200 130 L 137 172 L 137 178 L 125 178 L 125 168 Z" fill="#ffffff"/>
+  
+  <rect x="240" y="135" width="12" height="20" rx="2" fill="#ffffff" opacity="0.9"/>
+  <rect x="238" y="132" width="16" height="5" rx="1" fill="#ffffff"/>
+  
+  <rect x="145" y="172" width="110" height="95" rx="5" fill="#ffffff"/>
+  <rect x="145" y="195" width="110" height="4" fill="url(#accentGradient)" opacity="0.6"/>
+  
+  <rect x="175" y="215" width="50" height="52" rx="4" fill="url(#blueGradient)"/>
+  <rect x="180" y="220" width="40" height="20" rx="2" fill="#ffffff" opacity="0.3"/>
+  <circle cx="215" cy="245" r="3.5" fill="#ffffff"/>
+  <line x1="200" y1="220" x2="200" y2="240" stroke="#ffffff" stroke-width="1" opacity="0.3"/>
+  
+  <g opacity="0.9">
+    <rect x="152" y="182" width="28" height="26" rx="3" fill="url(#blueGradient)" opacity="0.85"/>
+    <rect x="155" y="185" width="22" height="20" rx="2" fill="#ffffff" opacity="0.2"/>
+    <line x1="166" y1="185" x2="166" y2="205" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+    <line x1="155" y1="195" x2="177" y2="195" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+    
+    <rect x="220" y="182" width="28" height="26" rx="3" fill="url(#blueGradient)" opacity="0.85"/>
+    <rect x="223" y="185" width="22" height="20" rx="2" fill="#ffffff" opacity="0.2"/>
+    <line x1="234" y1="185" x2="234" y2="205" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+    <line x1="223" y1="195" x2="245" y2="195" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  
+  <rect x="152" y="235" width="20" height="32" rx="2" fill="#64748b" opacity="0.3"/>
+  <line x1="152" y1="241" x2="172" y2="241" stroke="#ffffff" stroke-width="0.5" opacity="0.5"/>
+  <line x1="152" y1="247" x2="172" y2="247" stroke="#ffffff" stroke-width="0.5" opacity="0.5"/>
+  <line x1="152" y1="253" x2="172" y2="253" stroke="#ffffff" stroke-width="0.5" opacity="0.5"/>
+  <line x1="152" y1="259" x2="172" y2="259" stroke="#ffffff" stroke-width="0.5" opacity="0.5"/>
+  
+  <ellipse cx="200" cy="267" rx="55" ry="8" fill="url(#accentGradient)" opacity="0.3"/>
+  
+  <circle cx="255" cy="145" r="18" fill="url(#accentGradient)" filter="url(#shadow)"/>
+  <path d="M 247 145 L 252 150 L 263 139" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <path d="M 200 75 L 295 108 Q 305 113 305 123 L 305 195 Q 305 250 245 285 Q 220 300 200 310 Q 180 300 155 285 Q 95 250 95 195 L 95 123 Q 95 113 105 108 Z" fill="none" stroke="url(#blueGradient)" stroke-width="4" opacity="0.6"/>
+  
+  <text x="200" y="360" font-family="Arial, sans-serif" font-size="38" font-weight="bold" fill="#1e293b" text-anchor="middle">
+    Jaga<tspan fill="url(#blueGradient)" font-weight="800">Sewa</tspan>
+  </text>
+</svg>

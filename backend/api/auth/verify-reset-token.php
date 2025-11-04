@@ -1,4 +1,7 @@
 <?php
+include_once '../../config/cors.php';
+setCorsHeaders();
+
 /**
  * Verify Reset Token API Endpoint
  * GET /api/auth/verify-reset-token.php?token=xxx
@@ -7,11 +10,6 @@
  * Used by frontend to validate token before showing reset form
  */
 
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 // Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

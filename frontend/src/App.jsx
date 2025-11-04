@@ -1,49 +1,86 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import SignupLandlord from './pages/SignupLandlord';
-import SignupTenant from './pages/SignupTenant';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import LandlordDashboard from './pages/LandlordDashboard';
-import TenantDashboard from './pages/TenantDashboard';
-import LandlordProperties from './pages/LandlordProperties';
-import LandlordTenants from './pages/LandlordTenants';
-import TenantPayments from './pages/TenantPayments';
+
+// General
+import Landing from './pages/general/Landing';
+
+// Auth
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import SignupLandlord from './pages/auth/SignupLandlord';
+import SignupTenant from './pages/auth/SignupTenant';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+
+// Landlord
+import LandlordDashboard from './pages/landlord/LandlordDashboard';
+import LandlordProperties from './pages/landlord/LandlordProperties';
+import LandlordEditProperty from './pages/landlord/LandlordEditProperty';
+import LandlordTenants from './pages/landlord/LandlordTenants';
+import LandlordAddTenant from './pages/landlord/LandlordAddTenant';
+import LandlordEditTenant from './pages/landlord/LandlordEditTenant'; 
+import LandlordPayments from './pages/landlord/LandlordPayments';
+import LandlordMaintenance from './pages/landlord/LandlordMaintenance';
+import LandlordDocuments from './pages/landlord/LandlordDocuments';
+import LandlordSettings from './pages/landlord/LandlordSettings';
+
+// Tenant
+import TenantDashboard from './pages/tenant/TenantDashboard';
+import TenantPayments from './pages/tenant/TenantPayments';
+import TenantMaintenance from './pages/tenant/TenantMaintenance';
+import TenantDocuments from './pages/tenant/TenantDocuments';
+import TenantSettings from './pages/tenant/TenantSettings';
+
+// Admin
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import PropertyManagement from './pages/admin/PropertyManagement';
+import SystemSettings from './pages/admin/SystemSettings';
+import AdminProfile from './pages/admin/AdminProfile';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing Page */}
+        {/* Landing */}
         <Route path="/" element={<Landing />} />
-        
-        {/* Authentication Routes */}
+
+        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signup/landlord" element={<SignupLandlord />} />
         <Route path="/signup/tenant" element={<SignupTenant />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
-        {/* Landlord Dashboard Routes */}
+
+        {/* Landlord */}
         <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
         <Route path="/landlord/properties" element={<LandlordProperties />} />
+        <Route path="/landlord/properties/edit/:id" element={<LandlordEditProperty />} />
         <Route path="/landlord/tenants" element={<LandlordTenants />} />
-        {/* Future landlord routes */}
-        {/* <Route path="/landlord/properties" element={<Properties />} /> */}
-        {/* <Route path="/landlord/tenants" element={<Tenants />} /> */}
-        {/* <Route path="/landlord/payments" element={<Payments />} /> */}
-        
-        {/* Tenant Dashboard Routes */}
+        <Route path="/landlord/add-tenant" element={<LandlordAddTenant />} />
+        <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
+        <Route path="/landlord/payments" element={<LandlordPayments />} />
+        <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
+        <Route path="/landlord/documents" element={<LandlordDocuments />} />
+        <Route path="/landlord/settings" element={<LandlordSettings />} />
+
+        {/* Tenant */}
         <Route path="/tenant-dashboard" element={<TenantDashboard />} />
         <Route path="/tenant/payments" element={<TenantPayments />} />
-        {/* Future tenant routes */}
-        {/* <Route path="/tenant/payments" element={<Payments />} /> */}
-        {/* <Route path="/tenant/maintenance" element={<Maintenance />} /> */}
-        {/* <Route path="/tenant/documents" element={<Documents />} /> */}
+        <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
+        <Route path="/tenant/documents" element={<TenantDocuments />} />
+        <Route path="/tenant/settings" element={<TenantSettings />} />
+
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="properties" element={<PropertyManagement />} />
+          <Route path="settings" element={<SystemSettings />} />
+          <Route path="profile" element={<AdminProfile />} />
+        </Route>
       </Routes>
     </Router>
   );

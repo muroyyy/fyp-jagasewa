@@ -3,17 +3,17 @@
 ##########################################################
 
 output "instance_id" {
-  description = "EC2 instance ID"
+  description = "ID of the EC2 instance"
   value       = aws_instance.backend.id
 }
 
-output "public_ip" {
-  description = "Public IP address of the EC2 instance"
+output "instance_public_ip" {
+  description = "Public IP of the EC2 instance"
   value       = aws_instance.backend.public_ip
 }
 
-output "private_ip" {
-  description = "Private IP address of the EC2 instance"
+output "instance_private_ip" {
+  description = "Private IP of the EC2 instance"
   value       = aws_instance.backend.private_ip
 }
 

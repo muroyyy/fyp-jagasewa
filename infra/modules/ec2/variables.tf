@@ -25,12 +25,19 @@ variable "instance_type" {
   default     = "t3.small"
 }
 
-variable "subnet_id" {
-  description = "Public subnet ID to deploy EC2 instance"
-  type        = string
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs for Auto Scaling Group"
+  type        = list(string)
 }
 
 variable "ec2_sg_id" {
   description = "Security Group ID for EC2 backend"
   type        = string
 }
+
+variable "target_group_arn" {
+  description = "ALB target group ARN for auto-registration"
+  type        = string
+}
+
+

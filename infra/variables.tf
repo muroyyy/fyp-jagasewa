@@ -56,11 +56,7 @@ variable "db_username" {
   default     = "admin"
 }
 
-variable "db_password" {
-  description = "Master password for RDS"
-  type        = string
-  sensitive   = true
-}
+
 
 variable "s3_bucket_name" {
   description = "S3 bucket name for frontend assets"
@@ -80,25 +76,8 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "acm_certificate_arn" {
-  description = "ACM certificate ARN for HTTPS listener"
+variable "domain_name" {
+  description = "Domain name (e.g., jagasewa.cloud)"
   type        = string
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "jagasewa_db"
-}
-
-variable "db_username" {
-  description = "RDS master username"
-  type        = string
-  default     = "admin"
-}
-
-variable "db_password" {
-  description = "RDS master password"
-  type        = string
-  sensitive   = true
+  default     = "jagasewa.cloud"
 }

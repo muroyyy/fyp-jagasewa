@@ -79,7 +79,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       // Submit to backend
       try {
         const token = localStorage.getItem('session_token');
-        const response = await fetch('http://localhost:8000/api/tenant/make-payment.php', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/make-payment.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-6 h-6 text-gray-600" />
           </button>

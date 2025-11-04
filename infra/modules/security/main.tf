@@ -64,14 +64,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   egress {
-    description = "Allow MySQL outbound to RDS"
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    security_groups = [aws_security_group.rds_sg.id]
-  }
-
-  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -92,14 +84,6 @@ resource "aws_security_group" "rds_sg" {
   description = "Allow MySQL inbound only from EC2 SG"
   vpc_id      = var.vpc_id
 
-  ingress {
-    description     = "Allow MySQL from EC2 instances"
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2_sg.id]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -111,4 +95,17 @@ resource "aws_security_group" "rds_sg" {
     Name    = "${var.project_name}-rds-sg"
     Project = var.project_name
   }
+}
+
+# ─────────────────────────────────────────────────────────
+# Security Group Rules (to avoid circular dependency)
+# ─────────────────────────────────────────────────────────
+resource "aws_security_group_rule" "rds_ingress_from_ec2" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2_sg.id
+  security_group_id        = aws_security_group.rds_sg.id
+  description              = "Allow MySQL from EC2 instances"
 }
