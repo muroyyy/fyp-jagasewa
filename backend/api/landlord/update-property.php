@@ -1,6 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: https://jagasewa.cloud");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Methods: PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
@@ -11,10 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
-require_once '../../models/Landlord.php';
 
-// Only allow GET requests
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+// Only allow PUT requests
+if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
     http_response_code(405);
     echo json_encode([
         "success" => false,
@@ -39,15 +38,6 @@ if (empty($authHeader)) {
 // Extract token from "Bearer <token>"
 $token = str_replace('Bearer ', '', $authHeader);
 
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "Invalid token format"
-    ]);
-    exit();
-}
-
 try {
     // Create database connection
     $database = new Database();
@@ -61,54 +51,72 @@ try {
     
     $session = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$session) {
+    if (!$session || $session['user_role'] !== 'landlord') {
         http_response_code(401);
         echo json_encode([
             "success" => false,
-            "message" => "Invalid or expired session"
+            "message" => "Unauthorized access"
         ]);
         exit();
     }
     
-    // Verify user is a landlord
-    if ($session['user_role'] !== 'landlord') {
-        http_response_code(403);
+    // Get JSON input
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input || !isset($input['property_id'])) {
+        http_response_code(400);
         echo json_encode([
             "success" => false,
-            "message" => "Access denied. Landlord access only."
+            "message" => "Property ID is required"
         ]);
         exit();
     }
     
+    $propertyId = $input['property_id'];
     $userId = $session['user_id'];
     
-    // Get landlord profile information
-    $landlordModel = new Landlord($db);
-    $landlordProfile = $landlordModel->getLandlordByUserId($userId);
+    // Build update query dynamically
+    $updateFields = [];
+    $params = [':property_id' => $propertyId, ':user_id' => $userId];
     
-    if (!$landlordProfile) {
+    $allowedFields = ['title', 'description', 'price', 'location', 'bedrooms', 'bathrooms', 'property_type', 'status'];
+    
+    foreach ($allowedFields as $field) {
+        if (isset($input[$field])) {
+            $updateFields[] = "$field = :$field";
+            $params[":$field"] = $input[$field];
+        }
+    }
+    
+    if (empty($updateFields)) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "message" => "No valid fields to update"
+        ]);
+        exit();
+    }
+    
+    // Update property (ensure landlord owns the property)
+    $updateQuery = "UPDATE properties SET " . implode(', ', $updateFields) . 
+                   " WHERE id = :property_id AND landlord_id = (SELECT id FROM landlords WHERE user_id = :user_id)";
+    
+    $stmt = $db->prepare($updateQuery);
+    $result = $stmt->execute($params);
+    
+    if ($result && $stmt->rowCount() > 0) {
+        http_response_code(200);
+        echo json_encode([
+            "success" => true,
+            "message" => "Property updated successfully"
+        ]);
+    } else {
         http_response_code(404);
         echo json_encode([
             "success" => false,
-            "message" => "Landlord profile not found"
+            "message" => "Property not found or no changes made"
         ]);
-        exit();
     }
-    
-    // Return successful response with profile data
-    http_response_code(200);
-    echo json_encode([
-        "success" => true,
-        "message" => "Dashboard data retrieved successfully",
-        "data" => [
-            "profile" => [
-                "full_name" => $landlordProfile['full_name'],
-                "email" => $landlordProfile['email'],
-                "phone" => $landlordProfile['phone'],
-                "company_name" => $landlordProfile['company_name']
-            ]
-        ]
-    ]);
     
 } catch (PDOException $e) {
     http_response_code(500);
