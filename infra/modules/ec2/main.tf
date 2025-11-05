@@ -67,6 +67,30 @@ resource "aws_iam_role_policy" "secrets_access" {
   })
 }
 
+# Custom policy for S3 assets upload
+resource "aws_iam_role_policy" "s3_assets_access" {
+  name = "${var.project_name}-s3-assets-access"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:DeleteObject",
+          "s3:GetObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.project_name}-assets-${var.environment}/*"
+        ]
+      }
+    ]
+  })
+}
+
 # Create Instance Profile
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "${var.project_name}-ec2-instance-profile"

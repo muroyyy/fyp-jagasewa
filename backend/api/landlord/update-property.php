@@ -21,6 +21,7 @@ setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -91,22 +92,20 @@ try {
         }
     }
     
-    // Handle image upload
+    // Handle image upload to S3
     if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
-        $uploadDir = '../../uploads/properties/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-        
-        // Handle multiple files
         $uploadedImages = [];
         for ($i = 0; $i < count($_FILES['property_images']['name']); $i++) {
             if ($_FILES['property_images']['error'][$i] === UPLOAD_ERR_OK) {
-                $fileName = uniqid() . '_' . basename($_FILES['property_images']['name'][$i]);
-                $uploadPath = $uploadDir . $fileName;
+                $file = [
+                    'name' => $_FILES['property_images']['name'][$i],
+                    'tmp_name' => $_FILES['property_images']['tmp_name'][$i],
+                    'type' => $_FILES['property_images']['type'][$i]
+                ];
                 
-                if (move_uploaded_file($_FILES['property_images']['tmp_name'][$i], $uploadPath)) {
-                    $uploadedImages[] = 'uploads/properties/' . $fileName;
+                $s3Url = uploadToS3($file, 'properties');
+                if ($s3Url) {
+                    $uploadedImages[] = $s3Url;
                 }
             }
         }

@@ -129,6 +129,16 @@ module "ecr" {
   environment  = var.environment
 }
 
+module "s3_assets" {
+  source      = "./modules/s3-assets"
+  bucket_name = "${var.project_name}-assets-${var.environment}"
+  tags = {
+    Name        = "${var.project_name}-assets-${var.environment}"
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
 # Update S3 bucket policy with specific CloudFront distribution ID
 resource "aws_s3_bucket_policy" "frontend_policy_specific" {
   bucket     = module.s3.frontend_bucket_name

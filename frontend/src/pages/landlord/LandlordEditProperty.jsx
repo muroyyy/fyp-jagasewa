@@ -265,7 +265,7 @@ export default function LandlordEditProperty() {
                     {existingImages.map((image, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={`${import.meta.env.VITE_API_URL}/${image}`}
+                          src={image.startsWith('http') ? image : `${import.meta.env.VITE_API_URL}/${image}`}
                           alt={`Property ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg border border-gray-200"
                         />
