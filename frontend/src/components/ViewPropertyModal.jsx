@@ -1,11 +1,12 @@
-import { X, Building2, MapPin, Home, DollarSign, Users, Calendar, FileText, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Building2, MapPin, Home, DollarSign, Users, Calendar, FileText, CheckCircle, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import ImageSlider from './ImageSlider';
 
 const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
 
   useEffect(() => {
     if (isOpen && propertyId) {
@@ -29,7 +30,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
       
       if (data.success) {
         setProperty(data.data.property);
-        setCurrentImageIndex(0);
+
       } else {
         setError(data.message || 'Failed to load property details');
       }
@@ -59,21 +60,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
     });
   };
 
-  const nextImage = () => {
-    if (property.images && property.images.length > 0) {
-      setCurrentImageIndex((prev) => 
-        prev === property.images.length - 1 ? 0 : prev + 1
-      );
-    }
-  };
 
-  const prevImage = () => {
-    if (property.images && property.images.length > 0) {
-      setCurrentImageIndex((prev) => 
-        prev === 0 ? property.images.length - 1 : prev - 1
-      );
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -109,40 +96,13 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
           ) : property ? (
             <div className="space-y-6">
               {/* Image Gallery */}
-              {property.images && property.images.length > 0 ? (
-                <div className="relative bg-gray-100 rounded-xl overflow-hidden">
-                  <img
-                    src={`http://localhost:8000/${property.images[currentImageIndex]}`}
-                    alt={property.property_name}
-                    className="w-full h-96 object-cover"
-                  />
-                  
-                  {property.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                      >
-                        <ChevronLeft size={24} />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                      >
-                        <ChevronRight size={24} />
-                      </button>
-                      
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                        {currentImageIndex + 1} / {property.images.length}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl h-96 flex items-center justify-center">
-                  <Building2 size={80} className="text-blue-300" />
-                </div>
-              )}
+              <div className="bg-gray-100 rounded-xl overflow-hidden">
+                <ImageSlider 
+                  images={property.images} 
+                  propertyName={property.property_name}
+                  className="h-96"
+                />
+              </div>
 
               {/* Property Header */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">

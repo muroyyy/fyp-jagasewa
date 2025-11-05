@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewPropertyModal from '../../components/ViewPropertyModal';
+import ImageSlider from '../../components/ImageSlider';
 import { getStatesList, getCitiesByState } from '../../data/malaysianLocations';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -280,31 +281,19 @@ export default function LandlordProperties() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProperties.map((property) => (
                 <div key={property.property_id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100">
-                    {property.images && property.images.length > 0 ? (
-                      <img 
-                        src={property.images[0].startsWith('https://') ? property.images[0] : `${API_BASE_URL}/../${property.images[0]}`} 
-                        alt={property.property_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Building2 className="w-20 h-20 text-blue-300" />
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3">
+                  <div className="relative">
+                    <ImageSlider 
+                      images={property.images} 
+                      propertyName={property.property_name}
+                      className="h-48"
+                    />
+                    <div className="absolute top-3 left-3">
                       <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                         property.status === 'Active' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
                       }`}>
                         {property.status}
                       </span>
                     </div>
-                    {property.images && property.images.length > 1 && (
-                      <div className="absolute bottom-3 right-3 px-2 py-1 bg-black bg-opacity-60 text-white text-xs rounded-full flex items-center space-x-1">
-                        <ImageIcon className="w-3 h-3" />
-                        <span>{property.images.length}</span>
-                      </div>
-                    )}
                   </div>
                   
                   <div className="p-6">
