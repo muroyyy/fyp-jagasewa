@@ -67,7 +67,7 @@ try {
     $updateFields = [];
     $params = [':property_id' => $propertyId, ':user_id' => $userId];
     
-    $allowedFields = ['title', 'description', 'price', 'location', 'bedrooms', 'bathrooms', 'property_type', 'status'];
+    $allowedFields = ['property_name', 'description', 'monthly_rent', 'address', 'city', 'state', 'postal_code', 'total_units', 'property_type', 'status'];
     
     foreach ($allowedFields as $field) {
         if (isset($input[$field])) {
@@ -87,7 +87,7 @@ try {
     
     // Update property (ensure landlord owns the property)
     $updateQuery = "UPDATE properties SET " . implode(', ', $updateFields) . 
-                   " WHERE id = :property_id AND landlord_id = (SELECT id FROM landlords WHERE user_id = :user_id)";
+                   " WHERE property_id = :property_id AND landlord_id = (SELECT landlord_id FROM landlords WHERE user_id = :user_id)";
     
     $stmt = $db->prepare($updateQuery);
     $result = $stmt->execute($params);
