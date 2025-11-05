@@ -118,8 +118,8 @@ export default function LandlordEditProperty() {
         continue;
       }
       
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Each image must be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Each image must be less than 10MB');
         continue;
       }
       
@@ -294,7 +294,7 @@ export default function LandlordEditProperty() {
                       Click to upload new images
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      PNG, JPG, GIF up to 5MB each
+                      PNG, JPG, GIF up to 10MB each
                     </p>
                   </div>
                   <input

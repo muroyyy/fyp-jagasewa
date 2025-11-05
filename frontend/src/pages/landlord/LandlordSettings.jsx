@@ -88,9 +88,9 @@ export default function LandlordSettings() {
         return;
       }
 
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image size must be less than 5MB');
+      // Validate file size (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Image size must be less than 10MB');
         return;
       }
 
@@ -317,7 +317,7 @@ export default function LandlordSettings() {
                   <p className="text-xs text-gray-500 mt-3">
                     Click camera icon to change profile picture
                     <br />
-                    Maximum file size: 5MB
+                    Maximum file size: 10MB
                   </p>
                 </div>
 

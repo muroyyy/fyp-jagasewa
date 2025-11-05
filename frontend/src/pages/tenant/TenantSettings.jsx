@@ -165,8 +165,8 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image size must be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Image size must be less than 10MB');
         return;
       }
       setProfileImage(file);
@@ -258,7 +258,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
             />
           </label>
         </div>
-        <p className="text-sm text-gray-600">Click camera icon to upload new photo (Max 5MB)</p>
+        <p className="text-sm text-gray-600">Click camera icon to upload new photo (Max 10MB)</p>
       </div>
 
       {/* Full Name */}
