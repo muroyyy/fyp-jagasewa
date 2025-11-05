@@ -77,16 +77,26 @@ try {
     }
     
     // Handle image upload
-    if (isset($_FILES['images']) && $_FILES['images']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
         $uploadDir = '../../uploads/properties/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
         
-        $fileName = uniqid() . '_' . basename($_FILES['images']['name']);
-        $uploadPath = $uploadDir . $fileName;
+        // Handle multiple files
+        $uploadedImages = [];
+        for ($i = 0; $i < count($_FILES['property_images']['name']); $i++) {
+            if ($_FILES['property_images']['error'][$i] === UPLOAD_ERR_OK) {
+                $fileName = uniqid() . '_' . basename($_FILES['property_images']['name'][$i]);
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['property_images']['tmp_name'][$i], $uploadPath)) {
+                    $uploadedImages[] = 'uploads/properties/' . $fileName;
+                }
+            }
+        }
         
-        if (move_uploaded_file($_FILES['images']['tmp_name'], $uploadPath)) {
+        if (!empty($uploadedImages)) {
             // Get existing images first
             $existingQuery = "SELECT images FROM properties WHERE property_id = :property_id";
             $existingStmt = $db->prepare($existingQuery);
@@ -99,8 +109,8 @@ try {
                 $existingImages = json_decode($existing['images'], true) ?: [];
             }
             
-            // Add new image to array
-            $existingImages[] = 'uploads/properties/' . $fileName;
+            // Add new images to array
+            $existingImages = array_merge($existingImages, $uploadedImages);
             
             $updateFields[] = "images = :images";
             $updateParams[":images"] = json_encode($existingImages);
@@ -152,7 +162,12 @@ try {
         echo json_encode([
             "success" => true,
             "message" => "Property updated successfully",
-            "rows_affected" => $stmt->rowCount()
+            "rows_affected" => $stmt->rowCount(),
+            "debug" => [
+                "update_fields" => $updateFields,
+                "update_params" => $updateParams,
+                "query" => $updateQuery
+            ]
         ]);
     } else {
         http_response_code(404);
