@@ -68,7 +68,7 @@ resource "aws_s3_bucket_policy" "frontend_policy" {
         Resource = "${aws_s3_bucket.frontend.arn}/*",
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/E1YCVEH3IE6OQT"
           }
         }
       }

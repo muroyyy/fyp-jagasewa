@@ -4,20 +4,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Set CORS headers first
-header("Access-Control-Allow-Origin: https://jagasewa.cloud");
-header("Access-Control-Allow-Methods: POST, PUT, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
-
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
 include_once '../../config/cors.php';
 setCorsHeaders();
+
+// Only set JSON content type for non-file uploads
+if (!isset($_FILES) || empty($_FILES)) {
+    header("Content-Type: application/json");
+}
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
@@ -106,6 +99,17 @@ try {
                 $s3Url = uploadToS3($file, 'properties');
                 if ($s3Url) {
                     $uploadedImages[] = $s3Url;
+                } else {
+                    // Fallback to local upload if S3 fails
+                    $uploadDir = '../../uploads/properties/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    $fileName = uniqid() . '_' . basename($file['name']);
+                    $targetPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                        $uploadedImages[] = 'uploads/properties/' . $fileName;
+                    }
                 }
             }
         }
@@ -173,6 +177,7 @@ try {
     
     if ($result) {
         http_response_code(200);
+        header("Content-Type: application/json");
         echo json_encode([
             "success" => true,
             "message" => "Property updated successfully",
