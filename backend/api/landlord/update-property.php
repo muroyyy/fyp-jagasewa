@@ -76,6 +76,37 @@ try {
         }
     }
     
+    // Handle image upload
+    if (isset($_FILES['images']) && $_FILES['images']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = '../../uploads/properties/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $fileName = uniqid() . '_' . basename($_FILES['images']['name']);
+        $uploadPath = $uploadDir . $fileName;
+        
+        if (move_uploaded_file($_FILES['images']['tmp_name'], $uploadPath)) {
+            // Get existing images first
+            $existingQuery = "SELECT images FROM properties WHERE property_id = :property_id";
+            $existingStmt = $db->prepare($existingQuery);
+            $existingStmt->bindParam(':property_id', $propertyId);
+            $existingStmt->execute();
+            $existing = $existingStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $existingImages = [];
+            if ($existing && !empty($existing['images'])) {
+                $existingImages = json_decode($existing['images'], true) ?: [];
+            }
+            
+            // Add new image to array
+            $existingImages[] = 'uploads/properties/' . $fileName;
+            
+            $updateFields[] = "images = :images";
+            $params[":images"] = json_encode($existingImages);
+        }
+    }
+    
     if (empty($updateFields)) {
         http_response_code(400);
         echo json_encode([
