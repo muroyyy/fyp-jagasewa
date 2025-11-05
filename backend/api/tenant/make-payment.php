@@ -1,14 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: https://jagasewa.cloud");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
-
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+include_once '../../config/cors.php';
+setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
