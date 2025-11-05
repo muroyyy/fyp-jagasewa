@@ -11,6 +11,9 @@ function setCorsHeaders() {
 
     if (in_array($origin, $allowed_origins)) {
         header("Access-Control-Allow-Origin: $origin");
+    } else {
+        // Default to production frontend for jagasewa.cloud requests
+        header("Access-Control-Allow-Origin: https://jagasewa.cloud");
     }
 
     header("Content-Type: application/json; charset=UTF-8");
