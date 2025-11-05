@@ -11,41 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
-
-// Only allow POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode([
-        "success" => false,
-        "message" => "Method not allowed"
-    ]);
-    exit();
-}
-
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "No authorization token provided"
-    ]);
-    exit();
-}
-
-// Extract token from "Bearer <token>"
-$token = str_replace('Bearer ', '', $authHeader);
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "Invalid token format"
-    ]);
-    exit();
-}
+require_once '../../config/auth_helper.php';
 
 // Get request body
 $data = json_decode(file_get_contents("php://input"));
@@ -65,34 +31,23 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Verify token and get user from sessions table
-    $query = "SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-    
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$session) {
+    // Check authentication
+    $token = getBearerToken();
+    if (empty($token)) {
         http_response_code(401);
-        echo json_encode([
-            "success" => false,
-            "message" => "Invalid or expired session"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit();
     }
-    
-    // Verify user is a tenant
-    if ($session['user_role'] !== 'tenant') {
+
+    // Verify token and check tenant role
+    $user_data = verifyJWT($token);
+    if (!$user_data || $user_data['role'] !== 'tenant') {
         http_response_code(403);
-        echo json_encode([
-            "success" => false,
-            "message" => "Access denied. Tenant access only."
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    $userId = $session['user_id'];
+    $userId = $user_data['user_id'];
     
     // Get tenant_id and property_id from tenants table
     $tenantQuery = "SELECT tenant_id, property_id FROM tenants WHERE user_id = :user_id";

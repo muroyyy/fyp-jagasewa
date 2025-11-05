@@ -11,75 +11,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
-
-// Only allow GET requests
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode([
-        "success" => false,
-        "message" => "Method not allowed"
-    ]);
-    exit();
-}
-
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "No authorization token provided"
-    ]);
-    exit();
-}
-
-// Extract token from "Bearer <token>"
-$token = str_replace('Bearer ', '', $authHeader);
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "Invalid token format"
-    ]);
-    exit();
-}
+require_once '../../config/auth_helper.php';
 
 try {
     // Create database connection
     $database = new Database();
     $db = $database->getConnection();
     
-    // Verify token and get user from sessions table
-    $query = "SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-    
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$session) {
+    // Check authentication
+    $token = getBearerToken();
+    if (empty($token)) {
         http_response_code(401);
-        echo json_encode([
-            "success" => false,
-            "message" => "Invalid or expired session"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit();
     }
-    
-    // Verify user is a landlord
-    if ($session['user_role'] !== 'landlord') {
+
+    // Verify token and check landlord role
+    $user_data = verifyJWT($token);
+    if (!$user_data || $user_data['role'] !== 'landlord') {
         http_response_code(403);
-        echo json_encode([
-            "success" => false,
-            "message" => "Access denied. Landlord access only."
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    $userId = $session['user_id'];
+    $userId = $user_data['user_id'];
     
     // Get landlord_id from landlords table
     $landlordQuery = "SELECT landlord_id FROM landlords WHERE user_id = :user_id";

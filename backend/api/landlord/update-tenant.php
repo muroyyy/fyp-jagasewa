@@ -11,50 +11,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
-
-// Only allow PUT requests
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-    http_response_code(405);
-    echo json_encode([
-        "success" => false,
-        "message" => "Method not allowed"
-    ]);
-    exit();
-}
-
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "No authorization token provided"
-    ]);
-    exit();
-}
-
-$token = str_replace('Bearer ', '', $authHeader);
+require_once '../../config/auth_helper.php';
 
 try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Verify token and get user from sessions table
-    $query = "SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-    
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$session || $session['user_role'] !== 'landlord') {
+    // Check authentication
+    $token = getBearerToken();
+    if (empty($token)) {
         http_response_code(401);
-        echo json_encode([
-            "success" => false,
-            "message" => "Unauthorized access"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit();
+    }
+
+    // Verify token and check landlord role
+    $user_data = verifyJWT($token);
+    if (!$user_data || $user_data['role'] !== 'landlord') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
@@ -71,7 +46,7 @@ try {
     }
     
     $tenantId = $input['tenant_id'];
-    $userId = $session['user_id'];
+    $userId = $user_data['user_id'];
     
     // Verify landlord owns the property where this tenant lives
     $verifyQuery = "SELECT t.tenant_id FROM tenants t 

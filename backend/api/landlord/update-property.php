@@ -1,6 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: https://jagasewa.cloud");
-header("Access-Control-Allow-Methods: PUT, OPTIONS");
+header("Access-Control-Allow-Methods: POST, PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
@@ -11,9 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../../config/database.php';
+require_once '../../config/auth_helper.php';
 
-// Only allow PUT requests
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+// Allow POST and PUT requests
+if (!in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT'])) {
     http_response_code(405);
     echo json_encode([
         "success" => false,
@@ -22,46 +23,33 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
     exit();
 }
 
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "message" => "No authorization token provided"
-    ]);
-    exit();
-}
-
-// Extract token from "Bearer <token>"
-$token = str_replace('Bearer ', '', $authHeader);
-
 try {
     // Create database connection
     $database = new Database();
     $db = $database->getConnection();
     
-    // Verify token and get user from sessions table
-    $query = "SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-    
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$session || $session['user_role'] !== 'landlord') {
+    // Check authentication
+    $token = getBearerToken();
+    if (empty($token)) {
         http_response_code(401);
-        echo json_encode([
-            "success" => false,
-            "message" => "Unauthorized access"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit();
+    }
+
+    // Verify token and check landlord role
+    $user_data = verifyJWT($token);
+    if (!$user_data || $user_data['role'] !== 'landlord') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Handle both JSON and FormData input
+    if ($_SERVER['CONTENT_TYPE'] && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
+        $input = $_POST;
+    } else {
+        $input = json_decode(file_get_contents('php://input'), true);
+    }
     
     if (!$input || !isset($input['property_id'])) {
         http_response_code(400);
@@ -73,7 +61,7 @@ try {
     }
     
     $propertyId = $input['property_id'];
-    $userId = $session['user_id'];
+    $userId = $user_data['user_id'];
     
     // Build update query dynamically
     $updateFields = [];
