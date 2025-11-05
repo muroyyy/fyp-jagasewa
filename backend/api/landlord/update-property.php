@@ -147,17 +147,18 @@ try {
     $stmt = $db->prepare($updateQuery);
     $result = $stmt->execute($updateParams);
     
-    if ($result && $stmt->rowCount() > 0) {
+    if ($result) {
         http_response_code(200);
         echo json_encode([
             "success" => true,
-            "message" => "Property updated successfully"
+            "message" => "Property updated successfully",
+            "rows_affected" => $stmt->rowCount()
         ]);
     } else {
         http_response_code(404);
         echo json_encode([
             "success" => false,
-            "message" => "Property not found or no changes made"
+            "message" => "Property not found or update failed"
         ]);
     }
     
