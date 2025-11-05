@@ -283,7 +283,7 @@ export default function LandlordProperties() {
                   <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100">
                     {property.images && property.images.length > 0 ? (
                       <img 
-                        src={`${API_BASE_URL}/../${property.images[0]}`} 
+                        src={property.images[0].startsWith('https://') ? property.images[0] : `${API_BASE_URL}/../${property.images[0]}`} 
                         alt={property.property_name}
                         className="w-full h-full object-cover"
                       />

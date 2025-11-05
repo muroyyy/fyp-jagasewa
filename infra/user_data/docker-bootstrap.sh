@@ -74,13 +74,12 @@ fi
 EOF
 chmod +x /usr/local/bin/docker_cleanup.sh
 
-# Create Docker post-pull hook to trigger cleanup
-mkdir -p /etc/docker/hooks
-cat > /etc/docker/hooks/post-pull << 'EOF'
-#!/bin/bash
+# Create alias for automatic cleanup after docker pull
+echo 'alias docker-pull="docker pull \$1 && /usr/local/bin/docker_cleanup.sh"' >> /etc/bash.bashrc
+echo 'alias docker-pull="docker pull \$1 && /usr/local/bin/docker_cleanup.sh"' >> /home/ubuntu/.bashrc
+
+# Run initial cleanup if there are already images
 /usr/local/bin/docker_cleanup.sh
-EOF
-chmod +x /etc/docker/hooks/post-pull
 
 echo "✅ EC2 instance setup complete. Ready for backend deployment."
 echo "📝 Backend will be deployed via CI/CD pipeline."
