@@ -65,14 +65,14 @@ try {
     
     // Build update query dynamically
     $updateFields = [];
-    $params = [':property_id' => $propertyId, ':user_id' => $userId];
+    $updateParams = [':property_id' => $propertyId];
     
     $allowedFields = ['property_name', 'description', 'monthly_rent', 'address', 'city', 'state', 'postal_code', 'total_units', 'property_type', 'status'];
     
     foreach ($allowedFields as $field) {
         if (isset($input[$field])) {
             $updateFields[] = "$field = :$field";
-            $params[":$field"] = $input[$field];
+            $updateParams[":$field"] = $input[$field];
         }
     }
     
@@ -103,7 +103,7 @@ try {
             $existingImages[] = 'uploads/properties/' . $fileName;
             
             $updateFields[] = "images = :images";
-            $params[":images"] = json_encode($existingImages);
+            $updateParams[":images"] = json_encode($existingImages);
         }
     }
     
@@ -138,7 +138,7 @@ try {
     $updateQuery = "UPDATE properties SET " . implode(', ', $updateFields) . " WHERE property_id = :property_id";
     
     $stmt = $db->prepare($updateQuery);
-    $result = $stmt->execute($params);
+    $result = $stmt->execute($updateParams);
     
     if ($result && $stmt->rowCount() > 0) {
         http_response_code(200);
