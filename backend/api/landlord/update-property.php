@@ -116,9 +116,26 @@ try {
         exit();
     }
     
-    // Update property (ensure landlord owns the property)
-    $updateQuery = "UPDATE properties SET " . implode(', ', $updateFields) . 
-                   " WHERE property_id = :property_id AND landlord_id = (SELECT landlord_id FROM landlords WHERE user_id = :user_id)";
+    // First verify the landlord owns this property
+    $verifyQuery = "SELECT p.property_id FROM properties p 
+                    JOIN landlords l ON p.landlord_id = l.landlord_id 
+                    WHERE p.property_id = :property_id AND l.user_id = :user_id";
+    $verifyStmt = $db->prepare($verifyQuery);
+    $verifyStmt->bindParam(':property_id', $propertyId);
+    $verifyStmt->bindParam(':user_id', $userId);
+    $verifyStmt->execute();
+    
+    if (!$verifyStmt->fetch()) {
+        http_response_code(403);
+        echo json_encode([
+            "success" => false,
+            "message" => "Property not found or access denied"
+        ]);
+        exit();
+    }
+    
+    // Update property
+    $updateQuery = "UPDATE properties SET " . implode(', ', $updateFields) . " WHERE property_id = :property_id";
     
     $stmt = $db->prepare($updateQuery);
     $result = $stmt->execute($params);
