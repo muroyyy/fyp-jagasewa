@@ -1,5 +1,5 @@
 <?php
-include_once '../../config/cors.php';
+include_once '../config/cors.php';
 setCorsHeaders();
 
 // backend/api/health.php
@@ -15,7 +15,7 @@ $response = [
 
 // Optional: Check database connection
 try {
-    require_once __DIR__ . '/../../config/database.php';
+    require_once __DIR__ . '/../config/database.php';
     $database = new Database();
     $db = $database->getConnection();
     $response['database'] = 'connected';

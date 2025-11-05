@@ -139,6 +139,7 @@ export default function Login() {
                   onChange={handleChange}
                   disabled={isLoading}
                   required
+                  autoComplete="email"
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
                   placeholder="you@example.com"
                 />
@@ -160,6 +161,7 @@ export default function Login() {
                   onChange={handleChange}
                   disabled={isLoading}
                   required
+                  autoComplete="current-password"
                   className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
                   placeholder="••••••••"
                 />
