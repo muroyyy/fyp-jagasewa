@@ -108,10 +108,17 @@ try {
     }
     
     if (empty($updateFields)) {
+        // Debug info
+        $debug = [
+            'input' => $input,
+            'files' => $_FILES,
+            'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'not set'
+        ];
         http_response_code(400);
         echo json_encode([
             "success" => false,
-            "message" => "No valid fields to update"
+            "message" => "No valid fields to update",
+            "debug" => $debug
         ]);
         exit();
     }
