@@ -89,6 +89,18 @@ try {
     error_log("FILES received: " . print_r($_FILES, true));
     error_log("POST data: " . print_r($_POST, true));
     
+    // Handle image removal
+    if (isset($input['remove_images']) && !empty($input['remove_images'])) {
+        $imagesToRemove = json_decode($input['remove_images'], true);
+        if ($imagesToRemove) {
+            foreach ($imagesToRemove as $imageUrl) {
+                if (strpos($imageUrl, 'https://jagasewa-assets-prod.s3.') === 0) {
+                    deleteFromS3($imageUrl);
+                }
+            }
+        }
+    }
+    
     // Handle image upload to S3
     if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
         error_log("Processing file upload for property_images");
