@@ -96,19 +96,26 @@ try {
                     'type' => $_FILES['property_images']['type'][$i]
                 ];
                 
+                error_log("Attempting S3 upload for file: " . $file['name']);
                 $s3Url = uploadToS3($file, 'properties');
                 if ($s3Url) {
+                    error_log("S3 upload successful: " . $s3Url);
                     $uploadedImages[] = $s3Url;
                 } else {
+                    error_log("S3 upload failed, trying local fallback");
                     // Fallback to local upload if S3 fails
                     $uploadDir = '../../uploads/properties/';
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
+                        error_log("Created upload directory: " . $uploadDir);
                     }
                     $fileName = uniqid() . '_' . basename($file['name']);
                     $targetPath = $uploadDir . $fileName;
                     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                        error_log("Local upload successful: " . $targetPath);
                         $uploadedImages[] = 'uploads/properties/' . $fileName;
+                    } else {
+                        error_log("Local upload failed for: " . $targetPath);
                     }
                 }
             }

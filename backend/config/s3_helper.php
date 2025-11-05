@@ -7,15 +7,22 @@ function uploadToS3($file, $folder = 'properties') {
     $bucket = 'jagasewa-assets-prod';
     $region = 'ap-southeast-1';
     
+    error_log("S3 upload started for bucket: $bucket, region: $region");
+    
     // Generate unique filename
     $fileName = uniqid() . '_' . basename($file['name']);
     $key = $folder . '/' . $fileName;
     
+    error_log("S3 key: $key");
+    
     // Create AWS credentials from EC2 instance role
     $credentials = getEC2Credentials();
     if (!$credentials) {
+        error_log("Failed to get EC2 credentials");
         return false;
     }
+    
+    error_log("EC2 credentials obtained successfully");
     
     // Prepare file data
     $fileContent = file_get_contents($file['tmp_name']);
@@ -53,9 +60,12 @@ function uploadToS3($file, $folder = 'properties') {
     curl_close($ch);
     
     if ($httpCode === 200) {
-        return "https://{$bucket}.s3.{$region}.amazonaws.com/{$key}";
+        $s3Url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$key}";
+        error_log("S3 upload successful, URL: $s3Url");
+        return $s3Url;
     }
     
+    error_log("S3 upload failed with HTTP code: $httpCode, response: $response");
     return false;
 }
 
