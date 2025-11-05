@@ -85,8 +85,13 @@ try {
         }
     }
     
+    // Debug: Check if files are being received
+    error_log("FILES received: " . print_r($_FILES, true));
+    error_log("POST data: " . print_r($_POST, true));
+    
     // Handle image upload to S3
     if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
+        error_log("Processing file upload for property_images");
         $uploadedImages = [];
         for ($i = 0; $i < count($_FILES['property_images']['name']); $i++) {
             if ($_FILES['property_images']['error'][$i] === UPLOAD_ERR_OK) {

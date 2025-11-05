@@ -34,10 +34,12 @@ function uploadToS3($file, $folder = 'properties') {
     $date = gmdate('Ymd');
     
     // Create signature
+    $payloadHash = hash('sha256', $fileContent);
     $headers = [
         'Host' => "{$bucket}.s3.{$region}.amazonaws.com",
         'Content-Type' => $contentType,
         'X-Amz-Date' => $timestamp,
+        'X-Amz-Content-Sha256' => $payloadHash,
         'X-Amz-Security-Token' => $credentials['token']
     ];
     
