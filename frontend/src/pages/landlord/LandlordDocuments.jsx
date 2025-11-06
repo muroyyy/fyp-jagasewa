@@ -186,6 +186,15 @@ export default function LandlordDocuments() {
       if (uploadForm.description) {
         formData.append('description', uploadForm.description);
       }
+      
+      // Debug logging
+      console.log('Upload form data:', {
+        file: uploadForm.file?.name,
+        category: uploadForm.category,
+        property_id: uploadForm.property_id,
+        tenant_id: uploadForm.tenant_id,
+        description: uploadForm.description
+      });
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/upload-document.php`, {
         method: 'POST',
@@ -209,6 +218,7 @@ export default function LandlordDocuments() {
         });
         fetchDocuments();
       } else {
+        console.error('Upload error response:', data);
         alert(data.message || 'Upload failed');
       }
     } catch (error) {
