@@ -204,6 +204,69 @@ function deleteFromS3($s3Key) {
     return $httpCode === 204;
 }
 
+function getS3FileContent($s3Key) {
+    $bucket = 'jagasewa-assets-prod';
+    $region = 'ap-southeast-1';
+    
+    $credentials = getEC2Credentials();
+    if (!$credentials) {
+        return false;
+    }
+    
+    $timestamp = gmdate('Ymd\THis\Z');
+    $date = gmdate('Ymd');
+    
+    $headers = [
+        'Host' => "{$bucket}.s3.{$region}.amazonaws.com",
+        'X-Amz-Date' => $timestamp,
+        'X-Amz-Security-Token' => $credentials['token']
+    ];
+    
+    $signature = createS3GetSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date);
+    $headers['Authorization'] = $signature;
+    
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}",
+        CURLOPT_HTTPHEADER => array_map(function($k, $v) { return "$k: $v"; }, array_keys($headers), $headers),
+        CURLOPT_RETURNTRANSFER => true
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $httpCode === 200 ? $response : false;
+}
+
+function createS3GetSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date) {
+    $service = 's3';
+    $algorithm = 'AWS4-HMAC-SHA256';
+    
+    $canonicalHeaders = '';
+    $signedHeaders = '';
+    ksort($headers);
+    foreach ($headers as $name => $value) {
+        $canonicalHeaders .= strtolower($name) . ':' . trim($value) . "\n";
+        $signedHeaders .= strtolower($name) . ';';
+    }
+    $signedHeaders = rtrim($signedHeaders, ';');
+    
+    $canonicalRequest = "GET\n/{$s3Key}\n\n{$canonicalHeaders}\n{$signedHeaders}\n" . hash('sha256', '');
+    
+    $credentialScope = "{$date}/{$region}/{$service}/aws4_request";
+    $stringToSign = "{$algorithm}\n{$timestamp}\n{$credentialScope}\n" . hash('sha256', $canonicalRequest);
+    
+    $signingKey = hash_hmac('sha256', 'aws4_request', 
+                  hash_hmac('sha256', $service,
+                  hash_hmac('sha256', $region,
+                  hash_hmac('sha256', $date, 'AWS4' . $credentials['secret_key'], true), true), true), true);
+    
+    $signature = hash_hmac('sha256', $stringToSign, $signingKey);
+    
+    return "{$algorithm} Credential={$credentials['access_key']}/{$credentialScope}, SignedHeaders={$signedHeaders}, Signature={$signature}";
+}
+
 function createS3DeleteSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date) {
     $service = 's3';
     $algorithm = 'AWS4-HMAC-SHA256';

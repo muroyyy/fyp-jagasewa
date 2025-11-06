@@ -90,18 +90,38 @@ try {
 
     $document = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Check if this is a download request
+    $isDownload = isset($_GET['download']) && $_GET['download'] == '1';
+    
     if (strpos($document['file_path'], 'https://') === 0) {
-        // S3 file - redirect to pre-signed URL
+        // S3 file
         $s3Key = str_replace('https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/', '', $document['file_path']);
-        $presignedUrl = generatePresignedUrl($s3Key, 60);
         
-        if ($presignedUrl) {
-            header('Location: ' . $presignedUrl);
-            exit();
+        if ($isDownload) {
+            // For downloads, proxy the file through backend
+            $fileContent = getS3FileContent($s3Key);
+            if ($fileContent) {
+                header('Content-Type: ' . $document['file_type']);
+                header('Content-Disposition: attachment; filename="' . $document['file_name'] . '"');
+                header('Content-Length: ' . strlen($fileContent));
+                echo $fileContent;
+                exit();
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to retrieve file']);
+                exit();
+            }
         } else {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Failed to generate download URL']);
-            exit();
+            // For viewing, redirect to pre-signed URL
+            $presignedUrl = generatePresignedUrl($s3Key, 60);
+            if ($presignedUrl) {
+                header('Location: ' . $presignedUrl);
+                exit();
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to generate view URL']);
+                exit();
+            }
         }
     } else {
         // Local file - serve directly

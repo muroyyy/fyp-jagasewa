@@ -92,26 +92,15 @@ export default function TenantDocuments() {
     try {
       const token = localStorage.getItem('session_token');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/download-document.php?document_id=${documentId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        alert('Failed to download document');
-      }
+      // Use direct link with token for download
+      const downloadUrl = `${import.meta.env.VITE_API_URL}/api/tenant/download-document.php?document_id=${documentId}&token=${token}&download=1`;
+      
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } catch (err) {
       console.error('Error downloading document:', err);
       alert('An error occurred while downloading the document');
