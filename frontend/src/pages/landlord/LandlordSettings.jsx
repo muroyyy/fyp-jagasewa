@@ -55,7 +55,11 @@ export default function LandlordSettings() {
       if (result.success) {
         setProfileData(result.data);
         if (result.data.profile_image) {
-          setProfileImagePreview(`${API_BASE_URL}/../${result.data.profile_image}`);
+          // Handle both S3 URLs and local file paths
+          const imageUrl = result.data.profile_image.startsWith('https://') 
+            ? result.data.profile_image 
+            : `${API_BASE_URL}/../${result.data.profile_image}`;
+          setProfileImagePreview(imageUrl);
         }
       } else {
         setError(result.message || 'Failed to fetch profile');
