@@ -73,8 +73,8 @@ export default function LandlordDocuments() {
       const data = await response.json();
       
       if (data.success) {
-        setDocuments(data.documents || []);
-        setStats(data.stats);
+        setDocuments(data.data?.documents || []);
+        setStats(data.data?.stats);
       } else {
         setError(data.message || 'Failed to fetch documents');
       }
