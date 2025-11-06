@@ -100,7 +100,7 @@ try {
         
         // Delete old profile image from S3 if exists
         if ($currentImage && strpos($currentImage, 'https://') === 0) {
-            $oldKey = str_replace('https://jagasewa-assets.s3.us-east-1.amazonaws.com/', '', $currentImage);
+            $oldKey = str_replace('https://jagasewa-assets-dev.s3.us-east-1.amazonaws.com/', '', $currentImage);
             deleteFromS3($oldKey);
         }
 

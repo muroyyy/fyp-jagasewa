@@ -32,8 +32,8 @@ resource "aws_vpc_endpoint_policy" "s3" {
           "s3:ListBucket"
         ]
         Resource = [
-          "arn:aws:s3:::${var.project_name}-assets",
-          "arn:aws:s3:::${var.project_name}-assets/*"
+          "arn:aws:s3:::${var.project_name}-assets-${var.environment}",
+          "arn:aws:s3:::${var.project_name}-assets-${var.environment}/*"
         ]
       }
     ]

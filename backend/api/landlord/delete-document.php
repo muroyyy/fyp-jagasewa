@@ -10,95 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
 // Get authorization token using helper function
 $sessionToken = getBearerToken();
 
@@ -155,6 +68,18 @@ try {
         exit();
     }
 
+    // Delete from S3 if it's an S3 URL
+    if (strpos($document['file_path'], 'https://') === 0) {
+        $s3Key = str_replace('https://jagasewa-assets-dev.s3.us-east-1.amazonaws.com/', '', $document['file_path']);
+        deleteFromS3($s3Key);
+    } else {
+        // Delete local file
+        $filePath = '../../' . $document['file_path'];
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
+
     // Soft delete (set is_active = 0)
     $stmt = $conn->prepare("
         UPDATE documents 
@@ -162,15 +87,6 @@ try {
         WHERE document_id = ?
     ");
     $stmt->execute([$documentId]);
-
-    // Optionally, delete physical file
-    // Uncomment below if need to permanently delete files
-    /*
-    $filePath = '../../' . $document['file_path'];
-    if (file_exists($filePath)) {
-        unlink($filePath);
-    }
-    */
 
     echo json_encode([
         'success' => true,

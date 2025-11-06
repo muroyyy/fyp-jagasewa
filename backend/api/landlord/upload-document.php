@@ -10,95 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
 // Get authorization token using helper function
 $sessionToken = getBearerToken();
 
@@ -199,23 +112,30 @@ try {
         }
     }
 
-    // Create upload directory if it doesn't exist
-    $uploadDir = '../../uploads/documents/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    // Generate unique filename
+    // Generate unique S3 key
     $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $originalFileName = pathinfo($file['name'], PATHINFO_FILENAME);
-    $uniqueFileName = 'doc_' . $landlordId . '_' . time() . '_' . uniqid() . '.' . $fileExtension;
-    $filePath = $uploadDir . $uniqueFileName;
-
-    // Move uploaded file
-    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to save file']);
-        exit();
+    $s3Key = 'documents/landlord_' . $landlordId . '_' . time() . '_' . uniqid() . '.' . $fileExtension;
+    
+    // Upload to S3
+    $s3Url = uploadToS3($file['tmp_name'], $s3Key, $fileType);
+    if ($s3Url) {
+        $filePath = $s3Url;
+    } else {
+        // Fallback to local storage
+        $uploadDir = '../../uploads/documents/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        $uniqueFileName = 'doc_' . $landlordId . '_' . time() . '_' . uniqid() . '.' . $fileExtension;
+        $localPath = $uploadDir . $uniqueFileName;
+        if (move_uploaded_file($file['tmp_name'], $localPath)) {
+            $filePath = 'uploads/documents/' . $uniqueFileName;
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to save file']);
+            exit();
+        }
     }
 
     // Save to database
@@ -230,7 +150,7 @@ try {
         $propertyId,
         $tenantId,
         $originalFileName . '.' . $fileExtension,
-        'uploads/documents/' . $uniqueFileName,
+        $filePath,
         $fileType,
         $file['size'],
         $category,

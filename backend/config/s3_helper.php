@@ -3,17 +3,12 @@
  * S3 Helper Functions for File Upload
  */
 
-function uploadToS3($file, $folder = 'properties') {
-    $bucket = 'jagasewa-assets-prod';
-    $region = 'ap-southeast-1';
+function uploadToS3($filePath, $s3Key, $contentType = 'application/octet-stream') {
+    $bucket = 'jagasewa-assets-dev';
+    $region = 'us-east-1';
     
     error_log("S3 upload started for bucket: $bucket, region: $region");
-    
-    // Generate unique filename
-    $fileName = uniqid() . '_' . basename($file['name']);
-    $key = $folder . '/' . $fileName;
-    
-    error_log("S3 key: $key");
+    error_log("S3 key: $s3Key");
     
     // Create AWS credentials from EC2 instance role
     $credentials = getEC2Credentials();
@@ -25,11 +20,10 @@ function uploadToS3($file, $folder = 'properties') {
     error_log("EC2 credentials obtained successfully");
     
     // Prepare file data
-    $fileContent = file_get_contents($file['tmp_name']);
-    $contentType = $file['type'];
+    $fileContent = file_get_contents($filePath);
     
     // Create S3 PUT request
-    $url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$key}";
+    $url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}";
     $timestamp = gmdate('Ymd\THis\Z');
     $date = gmdate('Ymd');
     
@@ -43,7 +37,7 @@ function uploadToS3($file, $folder = 'properties') {
         'X-Amz-Security-Token' => $credentials['token']
     ];
     
-    $signature = createS3Signature($credentials, $region, $bucket, $key, $headers, $fileContent, $timestamp, $date);
+    $signature = createS3Signature($credentials, $region, $bucket, $s3Key, $headers, $fileContent, $timestamp, $date);
     $headers['Authorization'] = $signature;
     
     // Upload to S3
@@ -62,7 +56,7 @@ function uploadToS3($file, $folder = 'properties') {
     curl_close($ch);
     
     if ($httpCode === 200) {
-        $s3Url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$key}";
+        $s3Url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}";
         error_log("S3 upload successful, URL: $s3Url");
         return $s3Url;
     }
@@ -101,7 +95,7 @@ function getEC2Credentials() {
     ];
 }
 
-function createS3Signature($credentials, $region, $bucket, $key, $headers, $payload, $timestamp, $date) {
+function createS3Signature($credentials, $region, $bucket, $s3Key, $headers, $payload, $timestamp, $date) {
     $service = 's3';
     $algorithm = 'AWS4-HMAC-SHA256';
     
@@ -115,7 +109,7 @@ function createS3Signature($credentials, $region, $bucket, $key, $headers, $payl
     }
     $signedHeaders = rtrim($signedHeaders, ';');
     
-    $canonicalRequest = "PUT\n/{$key}\n\n{$canonicalHeaders}\n{$signedHeaders}\n" . hash('sha256', $payload);
+    $canonicalRequest = "PUT\n/{$s3Key}\n\n{$canonicalHeaders}\n{$signedHeaders}\n" . hash('sha256', $payload);
     
     // Create string to sign
     $credentialScope = "{$date}/{$region}/{$service}/aws4_request";
@@ -132,15 +126,9 @@ function createS3Signature($credentials, $region, $bucket, $key, $headers, $payl
     return "{$algorithm} Credential={$credentials['access_key']}/{$credentialScope}, SignedHeaders={$signedHeaders}, Signature={$signature}";
 }
 
-function deleteFromS3($url) {
-    // Extract bucket and key from URL
-    if (!preg_match('/https:\/\/([^.]+)\.s3\.([^.]+)\.amazonaws\.com\/(.+)/', $url, $matches)) {
-        return false;
-    }
-    
-    $bucket = $matches[1];
-    $region = $matches[2];
-    $key = $matches[3];
+function deleteFromS3($s3Key) {
+    $bucket = 'jagasewa-assets-dev';
+    $region = 'us-east-1';
     
     $credentials = getEC2Credentials();
     if (!$credentials) {
@@ -156,12 +144,12 @@ function deleteFromS3($url) {
         'X-Amz-Security-Token' => $credentials['token']
     ];
     
-    $signature = createS3DeleteSignature($credentials, $region, $bucket, $key, $headers, $timestamp, $date);
+    $signature = createS3DeleteSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date);
     $headers['Authorization'] = $signature;
     
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => "https://{$bucket}.s3.{$region}.amazonaws.com/{$key}",
+        CURLOPT_URL => "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}",
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_HTTPHEADER => array_map(function($k, $v) { return "$k: $v"; }, array_keys($headers), $headers),
         CURLOPT_RETURNTRANSFER => true
@@ -174,7 +162,7 @@ function deleteFromS3($url) {
     return $httpCode === 204;
 }
 
-function createS3DeleteSignature($credentials, $region, $bucket, $key, $headers, $timestamp, $date) {
+function createS3DeleteSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date) {
     $service = 's3';
     $algorithm = 'AWS4-HMAC-SHA256';
     
@@ -187,7 +175,7 @@ function createS3DeleteSignature($credentials, $region, $bucket, $key, $headers,
     }
     $signedHeaders = rtrim($signedHeaders, ';');
     
-    $canonicalRequest = "DELETE\n/{$key}\n\n{$canonicalHeaders}\n{$signedHeaders}\n" . hash('sha256', '');
+    $canonicalRequest = "DELETE\n/{$s3Key}\n\n{$canonicalHeaders}\n{$signedHeaders}\n" . hash('sha256', '');
     
     $credentialScope = "{$date}/{$region}/{$service}/aws4_request";
     $stringToSign = "{$algorithm}\n{$timestamp}\n{$credentialScope}\n" . hash('sha256', $canonicalRequest);

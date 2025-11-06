@@ -474,7 +474,7 @@ export default function LandlordDocuments() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <a
-                          href={`http://localhost:8000/${doc.file_path}`}
+                          href={doc.file_path.startsWith('https://') ? doc.file_path : `http://localhost:8000/${doc.file_path}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-900 cursor-pointer"
@@ -483,7 +483,7 @@ export default function LandlordDocuments() {
                           <Eye className="w-5 h-5" />
                         </a>
                         <a
-                          href={`http://localhost:8000/${doc.file_path}`}
+                          href={doc.file_path.startsWith('https://') ? doc.file_path : `http://localhost:8000/${doc.file_path}`}
                           download
                           className="text-green-600 hover:text-green-900 cursor-pointer"
                           title="Download"
