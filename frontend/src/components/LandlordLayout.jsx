@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
+import NotificationDropdown from './NotificationDropdown';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -190,10 +191,7 @@ export default function LandlordLayout({ children }) {
             {/* User Profile Section */}
             <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationDropdown userType="landlord" />
 
               {/* User Info */}
               <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 border-l border-gray-200">
