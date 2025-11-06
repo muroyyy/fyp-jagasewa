@@ -33,6 +33,7 @@ module "vpc" {
   private_subnet_a_cidr    = var.private_subnets[0]
   private_subnet_b_cidr    = var.private_subnets[1]
   availability_zones       = var.availability_zones
+  aws_region               = var.aws_region
 }
 
 module "security" {
