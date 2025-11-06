@@ -3,10 +3,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
+
 export default function LandlordLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [userData, setUserData] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Check authentication
@@ -21,6 +24,7 @@ export default function LandlordLayout({ children }) {
     if (storedUser) {
       try {
         setUserData(JSON.parse(storedUser));
+        fetchProfileImage();
       } catch (error) {
         console.error('Error parsing user data:', error);
       }
@@ -58,6 +62,29 @@ export default function LandlordLayout({ children }) {
   ];
 
   // Get user initials for avatar
+  const fetchProfileImage = async () => {
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch(`${API_BASE_URL}/api/landlord/profile.php`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+      if (result.success && result.data.profile_image) {
+        const imageUrl = result.data.profile_image.startsWith('https://') 
+          ? result.data.profile_image 
+          : `${API_BASE_URL}/../${result.data.profile_image}`;
+        setProfileImage(imageUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+    }
+  };
+
   const getUserInitials = () => {
     if (!userData?.full_name) return 'L';
     const names = userData.full_name.split(' ');
@@ -176,9 +203,17 @@ export default function LandlordLayout({ children }) {
                   </p>
                   <p className="text-xs text-gray-500">Landlord Account</p>
                 </div>
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base">
-                  {getUserInitials()}
-                </div>
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Profile"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-lg border-2 border-white"
+                  />
+                ) : (
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base">
+                    {getUserInitials()}
+                  </div>
+                )}
               </div>
             </div>
           </div>

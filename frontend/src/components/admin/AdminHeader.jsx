@@ -1,20 +1,28 @@
 import { Bell, Search, User, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
+
 const AdminHeader = ({ onMenuClick }) => {
   const [adminName, setAdminName] = useState('Admin User');
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
-    // TODO: Fetch admin profile data
     const fetchAdminProfile = async () => {
       try {
         const token = localStorage.getItem('session_token');
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/profile.php`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/profile.php`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();
         if (data.success) {
           setAdminName(data.data.full_name || 'Admin User');
+          if (data.data.profile_image) {
+            const imageUrl = data.data.profile_image.startsWith('https://') 
+              ? data.data.profile_image 
+              : `${API_BASE_URL}/../${data.data.profile_image}`;
+            setProfileImage(imageUrl);
+          }
         }
       } catch (error) {
         console.error('Error fetching admin profile:', error);
@@ -55,12 +63,20 @@ const AdminHeader = ({ onMenuClick }) => {
           </button>
 
           <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
-              <User className="text-white" size={16} />
-            </div>
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover shadow-lg border-2 border-white"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                <User className="text-white" size={16} />
+              </div>
+            )}
             <div>
               <p className="text-sm font-medium text-gray-800">{adminName}</p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs text-gray-500">Admin Account</p>
             </div>
           </div>
         </div>

@@ -1,13 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell } from 'lucide-react';
 import { getCurrentUser, logout } from '../utils/auth';
+
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
 export default function TenantLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   const user = getCurrentUser();
+
+  useEffect(() => {
+    if (user) {
+      fetchProfileImage();
+    }
+  }, [user]);
+
+  const fetchProfileImage = async () => {
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch(`${API_BASE_URL}/api/tenant/profile.php`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+      if (result.success && result.data.profile_image) {
+        const imageUrl = result.data.profile_image.startsWith('https://') 
+          ? result.data.profile_image 
+          : `${API_BASE_URL}/../${result.data.profile_image}`;
+        setProfileImage(imageUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+    }
+  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -61,11 +93,19 @@ export default function TenantLayout({ children }) {
                   <p className="text-sm font-semibold text-gray-900">{user?.full_name || 'Tenant'}</p>
                   <p className="text-xs text-gray-500">Tenant Account</p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
-                    {user?.full_name?.charAt(0) || 'T'}
-                  </span>
-                </div>
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover shadow-lg border-2 border-white"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">
+                      {user?.full_name?.charAt(0) || 'T'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
