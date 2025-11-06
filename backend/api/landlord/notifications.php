@@ -51,7 +51,9 @@ try {
             'property_name' => 'Sunset Apartments Unit 2A',
             'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours')),
             'is_read' => false,
-            'priority' => 'high'
+            'priority' => 'high',
+            'link_url' => '/landlord/maintenance?request_id=123',
+            'reference_id' => 123
         ],
         [
             'id' => 2,
@@ -61,7 +63,9 @@ try {
             'property_name' => 'Garden View Condo Unit 5B',
             'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
             'is_read' => false,
-            'priority' => 'medium'
+            'priority' => 'medium',
+            'link_url' => '/landlord/payments?payment_id=456',
+            'reference_id' => 456
         ],
         [
             'id' => 3,
@@ -71,7 +75,9 @@ try {
             'property_name' => 'Downtown Loft Unit 12',
             'created_at' => date('Y-m-d H:i:s', strtotime('-3 days')),
             'is_read' => true,
-            'priority' => 'medium'
+            'priority' => 'medium',
+            'link_url' => '/landlord/tenants?tenant_id=789',
+            'reference_id' => 789
         ],
         [
             'id' => 4,
@@ -81,7 +87,9 @@ try {
             'property_name' => 'Riverside Apartments Unit 3C',
             'created_at' => date('Y-m-d H:i:s', strtotime('-1 week')),
             'is_read' => true,
-            'priority' => 'low'
+            'priority' => 'low',
+            'link_url' => '/landlord/documents?document_id=101',
+            'reference_id' => 101
         ]
     ];
 

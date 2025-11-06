@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, Clock, AlertCircle, CheckCircle, FileText, DollarSign, Wrench } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function NotificationDropdown({ userType = 'landlord' }) {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -84,6 +86,13 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
     return `${Math.floor(diffInSeconds / 86400)}d ago`;
   };
 
+  const handleNotificationClick = (notification) => {
+    if (notification.link_url) {
+      navigate(notification.link_url);
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Button */}
@@ -129,6 +138,7 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
               notifications.map((notification) => (
                 <div
                   key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
                   className={`p-4 border-l-4 hover:bg-gray-50 transition-colors cursor-pointer ${
                     getPriorityColor(notification.priority)
                   } ${!notification.is_read ? 'bg-blue-50' : ''}`}
