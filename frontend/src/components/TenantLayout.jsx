@@ -32,16 +32,24 @@ export default function TenantLayout({ children }) {
       });
 
       const result = await response.json();
-      if (result.success) {
-        if (result.data.profile_image) {
-          const imageUrl = result.data.profile_image.startsWith('https://') 
-            ? result.data.profile_image 
-            : `${API_BASE_URL}/../${result.data.profile_image}`;
+      console.log('Profile API response:', result); // Debug log
+      
+      if (result.success && result.data.profile) {
+        if (result.data.profile.profile_image) {
+          // Handle S3 URLs vs local paths correctly
+          let imageUrl;
+          if (result.data.profile.profile_image.startsWith('https://')) {
+            imageUrl = result.data.profile.profile_image;
+          } else {
+            imageUrl = `${API_BASE_URL}/../${result.data.profile.profile_image}`;
+          }
           setProfileImage(imageUrl);
         }
-        if (result.data.full_name) {
-          setFullName(result.data.full_name);
+        if (result.data.profile.full_name) {
+          setFullName(result.data.profile.full_name);
         }
+      } else {
+        console.error('Profile API failed:', result);
       }
     } catch (error) {
       console.error('Error fetching profile data:', error);
