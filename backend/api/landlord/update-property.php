@@ -114,7 +114,7 @@ try {
                 ];
                 
                 error_log("Attempting S3 upload for file: " . $file['name']);
-                $s3Url = uploadToS3($file, 'properties');
+                $s3Url = uploadToS3($file['tmp_name'], 'properties/' . uniqid() . '_' . $file['name'], $file['type']);
                 if ($s3Url) {
                     error_log("S3 upload successful: " . $s3Url);
                     $uploadedImages[] = $s3Url;

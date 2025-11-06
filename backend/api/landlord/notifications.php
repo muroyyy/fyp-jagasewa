@@ -1,4 +1,8 @@
 <?php
+// Suppress all PHP notices and warnings to prevent HTML output
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', 0);
+
 include_once '../../config/cors.php';
 setCorsHeaders();
 
