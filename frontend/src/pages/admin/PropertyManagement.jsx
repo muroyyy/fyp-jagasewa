@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye, MapPin, DollarSign, Calendar, User } from 'lucide-react';
+import ImageSlider from '../../components/ImageSlider';
 
 const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);
@@ -202,24 +203,20 @@ const PropertyManagement = () => {
           <div key={property.property_id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative">
               {property.images && property.images.length > 0 ? (
-                <img
-                  src={property.images[0].startsWith('https://') 
-                    ? property.images[0] 
-                    : `${import.meta.env.VITE_API_URL}/../${property.images[0]}`
-                  }
-                  alt={property.property_name}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
-                  }}
-                />
+                <div className="h-48">
+                  <ImageSlider 
+                    images={property.images.map(img => 
+                      img.startsWith('https://') ? img : `${import.meta.env.VITE_API_URL}/../${img}`
+                    )}
+                    className="h-48"
+                  />
+                </div>
               ) : (
                 <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                   <MapPin className="text-gray-400" size={48} />
                 </div>
               )}
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 z-10">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(property.status)}`}>
                   {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
                 </span>
