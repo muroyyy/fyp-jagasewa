@@ -157,7 +157,14 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
         date_of_birth: profile.date_of_birth || ''
       });
       if (profile.profile_image) {
-        setImagePreview(`http://localhost:8000/${profile.profile_image}`);
+        // Handle S3 URLs vs local paths correctly
+        let imageUrl;
+        if (profile.profile_image.startsWith('https://')) {
+          imageUrl = profile.profile_image;
+        } else {
+          imageUrl = `${import.meta.env.VITE_API_URL}/../${profile.profile_image}`;
+        }
+        setImagePreview(imageUrl);
       }
     }
   }, [profile]);
