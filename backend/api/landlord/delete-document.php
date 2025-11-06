@@ -70,7 +70,7 @@ try {
 
     // Delete from S3 if it's an S3 URL
     if (strpos($document['file_path'], 'https://') === 0) {
-        $s3Key = str_replace('https://jagasewa-assets-dev.s3.us-east-1.amazonaws.com/', '', $document['file_path']);
+        $s3Key = str_replace('https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/', '', $document['file_path']);
         deleteFromS3($s3Key);
     } else {
         // Delete local file

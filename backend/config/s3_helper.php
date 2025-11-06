@@ -4,8 +4,8 @@
  */
 
 function uploadToS3($filePath, $s3Key, $contentType = 'application/octet-stream') {
-    $bucket = 'jagasewa-assets-dev';
-    $region = 'us-east-1';
+    $bucket = 'jagasewa-assets-prod';
+    $region = 'ap-southeast-1';
     
     error_log("S3 upload started for bucket: $bucket, region: $region");
     error_log("S3 key: $s3Key");
@@ -127,8 +127,8 @@ function createS3Signature($credentials, $region, $bucket, $s3Key, $headers, $pa
 }
 
 function deleteFromS3($s3Key) {
-    $bucket = 'jagasewa-assets-dev';
-    $region = 'us-east-1';
+    $bucket = 'jagasewa-assets-prod';
+    $region = 'ap-southeast-1';
     
     $credentials = getEC2Credentials();
     if (!$credentials) {
