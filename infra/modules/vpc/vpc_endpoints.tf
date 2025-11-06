@@ -15,7 +15,7 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-# S3 VPC Endpoint Policy (Optional - for additional security)
+# S3 VPC Endpoint Policy (Allow ECR and assets bucket access)
 resource "aws_vpc_endpoint_policy" "s3" {
   vpc_endpoint_id = aws_vpc_endpoint.s3.id
   
@@ -34,6 +34,18 @@ resource "aws_vpc_endpoint_policy" "s3" {
         Resource = [
           "arn:aws:s3:::${var.project_name}-assets-${var.environment}",
           "arn:aws:s3:::${var.project_name}-assets-${var.environment}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Principal = "*"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::prod-*-starport-layer-bucket",
+          "arn:aws:s3:::prod-*-starport-layer-bucket/*"
         ]
       }
     ]
