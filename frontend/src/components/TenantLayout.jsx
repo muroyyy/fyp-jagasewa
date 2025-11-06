@@ -11,15 +11,16 @@ export default function TenantLayout({ children }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [fullName, setFullName] = useState('');
   const user = getCurrentUser();
 
   useEffect(() => {
     if (user) {
-      fetchProfileImage();
+      fetchProfileData();
     }
   }, [user]);
 
-  const fetchProfileImage = async () => {
+  const fetchProfileData = async () => {
     try {
       const sessionToken = localStorage.getItem('session_token');
       const response = await fetch(`${API_BASE_URL}/api/tenant/profile.php`, {
@@ -31,14 +32,19 @@ export default function TenantLayout({ children }) {
       });
 
       const result = await response.json();
-      if (result.success && result.data.profile_image) {
-        const imageUrl = result.data.profile_image.startsWith('https://') 
-          ? result.data.profile_image 
-          : `${API_BASE_URL}/../${result.data.profile_image}`;
-        setProfileImage(imageUrl);
+      if (result.success) {
+        if (result.data.profile_image) {
+          const imageUrl = result.data.profile_image.startsWith('https://') 
+            ? result.data.profile_image 
+            : `${API_BASE_URL}/../${result.data.profile_image}`;
+          setProfileImage(imageUrl);
+        }
+        if (result.data.full_name) {
+          setFullName(result.data.full_name);
+        }
       }
     } catch (error) {
-      console.error('Error fetching profile image:', error);
+      console.error('Error fetching profile data:', error);
     }
   };
 
@@ -86,7 +92,7 @@ export default function TenantLayout({ children }) {
               <NotificationDropdown userType="tenant" />
               <div className="flex items-center space-x-3">
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-semibold text-gray-900">{user?.full_name || 'Tenant'}</p>
+                  <p className="text-sm font-semibold text-gray-900">{fullName || 'Tenant'}</p>
                   <p className="text-xs text-gray-500">Tenant Account</p>
                 </div>
                 {profileImage ? (
@@ -98,7 +104,7 @@ export default function TenantLayout({ children }) {
                 ) : (
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">
-                      {user?.full_name?.charAt(0) || 'T'}
+                      {fullName?.charAt(0) || 'T'}
                     </span>
                   </div>
                 )}
