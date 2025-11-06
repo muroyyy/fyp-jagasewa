@@ -87,9 +87,18 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
   };
 
   const handleNotificationClick = (notification) => {
+    console.log('Notification clicked:', notification);
     if (notification.link_url) {
-      navigate(notification.link_url);
-      setIsOpen(false);
+      console.log('Navigating to:', notification.link_url);
+      try {
+        navigate(notification.link_url);
+        setIsOpen(false);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        alert(`Navigation failed: ${error.message}`);
+      }
+    } else {
+      console.log('No link_url found in notification');
     }
   };
 
