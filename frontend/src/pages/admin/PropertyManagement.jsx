@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye, MapPin, DollarSign, Calendar, User } from 'lucide-react';
 import ImageSlider from '../../components/ImageSlider';
+import ViewPropertyModal from '../../components/ViewPropertyModal';
 
 const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);
@@ -9,6 +10,8 @@ const PropertyManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [showPropertyModal, setShowPropertyModal] = useState(false);
 
   useEffect(() => {
     fetchProperties();
@@ -81,6 +84,11 @@ const PropertyManagement = () => {
       case 'inactive': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
+  };
+
+  const handleViewProperty = (property) => {
+    setSelectedProperty(property);
+    setShowPropertyModal(true);
   };
 
   if (loading) {
@@ -228,7 +236,10 @@ const PropertyManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
                   {property.property_name}
                 </h3>
-                <button className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition-colors cursor-pointer">
+                <button 
+                  onClick={() => handleViewProperty(property)}
+                  className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition-colors cursor-pointer"
+                >
                   <Eye size={18} />
                 </button>
               </div>
@@ -269,6 +280,13 @@ const PropertyManagement = () => {
           <p className="text-gray-500">No properties found matching your criteria</p>
         </div>
       )}
+
+      {/* Property Details Modal */}
+      <ViewPropertyModal
+        isOpen={showPropertyModal}
+        onClose={() => setShowPropertyModal(false)}
+        property={selectedProperty}
+      />
     </div>
   );
 };
