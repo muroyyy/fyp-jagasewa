@@ -260,7 +260,12 @@ export default function TenantDocuments() {
                     <span>Download</span>
                   </button>
                   <button
-                    onClick={() => window.open(doc.file_url, '_blank')}
+                    onClick={() => {
+                      const viewUrl = doc.file_path.startsWith('https://') 
+                        ? doc.file_path 
+                        : `${import.meta.env.VITE_API_URL}/../${doc.file_path}`;
+                      window.open(viewUrl, '_blank');
+                    }}
                     className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
                   >
                     <Eye className="w-4 h-4" />

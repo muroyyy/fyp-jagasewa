@@ -298,6 +298,7 @@ function NewRequestModal({ onClose, onSuccess }) {
     priority: 'medium',
     preferred_date: ''
   });
+  const [selectedImages, setSelectedImages] = useState([]);
 
   const categories = [
     { value: 'plumbing', label: '🚰 Plumbing' },
@@ -310,6 +311,27 @@ function NewRequestModal({ onClose, onSuccess }) {
     { value: 'cleaning', label: '🧹 Cleaning' },
     { value: 'other', label: '🔨 Other' }
   ];
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + selectedImages.length > 5) {
+      setError('Maximum 5 images allowed');
+      return;
+    }
+    
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Each image must be less than 5MB');
+        return;
+      }
+    });
+    
+    setSelectedImages([...selectedImages, ...files]);
+  };
+
+  const removeImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -324,13 +346,21 @@ function NewRequestModal({ onClose, onSuccess }) {
       setLoading(true);
       const token = localStorage.getItem('session_token');
 
+      const submitData = new FormData();
+      Object.keys(formData).forEach(key => {
+        submitData.append(key, formData[key]);
+      });
+      
+      selectedImages.forEach((image, index) => {
+        submitData.append(`images[${index}]`, image);
+      });
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/submit-maintenance.php`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: submitData
       });
 
       const data = await response.json();
@@ -452,6 +482,53 @@ function NewRequestModal({ onClose, onSuccess }) {
                 min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
               />
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Images (Optional) - Max 5 images, 5MB each
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-4">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="flex flex-col items-center justify-center cursor-pointer"
+                >
+                  <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600 text-center">
+                    Click to upload images or drag and drop
+                  </p>
+                </label>
+              </div>
+              
+              {selectedImages.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {selectedImages.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}

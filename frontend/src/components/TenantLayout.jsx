@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell } from 'lucide-react';
 import { getCurrentUser, logout } from '../utils/auth';
+import NotificationDropdown from './NotificationDropdown';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -84,10 +85,7 @@ export default function TenantLayout({ children }) {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-lg hover:bg-gray-100 relative cursor-pointer">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationDropdown userType="tenant" />
               <div className="flex items-center space-x-3">
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-semibold text-gray-900">{user?.full_name || 'Tenant'}</p>

@@ -45,60 +45,131 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Mock notifications for now - in real implementation, these would come from database
-    $notifications = [
-        [
-            'id' => 1,
+    // Fetch real notifications from database
+    $notifications = [];
+    
+    // 1. Get recent maintenance requests (last 30 days)
+    $maintenanceQuery = "
+        SELECT 
+            mr.request_id,
+            mr.title,
+            mr.priority,
+            mr.created_at,
+            p.property_name,
+            t.full_name as tenant_name
+        FROM maintenance_requests mr
+        JOIN properties p ON mr.property_id = p.property_id
+        JOIN tenants t ON mr.tenant_id = t.tenant_id
+        WHERE p.landlord_id = ? 
+        AND mr.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY mr.created_at DESC
+        LIMIT 5
+    ";
+    
+    $stmt = $conn->prepare($maintenanceQuery);
+    $stmt->execute([$landlordId]);
+    $maintenanceRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($maintenanceRequests as $request) {
+        $notifications[] = [
+            'id' => 'maintenance_' . $request['request_id'],
             'type' => 'maintenance_request',
             'title' => 'New Maintenance Request',
-            'message' => 'Tenant John Doe reported a leaking faucet in Property A',
-            'property_name' => 'Sunset Apartments Unit 2A',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+            'message' => $request['tenant_name'] . ' reported: ' . $request['title'],
+            'property_name' => $request['property_name'],
+            'created_at' => $request['created_at'],
+            'is_read' => false,
+            'priority' => $request['priority'] === 'urgent' ? 'high' : 'medium',
+            'link_url' => '/landlord/maintenance?request_id=' . $request['request_id'],
+            'reference_id' => $request['request_id']
+        ];
+    }
+    
+    // 2. Get recent payments (last 30 days)
+    $paymentsQuery = "
+        SELECT 
+            p.payment_id,
+            p.amount,
+            p.payment_date,
+            p.status,
+            pr.property_name,
+            t.full_name as tenant_name
+        FROM payments p
+        JOIN tenants t ON p.tenant_id = t.tenant_id
+        JOIN properties pr ON t.property_id = pr.property_id
+        WHERE pr.landlord_id = ?
+        AND p.payment_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY p.payment_date DESC
+        LIMIT 5
+    ";
+    
+    $stmt = $conn->prepare($paymentsQuery);
+    $stmt->execute([$landlordId]);
+    $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($payments as $payment) {
+        $notifications[] = [
+            'id' => 'payment_' . $payment['payment_id'],
+            'type' => 'rent_payment',
+            'title' => $payment['status'] === 'completed' ? 'Payment Received' : 'Payment Pending',
+            'message' => $payment['tenant_name'] . ' paid RM' . number_format($payment['amount'], 2),
+            'property_name' => $payment['property_name'],
+            'created_at' => $payment['payment_date'],
+            'is_read' => false,
+            'priority' => $payment['status'] === 'completed' ? 'medium' : 'high',
+            'link_url' => '/landlord/payments?payment_id=' . $payment['payment_id'],
+            'reference_id' => $payment['payment_id']
+        ];
+    }
+    
+    // 3. Get overdue payments
+    $overdueQuery = "
+        SELECT 
+            t.tenant_id,
+            t.full_name as tenant_name,
+            pr.property_name,
+            pr.monthly_rent,
+            t.move_in_date
+        FROM tenants t
+        JOIN properties pr ON t.property_id = pr.property_id
+        LEFT JOIN payments p ON t.tenant_id = p.tenant_id 
+            AND p.payment_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+            AND p.status = 'completed'
+        WHERE pr.landlord_id = ?
+        AND p.payment_id IS NULL
+        AND t.move_in_date <= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+        LIMIT 3
+    ";
+    
+    $stmt = $conn->prepare($overdueQuery);
+    $stmt->execute([$landlordId]);
+    $overduePayments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($overduePayments as $overdue) {
+        $notifications[] = [
+            'id' => 'overdue_' . $overdue['tenant_id'],
+            'type' => 'payment_overdue',
+            'title' => 'Overdue Payment',
+            'message' => $overdue['tenant_name'] . ' has overdue rent of RM' . number_format($overdue['monthly_rent'], 2),
+            'property_name' => $overdue['property_name'],
+            'created_at' => date('Y-m-d H:i:s'),
             'is_read' => false,
             'priority' => 'high',
-            'link_url' => '/landlord/maintenance?request_id=123',
-            'reference_id' => 123
-        ],
-        [
-            'id' => 2,
-            'type' => 'rent_payment',
-            'title' => 'Rent Payment Received',
-            'message' => 'Monthly rent payment of RM1,200 received from Jane Smith',
-            'property_name' => 'Garden View Condo Unit 5B',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-            'is_read' => false,
-            'priority' => 'medium',
-            'link_url' => '/landlord/payments?payment_id=456',
-            'reference_id' => 456
-        ],
-        [
-            'id' => 3,
-            'type' => 'lease_expiry',
-            'title' => 'Lease Expiring Soon',
-            'message' => 'Lease for Mike Johnson expires in 30 days',
-            'property_name' => 'Downtown Loft Unit 12',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-3 days')),
-            'is_read' => true,
-            'priority' => 'medium',
-            'link_url' => '/landlord/tenants?tenant_id=789',
-            'reference_id' => 789
-        ],
-        [
-            'id' => 4,
-            'type' => 'document_upload',
-            'title' => 'Document Uploaded',
-            'message' => 'New lease agreement uploaded successfully',
-            'property_name' => 'Riverside Apartments Unit 3C',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-1 week')),
-            'is_read' => true,
-            'priority' => 'low',
-            'link_url' => '/landlord/documents?document_id=101',
-            'reference_id' => 101
-        ]
-    ];
+            'link_url' => '/landlord/payments?tenant_id=' . $overdue['tenant_id'],
+            'reference_id' => $overdue['tenant_id']
+        ];
+    }
+    
+    // Sort all notifications by created_at desc
+    usort($notifications, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
+    
+    // Limit to 10 most recent
+    $notifications = array_slice($notifications, 0, 10);
 
-    // Count unread notifications
-    $unreadCount = count(array_filter($notifications, function($n) { return !$n['is_read']; }));
+    // Count unread notifications (all for now)
+    $unreadCount = count($notifications);
 
     echo json_encode([
         'success' => true,
