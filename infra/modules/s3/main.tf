@@ -113,15 +113,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "artifacts_sse" {
   }
 }
 
-# Public Access Block (fully locked down)
-resource "aws_s3_bucket_public_access_block" "artifacts_public_access" {
-  bucket = aws_s3_bucket.artifacts.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
+# Public Access Block (will be overridden by bucket_policy.tf for documents access)
 
 # ─────────────────────────────────────────────────────────
 # (Optional) Lifecycle Rule for Old Version Cleanup

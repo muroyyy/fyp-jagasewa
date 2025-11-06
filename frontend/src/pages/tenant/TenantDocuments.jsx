@@ -261,10 +261,8 @@ export default function TenantDocuments() {
                   </button>
                   <button
                     onClick={() => {
-                      const viewUrl = doc.file_path.startsWith('https://') 
-                        ? doc.file_path 
-                        : `${import.meta.env.VITE_API_URL}/../${doc.file_path}`;
-                      window.open(viewUrl, '_blank');
+                      // Use the download endpoint for viewing too (it will redirect to proper URL)
+                      window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-document.php?document_id=${doc.document_id}`, '_blank');
                     }}
                     className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
                   >

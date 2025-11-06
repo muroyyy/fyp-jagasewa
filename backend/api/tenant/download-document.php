@@ -2,7 +2,6 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -10,125 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
 $token = getBearerToken();
 
 if (empty($token)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-
-// Get document ID from query parameter
-$document_id = isset($_GET['document_id']) ? $_GET['document_id'] : null;
-
-if (empty($document_id)) {
-    http_response_code(400);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'message' => 'Document ID is required'
-    ]);
     exit();
 }
 
@@ -150,11 +37,7 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(401);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid or expired session'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid or expired session']);
         exit();
     }
 
@@ -162,9 +45,19 @@ try {
     $tenant_id = $session['tenant_id'];
     $property_id = $session['property_id'];
 
-    // Get document and verify access
+    // Get document ID from query parameter
+    $document_id = $_GET['document_id'] ?? null;
+    
+    if (!$document_id) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Document ID required']);
+        exit();
+    }
+
+    // Get document details and verify access
     $stmt = $conn->prepare("
         SELECT 
+            d.document_id,
             d.file_name,
             d.file_path,
             d.file_type
@@ -180,52 +73,44 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => false,
-            'message' => 'Document not found or access denied'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Document not found or access denied']);
         exit();
     }
 
     $document = $stmt->fetch(PDO::FETCH_ASSOC);
-    $file_path = '../../' . $document['file_path']; // Adjust path as needed
 
-    // Check if file exists
-    if (!file_exists($file_path)) {
-        http_response_code(404);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => false,
-            'message' => 'File not found on server'
-        ]);
+    if (strpos($document['file_path'], 'https://') === 0) {
+        // S3 file - redirect to pre-signed URL
+        $s3Key = str_replace('https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/', '', $document['file_path']);
+        $presignedUrl = generatePresignedUrl($s3Key, 60);
+        
+        if ($presignedUrl) {
+            header('Location: ' . $presignedUrl);
+            exit();
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to generate download URL']);
+            exit();
+        }
+    } else {
+        // Local file - serve directly
+        $filePath = '../../' . $document['file_path'];
+        
+        if (!file_exists($filePath)) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'File not found']);
+            exit();
+        }
+
+        header('Content-Type: ' . $document['file_type']);
+        header('Content-Disposition: attachment; filename="' . $document['file_name'] . '"');
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
         exit();
     }
 
-    // Set headers for file download
-    header('Content-Type: ' . $document['file_type']);
-    header('Content-Disposition: attachment; filename="' . $document['file_name'] . '"');
-    header('Content-Length: ' . filesize($file_path));
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-
-    // Output file
-    readfile($file_path);
-    exit();
-
-} catch (PDOException $e) {
-    http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error: ' . $e->getMessage()
-    ]);
 } catch (Exception $e) {
     http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error: ' . $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
 }
 ?>
