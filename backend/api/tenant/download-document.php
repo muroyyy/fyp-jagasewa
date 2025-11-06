@@ -11,7 +11,18 @@ require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 require_once '../../config/s3_helper.php';
 
+// Try to get token from multiple sources
 $token = getBearerToken();
+
+// If no Bearer token, try query parameter (for direct browser access)
+if (empty($token) && isset($_GET['token'])) {
+    $token = $_GET['token'];
+}
+
+// If still no token, try cookie
+if (empty($token) && isset($_COOKIE['session_token'])) {
+    $token = $_COOKIE['session_token'];
+}
 
 if (empty($token)) {
     http_response_code(401);

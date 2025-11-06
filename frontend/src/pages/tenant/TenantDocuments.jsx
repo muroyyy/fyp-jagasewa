@@ -261,8 +261,8 @@ export default function TenantDocuments() {
                   </button>
                   <button
                     onClick={() => {
-                      // Use the download endpoint for viewing too (it will redirect to proper URL)
-                      window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-document.php?document_id=${doc.document_id}`, '_blank');
+                      const token = localStorage.getItem('session_token');
+                      window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-document.php?document_id=${doc.document_id}&token=${token}`, '_blank');
                     }}
                     className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
                   >
