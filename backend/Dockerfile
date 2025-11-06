@@ -27,8 +27,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         pdo_mysql \
         zip
 
-# Enable CORS for development
-RUN echo "extension=pdo_mysql.so" > /usr/local/etc/php/conf.d/pdo_mysql.ini
+# Configure PHP settings for file uploads
+RUN echo "extension=pdo_mysql.so" > /usr/local/etc/php/conf.d/pdo_mysql.ini \
+    && echo "upload_max_filesize = 10M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 12M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_file_uploads = 20" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Copy application files
 COPY . .
@@ -36,6 +40,7 @@ COPY . .
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/uploads/profiles \
     && mkdir -p /var/www/html/uploads/maintenance \
+    && mkdir -p /var/www/html/uploads/documents \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/uploads

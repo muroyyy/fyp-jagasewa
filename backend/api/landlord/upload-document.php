@@ -51,10 +51,33 @@ try {
         exit();
     }
 
+    // Debug file upload
+    error_log('FILES array: ' . print_r($_FILES, true));
+    error_log('POST array: ' . print_r($_POST, true));
+    
     // Validate file upload
-    if (!isset($_FILES['document']) || $_FILES['document']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['document'])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'File upload failed']);
+        echo json_encode(['success' => false, 'message' => 'No file uploaded']);
+        exit();
+    }
+    
+    if ($_FILES['document']['error'] !== UPLOAD_ERR_OK) {
+        $errorMessages = [
+            UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+            UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+            UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
+        ];
+        
+        $errorCode = $_FILES['document']['error'];
+        $errorMessage = isset($errorMessages[$errorCode]) ? $errorMessages[$errorCode] : 'Unknown upload error';
+        
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'File upload failed: ' . $errorMessage]);
         exit();
     }
 
