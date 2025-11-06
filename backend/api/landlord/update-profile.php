@@ -84,16 +84,25 @@ try {
         
         // Delete old profile image from S3 if exists
         if ($profileImage && strpos($profileImage, 'https://') === 0) {
-            $oldKey = str_replace('https://jagasewa-assets-dev.s3.us-east-1.amazonaws.com/', '', $profileImage);
-            deleteFromS3($oldKey);
+            try {
+                $oldKey = str_replace('https://jagasewa-assets-dev.s3.us-east-1.amazonaws.com/', '', $profileImage);
+                deleteFromS3($oldKey);
+            } catch (Exception $e) {
+                error_log('Failed to delete old S3 image: ' . $e->getMessage());
+            }
         }
 
-        // Upload to S3
-        $s3Url = uploadToS3($fileTmpPath, $s3Key, $fileType);
-        if ($s3Url) {
-            $profileImage = $s3Url;
-        } else {
+        // Try S3 upload first, fallback to local storage
+        try {
+            $s3Url = uploadToS3($fileTmpPath, $s3Key, $fileType);
+            if ($s3Url) {
+                $profileImage = $s3Url;
+            } else {
+                throw new Exception('S3 upload failed');
+            }
+        } catch (Exception $e) {
             // Fallback to local storage
+            error_log('S3 upload failed, using local storage: ' . $e->getMessage());
             $uploadDir = '../../uploads/profiles/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
@@ -145,6 +154,12 @@ try {
     echo json_encode([
         'success' => false,
         'message' => 'Database error: ' . $e->getMessage()
+    ]);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $e->getMessage()
     ]);
 }
 ?>
