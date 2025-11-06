@@ -208,8 +208,11 @@ function getS3FileContent($s3Key) {
     $bucket = 'jagasewa-assets-prod';
     $region = 'ap-southeast-1';
     
+    error_log("Getting S3 file content for key: $s3Key");
+    
     $credentials = getEC2Credentials();
     if (!$credentials) {
+        error_log("Failed to get EC2 credentials for S3 download");
         return false;
     }
     
@@ -225,16 +228,30 @@ function getS3FileContent($s3Key) {
     $signature = createS3GetSignature($credentials, $region, $bucket, $s3Key, $headers, $timestamp, $date);
     $headers['Authorization'] = $signature;
     
+    $url = "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}";
+    error_log("S3 GET request URL: $url");
+    
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}",
+        CURLOPT_URL => $url,
         CURLOPT_HTTPHEADER => array_map(function($k, $v) { return "$k: $v"; }, array_keys($headers), $headers),
-        CURLOPT_RETURNTRANSFER => true
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT => 30
     ]);
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
+    
+    error_log("S3 GET response code: $httpCode");
+    if ($curlError) {
+        error_log("S3 GET curl error: $curlError");
+    }
+    if ($httpCode !== 200) {
+        error_log("S3 GET failed response: " . substr($response, 0, 500));
+    }
     
     return $httpCode === 200 ? $response : false;
 }
