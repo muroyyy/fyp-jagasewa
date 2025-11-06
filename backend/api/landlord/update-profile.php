@@ -10,95 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
 // Get authorization token using helper function
 $sessionToken = getBearerToken();
 
@@ -146,13 +59,6 @@ try {
 
     // Handle profile image upload
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = '../../uploads/profiles/';
-        
-        // Create directory if it doesn't exist
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
         $fileTmpPath = $_FILES['profile_image']['tmp_name'];
         $fileName = $_FILES['profile_image']['name'];
         $fileSize = $_FILES['profile_image']['size'];
@@ -173,22 +79,34 @@ try {
             exit();
         }
 
-        // Generate unique filename
-        $newFileName = 'landlord_' . $landlordId . '_' . time() . '.' . $fileExtension;
-        $destPath = $uploadDir . $newFileName;
-
-        // Delete old profile image if exists
-        if ($profileImage && file_exists($uploadDir . $profileImage)) {
-            unlink($uploadDir . $profileImage);
+        // Generate unique S3 key
+        $s3Key = 'profiles/landlord_' . $landlordId . '_' . time() . '.' . $fileExtension;
+        
+        // Delete old profile image from S3 if exists
+        if ($profileImage && strpos($profileImage, 'https://') === 0) {
+            $oldKey = str_replace('https://jagasewa-assets.s3.us-east-1.amazonaws.com/', '', $profileImage);
+            deleteFromS3($oldKey);
         }
 
-        // Move uploaded file
-        if (move_uploaded_file($fileTmpPath, $destPath)) {
-            $profileImage = $newFileName;
+        // Upload to S3
+        $s3Url = uploadToS3($fileTmpPath, $s3Key, $fileType);
+        if ($s3Url) {
+            $profileImage = $s3Url;
         } else {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Failed to upload image']);
-            exit();
+            // Fallback to local storage
+            $uploadDir = '../../uploads/profiles/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $newFileName = 'landlord_' . $landlordId . '_' . time() . '.' . $fileExtension;
+            $destPath = $uploadDir . $newFileName;
+            if (move_uploaded_file($fileTmpPath, $destPath)) {
+                $profileImage = 'uploads/profiles/' . $newFileName;
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to upload image']);
+                exit();
+            }
         }
     }
 

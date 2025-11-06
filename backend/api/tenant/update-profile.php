@@ -10,106 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
 // Get authorization token using helper function
 $token = getBearerToken();
 
@@ -187,27 +89,43 @@ try {
             exit();
         }
 
-        // Create uploads directory if it doesn't exist
-        $upload_dir = '../../uploads/profiles/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+        // Generate unique S3 key
+        $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $s3Key = 'profiles/tenant_' . $tenant_id . '_' . time() . '.' . $file_extension;
+        
+        // Get current profile image to delete from S3
+        $stmt = $conn->prepare("SELECT profile_image FROM tenants WHERE tenant_id = ?");
+        $stmt->execute([$tenant_id]);
+        $currentImage = $stmt->fetchColumn();
+        
+        // Delete old profile image from S3 if exists
+        if ($currentImage && strpos($currentImage, 'https://') === 0) {
+            $oldKey = str_replace('https://jagasewa-assets.s3.us-east-1.amazonaws.com/', '', $currentImage);
+            deleteFromS3($oldKey);
         }
 
-        // Generate unique filename
-        $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $new_filename = 'tenant_' . $tenant_id . '_' . time() . '.' . $file_extension;
-        $upload_path = $upload_dir . $new_filename;
-
-        // Move uploaded file
-        if (move_uploaded_file($file['tmp_name'], $upload_path)) {
-            $profile_image_path = 'uploads/profiles/' . $new_filename;
+        // Upload to S3
+        $s3Url = uploadToS3($file['tmp_name'], $s3Key, $file['type']);
+        if ($s3Url) {
+            $profile_image_path = $s3Url;
         } else {
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Failed to upload image'
-            ]);
-            exit();
+            // Fallback to local storage
+            $upload_dir = '../../uploads/profiles/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            $new_filename = 'tenant_' . $tenant_id . '_' . time() . '.' . $file_extension;
+            $upload_path = $upload_dir . $new_filename;
+            if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                $profile_image_path = 'uploads/profiles/' . $new_filename;
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to upload image'
+                ]);
+                exit();
+            }
         }
     }
 
