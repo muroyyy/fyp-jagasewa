@@ -95,11 +95,11 @@ const AdminDashboard = () => {
           color="slate"
         />
         <AnalyticsCard
-          title="Monthly Revenue"
-          value={`RM ${stats.monthlyRevenue?.toLocaleString() || 0}`}
-          change="+22%"
-          changeType="increase"
-          icon={DollarSign}
+          title="Pending Verifications"
+          value={stats.pendingVerifications}
+          change="-5%"
+          changeType="decrease"
+          icon={Eye}
           color="yellow"
         />
       </div>
@@ -133,11 +133,11 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-slate-50 rounded-lg">
-              <Eye className="text-slate-600" size={24} />
+              <Activity className="text-slate-600" size={24} />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Pending Verifications</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.pendingVerifications}</p>
+              <p className="text-sm text-gray-600">System Uptime</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.systemUptime}</p>
             </div>
           </div>
         </div>

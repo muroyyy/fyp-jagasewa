@@ -203,9 +203,16 @@ const PropertyManagement = () => {
             <div className="relative">
               {property.images && property.images.length > 0 ? (
                 <img
-                  src={`${import.meta.env.VITE_API_URL}/${property.images[0]}`}
+                  src={property.images[0].startsWith('https://') 
+                    ? property.images[0] 
+                    : `${import.meta.env.VITE_API_URL}/../${property.images[0]}`
+                  }
                   alt={property.property_name}
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
+                  }}
                 />
               ) : (
                 <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
@@ -224,7 +231,7 @@ const PropertyManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
                   {property.property_name}
                 </h3>
-                <button className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition-colors">
+                <button className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition-colors cursor-pointer">
                   <Eye size={18} />
                 </button>
               </div>

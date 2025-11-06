@@ -1,23 +1,30 @@
-# S3 Bucket Policy to allow public read access to documents
-resource "aws_s3_bucket_policy" "artifacts_documents_policy" {
+# S3 Bucket Policy to allow public read access to documents and payments
+resource "aws_s3_bucket_policy" "artifacts_public_policy" {
   bucket = aws_s3_bucket.artifacts.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "PublicReadGetObject"
+        Sid       = "PublicReadDocuments"
         Effect    = "Allow"
         Principal = "*"
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.artifacts.arn}/documents/*"
+      },
+      {
+        Sid       = "PublicReadPayments"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.artifacts.arn}/payments/*"
       }
     ]
   })
 }
 
-# Update public access block to allow bucket policy for documents
-resource "aws_s3_bucket_public_access_block" "artifacts_documents_pab" {
+# Update public access block to allow bucket policy for documents and payments
+resource "aws_s3_bucket_public_access_block" "artifacts_public_pab" {
   bucket = aws_s3_bucket.artifacts.id
 
   block_public_acls       = true

@@ -117,7 +117,7 @@ const AdminProfile = () => {
         <button
           onClick={handleSaveProfile}
           disabled={saving}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
         >
           <Save size={20} />
           {saving ? 'Saving...' : 'Save Changes'}

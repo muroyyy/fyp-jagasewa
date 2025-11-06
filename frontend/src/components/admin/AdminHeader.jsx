@@ -1,5 +1,6 @@
-import { Bell, Search, User, Menu } from 'lucide-react';
+import { Search, User, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import NotificationDropdown from '../NotificationDropdown';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -55,12 +56,7 @@ const AdminHeader = ({ onMenuClick }) => {
             />
           </div>
 
-          <button className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              3
-            </span>
-          </button>
+          <NotificationDropdown userType="admin" />
 
           <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
             {profileImage ? (
