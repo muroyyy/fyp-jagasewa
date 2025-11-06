@@ -45,24 +45,24 @@ try {
     $landlordId = $landlordProfile['landlord_id'];
     
     // Get dashboard statistics
-    // Total Properties
-    $propertiesQuery = "SELECT COUNT(*) as total FROM properties WHERE landlord_id = ?";
+    // Total Properties (only active ones)
+    $propertiesQuery = "SELECT COUNT(*) as total FROM properties WHERE landlord_id = ? AND status = 'Active'";
     $propertiesStmt = $db->prepare($propertiesQuery);
     $propertiesStmt->execute([$landlordId]);
     $totalProperties = $propertiesStmt->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Total Tenants
+    // Total Tenants (count tenants in active properties)
     $tenantsQuery = "SELECT COUNT(DISTINCT t.tenant_id) as total FROM tenants t 
                      JOIN properties p ON t.property_id = p.property_id 
-                     WHERE p.landlord_id = ? AND t.status = 'Active'";
+                     WHERE p.landlord_id = ? AND p.status = 'Active' AND t.property_id IS NOT NULL";
     $tenantsStmt = $db->prepare($tenantsQuery);
     $tenantsStmt->execute([$landlordId]);
     $totalTenants = $tenantsStmt->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Monthly Revenue (sum of monthly rent from active tenants)
+    // Monthly Revenue (sum of monthly rent from active properties with tenants)
     $revenueQuery = "SELECT COALESCE(SUM(p.monthly_rent), 0) as total FROM tenants t 
                      JOIN properties p ON t.property_id = p.property_id 
-                     WHERE p.landlord_id = ? AND t.status = 'Active'";
+                     WHERE p.landlord_id = ? AND p.status = 'Active' AND t.property_id IS NOT NULL";
     $revenueStmt = $db->prepare($revenueQuery);
     $revenueStmt->execute([$landlordId]);
     $monthlyRevenue = $revenueStmt->fetch(PDO::FETCH_ASSOC)['total'];
