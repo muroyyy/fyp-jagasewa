@@ -103,7 +103,7 @@ export default function LandlordDocuments() {
 
       const data = await response.json();
       if (data.success) {
-        setProperties(data.properties || []);
+        setProperties(data.data?.properties || []);
       } else {
         console.error('Failed to fetch properties:', data.message);
         setProperties([]); // Set to empty array on error
@@ -131,7 +131,7 @@ export default function LandlordDocuments() {
       const data = await response.json();
       if (data.success) {
         // Filter tenants for selected property
-        const propertyTenants = data.tenants.filter(t => t.property_id == propertyId);
+        const propertyTenants = (data.data?.tenants || []).filter(t => t.property_id == propertyId);
         setTenants(propertyTenants);
       }
     } catch (error) {
