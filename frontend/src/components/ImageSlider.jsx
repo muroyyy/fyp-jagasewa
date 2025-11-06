@@ -45,11 +45,22 @@ export default function ImageSlider({ images, propertyName, className = "h-48" }
   return (
     <div className={`${className} relative overflow-hidden group`}>
       {/* Main Image */}
-      <img 
-        src={getImageUrl(images[currentIndex])} 
-        alt={`${propertyName} - Image ${currentIndex + 1}`}
-        className="w-full h-full object-cover transition-opacity duration-300"
-      />
+      <div className="relative w-full h-full overflow-hidden">
+        {images.map((image, index) => (
+          <img 
+            key={index}
+            src={getImageUrl(image)} 
+            alt={`${propertyName} - Image ${index + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out ${
+              index === currentIndex 
+                ? 'opacity-100 transform translate-x-0' 
+                : index < currentIndex 
+                ? 'opacity-0 transform -translate-x-full' 
+                : 'opacity-0 transform translate-x-full'
+            }`}
+          />
+        ))}
+      </div>
 
       {/* Navigation Arrows */}
       <button
