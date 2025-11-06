@@ -7,6 +7,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [transactionId, setTransactionId] = useState('');
+  const [receiptUrl, setReceiptUrl] = useState('');
 
   const paymentMethods = {
     ewallet: {
@@ -98,6 +99,9 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
         if (response.ok && data.success) {
           setProcessing(false);
           setStep(5);
+          if (data.data.receipt_url) {
+            setReceiptUrl(data.data.receipt_url);
+          }
         } else {
           alert('Payment failed: ' + data.message);
           setProcessing(false);
@@ -121,7 +125,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
   const formatAmount = (amt) => `RM ${parseFloat(amt).toFixed(2)}`;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -418,7 +422,13 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
 
               <div className="flex space-x-3">
                 <button
-                  onClick={() => alert('Receipt download coming soon!')}
+                  onClick={() => {
+                    if (receiptUrl) {
+                      window.open(receiptUrl, '_blank');
+                    } else {
+                      alert('Receipt not available');
+                    }
+                  }}
                   className="flex-1 py-3 border-2 border-green-600 text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-all cursor-pointer"
                 >
                   Download Receipt

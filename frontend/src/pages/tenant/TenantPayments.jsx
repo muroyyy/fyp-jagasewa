@@ -202,7 +202,13 @@ export default function TenantPayments() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <button className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer">
+                        <button 
+                          onClick={() => {
+                            const token = localStorage.getItem('session_token');
+                            window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-receipt.php?payment_id=${payment.payment_id}&token=${token}`, '_blank');
+                          }}
+                          className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
+                        >
                           View Receipt
                         </button>
                       </td>

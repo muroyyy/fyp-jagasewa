@@ -4,6 +4,7 @@ setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/receipt_generator.php';
 
 // Get request body
 $data = json_decode(file_get_contents("php://input"));
@@ -77,6 +78,9 @@ try {
     if ($insertStmt->execute()) {
         $paymentId = $db->lastInsertId();
         
+        // Generate receipt and store in S3
+        $receiptUrl = generatePaymentReceipt($paymentId);
+        
         // Return successful response
         http_response_code(201);
         echo json_encode([
@@ -87,7 +91,8 @@ try {
                 "transaction_id" => $data->transaction_id,
                 "amount" => $data->amount,
                 "status" => "completed",
-                "payment_date" => date('Y-m-d H:i:s')
+                "payment_date" => date('Y-m-d H:i:s'),
+                "receipt_url" => $receiptUrl
             ]
         ]);
     } else {

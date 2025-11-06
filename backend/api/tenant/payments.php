@@ -56,6 +56,7 @@ try {
                         transaction_id,
                         status,
                         payment_date,
+                        receipt_url,
                         created_at
                       FROM payments
                       WHERE tenant_id = :tenant_id
