@@ -44,5 +44,5 @@ variable "db_password" {
 variable "instance_class" {
   description = "Instance type for RDS"
   type        = string
-  default     = "db.t3.micro"
+  default     = "db.t4g.small"
 }
