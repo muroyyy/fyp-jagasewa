@@ -126,6 +126,48 @@ function createS3Signature($credentials, $region, $bucket, $s3Key, $headers, $pa
     return "{$algorithm} Credential={$credentials['access_key']}/{$credentialScope}, SignedHeaders={$signedHeaders}, Signature={$signature}";
 }
 
+function generatePresignedUrl($s3Key, $expirationMinutes = 60) {
+    $bucket = 'jagasewa-assets-prod';
+    $region = 'ap-southeast-1';
+    
+    $credentials = getEC2Credentials();
+    if (!$credentials) {
+        return false;
+    }
+    
+    $timestamp = gmdate('Ymd\THis\Z');
+    $date = gmdate('Ymd');
+    $expires = $expirationMinutes * 60; // Convert to seconds
+    
+    $credentialScope = "{$date}/{$region}/s3/aws4_request";
+    $algorithm = 'AWS4-HMAC-SHA256';
+    
+    $queryParams = [
+        'X-Amz-Algorithm' => $algorithm,
+        'X-Amz-Credential' => $credentials['access_key'] . '/' . $credentialScope,
+        'X-Amz-Date' => $timestamp,
+        'X-Amz-Expires' => $expires,
+        'X-Amz-Security-Token' => $credentials['token'],
+        'X-Amz-SignedHeaders' => 'host'
+    ];
+    
+    ksort($queryParams);
+    $queryString = http_build_query($queryParams);
+    
+    $canonicalRequest = "GET\n/{$s3Key}\n{$queryString}\nhost:{$bucket}.s3.{$region}.amazonaws.com\n\nhost\nUNSIGNED-PAYLOAD";
+    
+    $stringToSign = "{$algorithm}\n{$timestamp}\n{$credentialScope}\n" . hash('sha256', $canonicalRequest);
+    
+    $signingKey = hash_hmac('sha256', 'aws4_request', 
+                  hash_hmac('sha256', 's3',
+                  hash_hmac('sha256', $region,
+                  hash_hmac('sha256', $date, 'AWS4' . $credentials['secret_key'], true), true), true), true);
+    
+    $signature = hash_hmac('sha256', $stringToSign, $signingKey);
+    
+    return "https://{$bucket}.s3.{$region}.amazonaws.com/{$s3Key}?{$queryString}&X-Amz-Signature={$signature}";
+}
+
 function deleteFromS3($s3Key) {
     $bucket = 'jagasewa-assets-prod';
     $region = 'ap-southeast-1';

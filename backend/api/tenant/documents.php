@@ -2,7 +2,6 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -10,107 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
 $token = getBearerToken();
 
 if (empty($token)) {
@@ -173,9 +73,16 @@ try {
 
     $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Add file URL for each document (for preview)
+    // Generate secure URLs for each document
     foreach ($documents as &$doc) {
-        $doc['file_url'] = 'http://localhost:8000/' . $doc['file_path'];
+        if (strpos($doc['file_path'], 'https://') === 0) {
+            // S3 URL - generate pre-signed URL
+            $s3Key = str_replace('https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/', '', $doc['file_path']);
+            $doc['file_url'] = generatePresignedUrl($s3Key, 60); // 1 hour expiry
+        } else {
+            // Local file
+            $doc['file_url'] = 'http://localhost:8000/' . $doc['file_path'];
+        }
     }
 
     http_response_code(200);
