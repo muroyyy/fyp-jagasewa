@@ -54,14 +54,14 @@ export default function ImageSlider({ images, propertyName, className = "h-48" }
       {/* Navigation Arrows */}
       <button
         onClick={prevImage}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-70"
+        className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-70 cursor-pointer"
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
       
       <button
         onClick={nextImage}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-70"
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-70 cursor-pointer"
       >
         <ChevronRight className="w-4 h-4" />
       </button>
@@ -72,7 +72,7 @@ export default function ImageSlider({ images, propertyName, className = "h-48" }
           <button
             key={index}
             onClick={() => goToImage(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
               index === currentIndex 
                 ? 'bg-white' 
                 : 'bg-white bg-opacity-50 hover:bg-opacity-75'

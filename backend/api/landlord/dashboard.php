@@ -42,7 +42,40 @@ try {
         exit();
     }
     
-    // Return successful response with profile data
+    $landlordId = $landlordProfile['landlord_id'];
+    
+    // Get dashboard statistics
+    // Total Properties
+    $propertiesQuery = "SELECT COUNT(*) as total FROM properties WHERE landlord_id = ?";
+    $propertiesStmt = $db->prepare($propertiesQuery);
+    $propertiesStmt->execute([$landlordId]);
+    $totalProperties = $propertiesStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Total Tenants
+    $tenantsQuery = "SELECT COUNT(DISTINCT t.tenant_id) as total FROM tenants t 
+                     JOIN properties p ON t.property_id = p.property_id 
+                     WHERE p.landlord_id = ? AND t.status = 'Active'";
+    $tenantsStmt = $db->prepare($tenantsQuery);
+    $tenantsStmt->execute([$landlordId]);
+    $totalTenants = $tenantsStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Monthly Revenue (sum of monthly rent from active tenants)
+    $revenueQuery = "SELECT COALESCE(SUM(p.monthly_rent), 0) as total FROM tenants t 
+                     JOIN properties p ON t.property_id = p.property_id 
+                     WHERE p.landlord_id = ? AND t.status = 'Active'";
+    $revenueStmt = $db->prepare($revenueQuery);
+    $revenueStmt->execute([$landlordId]);
+    $monthlyRevenue = $revenueStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Pending Maintenance Requests
+    $maintenanceQuery = "SELECT COUNT(*) as total FROM maintenance_requests mr 
+                         JOIN properties p ON mr.property_id = p.property_id 
+                         WHERE p.landlord_id = ? AND mr.status = 'Pending'";
+    $maintenanceStmt = $db->prepare($maintenanceQuery);
+    $maintenanceStmt->execute([$landlordId]);
+    $pendingRequests = $maintenanceStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Return successful response with profile data and statistics
     http_response_code(200);
     echo json_encode([
         "success" => true,
@@ -53,6 +86,12 @@ try {
                 "email" => $landlordProfile['email'],
                 "phone" => $landlordProfile['phone'],
                 "company_name" => $landlordProfile['company_name']
+            ],
+            "stats" => [
+                "total_properties" => (int)$totalProperties,
+                "total_tenants" => (int)$totalTenants,
+                "monthly_revenue" => (float)$monthlyRevenue,
+                "pending_requests" => (int)$pendingRequests
             ]
         ]
     ]);

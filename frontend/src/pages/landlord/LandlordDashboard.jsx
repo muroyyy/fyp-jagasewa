@@ -8,6 +8,7 @@ export default function LandlordDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -39,6 +40,7 @@ export default function LandlordDashboard() {
 
       if (response.ok && data.success) {
         setProfile(data.data.profile);
+        setStats(data.data.stats);
       } else {
         setError(data.message || 'Failed to fetch dashboard data');
       }
@@ -50,11 +52,11 @@ export default function LandlordDashboard() {
     }
   };
 
-  const stats = [
-    { icon: Building2, label: 'Total Properties', value: '0', color: 'blue' },
-    { icon: Users, label: 'Total Tenants', value: '0', color: 'green' },
-    { icon: DollarSign, label: 'Monthly Revenue', value: 'RM 0', color: 'purple' },
-    { icon: Wrench, label: 'Pending Requests', value: '0', color: 'orange' }
+  const statsCards = [
+    { icon: Building2, label: 'Total Properties', value: stats?.total_properties || 0, color: 'blue' },
+    { icon: Users, label: 'Total Tenants', value: stats?.total_tenants || 0, color: 'green' },
+    { icon: DollarSign, label: 'Monthly Revenue', value: `RM ${stats?.monthly_revenue || 0}`, color: 'purple' },
+    { icon: Wrench, label: 'Pending Requests', value: stats?.pending_requests || 0, color: 'orange' }
   ];
 
   if (loading) {
@@ -90,7 +92,7 @@ export default function LandlordDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, idx) => (
+          {statsCards.map((stat, idx) => (
             <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
