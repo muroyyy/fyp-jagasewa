@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import jagasewaLogo from '../assets/jagasewa-logo.svg';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -51,9 +52,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-3">
             <div 
               onClick={() => navigate('/')}
-              className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform cursor-pointer"
+              className="w-12 h-12 flex items-center justify-center transform hover:scale-105 transition-transform cursor-pointer"
             >
-              <Home className="w-7 h-7 text-white" />
+              <img src={jagasewaLogo} alt="JagaSewa" className="w-12 h-12" />
             </div>
             <span 
               onClick={() => navigate('/')}

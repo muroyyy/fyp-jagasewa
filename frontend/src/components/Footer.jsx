@@ -1,11 +1,41 @@
 import React from 'react';
-import { Home } from 'lucide-react';
+import { Home, Mail, Phone, MapPin } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (sectionId) => {
+    // If not on landing page, navigate to landing page first
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    } else {
+      // Already on landing page, just scroll
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
+          
           {/* Brand Section */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
@@ -14,9 +44,21 @@ export default function Footer() {
               </div>
               <span className="text-xl font-bold text-white">JagaSewa</span>
             </div>
-            <p className="text-gray-400 text-sm">
-              Cloud-based property management solution for modern landlords and tenants.
+            <p className="text-gray-400 text-sm mb-4">
+              Saving Malaysian landlords 5+ hours every week through smart property management automation.
             </p>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center text-gray-400">
+                <MapPin className="w-4 h-4 mr-2" />
+                <span>Kuala Lumpur, Malaysia</span>
+              </div>
+              <div className="flex items-center text-gray-400">
+                <Mail className="w-4 h-4 mr-2" />
+                <a href="mailto:support@jagasewa.com" className="hover:text-white transition-colors">
+                  support@jagasewa.com
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Product Links */}
@@ -24,19 +66,36 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <button 
+                  onClick={() => scrollToSection('how-it-works')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  How It Works
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('solutions')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Solutions
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('features')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
                   Features
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Demo
-                </a>
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Start Free Trial
+                </button>
               </li>
             </ul>
           </div>
@@ -46,44 +105,85 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <button 
+                  onClick={() => scrollToSection('about')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
                   About Us
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a 
+                  href="mailto:support@jagasewa.com" 
+                  className="hover:text-white transition-colors"
+                >
                   Contact
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a 
+                  href="mailto:support@jagasewa.com" 
+                  className="hover:text-white transition-colors"
+                >
                   Support
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Legal Links */}
+          {/* Quick Links */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Legal</h4>
+            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Privacy Policy
-                </a>
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Login
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Terms of Service
-                </a>
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Sign Up
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/forgot-password')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Forgot Password
+                </button>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-          <p>© 2025 JagaSewa. Developed by Amirul - APU Final Year Project. All rights reserved.</p>
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-800 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <p className="text-sm text-gray-400">
+                © 2025 JagaSewa. All rights reserved.
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Developed by Amirul Faiz - Asia Pacific University Final Year Project
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-6 text-sm">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Terms of Service
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
