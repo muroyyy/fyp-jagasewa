@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Search, Mail, Phone, Calendar, UserPlus, Eye, Edit, Link as LinkIcon, Copy, Trash2 } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
+import { fetchWithAuth } from '../../utils/sessionHandler';
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewTenantModal from '../../components/ViewTenantModal';
 
@@ -30,15 +31,14 @@ export default function LandlordTenants() {
   const fetchTenants = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('session_token');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/tenants.php`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/landlord/tenants.php`,
+        { method: 'GET' },
+        navigate
+      );
+
+      if (!response) return; // Session expired, already handled
 
       const data = await response.json();
 
@@ -86,17 +86,18 @@ export default function LandlordTenants() {
     }
 
     try {
-      const token = localStorage.getItem('session_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/remove-tenant.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const response = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/landlord/remove-tenant.php`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            tenant_id: tenant.tenant_id
+          })
         },
-        body: JSON.stringify({
-          tenant_id: tenant.tenant_id
-        })
-      });
+        navigate
+      );
+
+      if (!response) return; // Session expired, already handled
 
       const data = await response.json();
 
@@ -171,6 +172,16 @@ export default function LandlordTenants() {
           >
             <UserPlus className="w-5 h-5" />
             <span>Add Tenant</span>
+          </button>
+          {/* Temporary test button - remove after testing */}
+          <button 
+            onClick={() => {
+              localStorage.setItem('session_token', 'expired_token');
+              alert('Session token set to invalid. Try any action now.');
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded text-sm"
+          >
+            Test Session Expiry
           </button>
         </div>
 
