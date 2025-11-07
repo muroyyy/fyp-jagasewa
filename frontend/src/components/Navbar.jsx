@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import jagasewaLogo from '../assets/jagasewa-logo.svg';
+import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -56,12 +56,6 @@ export default function Navbar() {
             >
               <img src={jagasewaLogo} alt="JagaSewa" className="w-12 h-12" />
             </div>
-            <span 
-              onClick={() => navigate('/')}
-              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent cursor-pointer"
-            >
-              JagaSewa
-            </span>
           </div>
 
           {/* Desktop Menu */}
