@@ -8,9 +8,9 @@ export default function Landing() {
   const navigate = useNavigate();
 
   const testimonials = [
-    { quote: "Saves me 2 hours daily", author: "Razak Ahmad", role: "15 properties in Selangor" },
-    { quote: "Rent collection improved 40%", author: "Siti Nurhaliza", role: "28 units in KL" },
-    { quote: "Best decision for my business", author: "Ahmad Ibrahim", role: "32 properties in Johor" }
+    { quote: "Saves me 2 hours daily", author: "Kamal Basyir", role: "15 properties in Selangor" },
+    { quote: "Rent collection improved 40%", author: "Yusof Danial", role: "28 units in KL" },
+    { quote: "Best decision for my business", author: "Lim Po Keat", role: "32 properties in Johor" }
   ];
 
   const painPoints = [
@@ -219,7 +219,7 @@ export default function Landing() {
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Get Started in 3 Simple Steps</h2>
@@ -260,7 +260,7 @@ export default function Landing() {
       </section>
 
       {/* ===== PAIN POINTS & SOLUTIONS ===== */}
-      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+      <section id="solutions" className="py-20 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -386,7 +386,7 @@ export default function Landing() {
       </section>
 
       {/* ===== LANDLORD & TENANT FEATURES OVERVIEW ===== */}
-      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-20 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Complete Features for Both Sides</h2>
