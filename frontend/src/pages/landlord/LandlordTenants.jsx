@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Search, Mail, Phone, Calendar, UserPlus, Eye, Edit } from 'lucide-react';
+import { Users, Search, Mail, Phone, Calendar, UserPlus, Eye, Edit, Link as LinkIcon, Copy, Trash2 } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewTenantModal from '../../components/ViewTenantModal';
@@ -63,6 +63,53 @@ export default function LandlordTenants() {
   const handleEditTenant = (tenantId) => {
     // TODO: Navigate to edit page or open edit modal
     navigate(`/landlord/tenants/edit/${tenantId}`);
+  };
+
+  const handleCopyInviteLink = (tenant) => {
+    const inviteLink = `${window.location.origin}/signup/tenant?email=${encodeURIComponent(tenant.email)}&invited=true`;
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      alert('✅ Invitation link copied to clipboard!');
+      // Mock email log for demonstration
+      console.log('📧 MOCK EMAIL INVITATION:');
+      console.log('To:', tenant.email);
+      console.log('Subject: Complete Your JagaSewa Tenant Registration');
+      console.log('Link:', inviteLink);
+      console.log('Message: Your landlord has added you to their property. Click the link to complete your registration.');
+    }).catch(() => {
+      alert('❌ Failed to copy link. Please try again.');
+    });
+  };
+
+  const handleRemoveTenant = async (tenant) => {
+    if (!confirm(`Are you sure you want to remove ${tenant.full_name} from the property? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('session_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/remove-tenant.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          tenant_id: tenant.tenant_id
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Tenant removed successfully!');
+        fetchTenants(); // Refresh the list
+      } else {
+        alert('❌ ' + (data.message || 'Failed to remove tenant'));
+      }
+    } catch (err) {
+      console.error('Error removing tenant:', err);
+      alert('❌ An error occurred while removing tenant');
+    }
   };
 
   const filteredTenants = tenants.filter(tenant =>
@@ -143,9 +190,9 @@ export default function LandlordTenants() {
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Active Tenants</p>
+                <p className="text-sm text-gray-600 mb-1">Registered Tenants</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {tenants.filter(t => t.status === 'Active').length}
+                  {tenants.filter(t => t.account_status === 'active').length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -156,13 +203,13 @@ export default function LandlordTenants() {
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Inactive Tenants</p>
+                <p className="text-sm text-gray-600 mb-1">Pending Invites</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {tenants.filter(t => t.status === 'Inactive').length}
+                  {tenants.filter(t => t.account_status === 'pending').length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-gray-600" />
+              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-yellow-600" />
               </div>
             </div>
           </div>
@@ -178,7 +225,7 @@ export default function LandlordTenants() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Property</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Move-in Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Account Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -229,15 +276,19 @@ export default function LandlordTenants() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          tenant.status === 'Active' 
-                            ? 'bg-green-100 text-green-800' 
+                          tenant.account_status === 'active' 
+                            ? 'bg-green-100 text-green-800'
+                            : tenant.account_status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {tenant.status}
+                          {tenant.account_status === 'pending' ? 'Invitation Sent' : 
+                           tenant.account_status === 'active' ? 'Registered' : 
+                           tenant.account_status || 'Unknown'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleViewTenant(tenant.tenant_id)}
                             className="flex items-center space-x-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
@@ -251,6 +302,24 @@ export default function LandlordTenants() {
                           >
                             <Edit className="w-4 h-4" />
                             <span>Edit</span>
+                          </button>
+                          {tenant.account_status === 'pending' && (
+                            <button
+                              onClick={() => handleCopyInviteLink(tenant)}
+                              className="flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 text-sm font-medium transition-colors cursor-pointer"
+                              title="Copy invitation link"
+                            >
+                              <Copy className="w-4 h-4" />
+                              <span>Invite</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleRemoveTenant(tenant)}
+                            className="flex items-center space-x-1 px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-sm font-medium transition-colors cursor-pointer"
+                            title="Remove tenant from property"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Remove</span>
                           </button>
                         </div>
                       </td>

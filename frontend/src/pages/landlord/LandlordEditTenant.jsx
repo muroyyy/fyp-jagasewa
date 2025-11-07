@@ -46,21 +46,22 @@ export default function LandlordEditTenant() {
       
       if (data.success) {
         const tenant = data.data.tenant;
+        console.log('Tenant data received:', tenant); // Debug log
         setFormData({
           full_name: tenant.full_name || '',
           email: tenant.email || '',
           phone: tenant.phone || '',
           ic_number: tenant.ic_number || '',
-          date_of_birth: tenant.date_of_birth || '',
-          property_id: tenant.property_id || '',
-          move_in_date: tenant.move_in_date || ''
+          date_of_birth: tenant.date_of_birth ? tenant.date_of_birth.split(' ')[0] : '',
+          property_id: tenant.property_id ? tenant.property_id.toString() : '',
+          move_in_date: tenant.move_in_date ? tenant.move_in_date.split(' ')[0] : ''
         });
       } else {
         setError(data.message);
       }
     } catch (err) {
       setError('Failed to load tenant data');
-      console.error(err);
+      console.error('Error fetching tenant data:', err);
     } finally {
       setLoading(false);
     }

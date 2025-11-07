@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 // API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -152,13 +153,12 @@ export default function SignupLandlord() {
       <div className="max-w-2xl mx-auto">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Home className="w-8 h-8 text-white" />
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              JagaSewa
-            </span>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-16 w-auto"
+            />
           </Link>
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Home, User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 // API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -145,26 +146,53 @@ export default function SignupTenant() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/signup.php`, {
+      // First check if this email exists as a pending tenant
+      const checkResponse = await fetch(`${API_BASE_URL}/api/auth/check-tenant-status.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          user_role: 'tenant',
-          full_name: formData.fullName,
-          phone: formData.phone,
-          ic_number: formData.icNumber,
-          date_of_birth: formData.dateOfBirth
+          email: formData.email
         })
+      });
+
+      const checkResult = await checkResponse.json();
+      
+      let endpoint = '/api/auth/signup.php';
+      let requestBody = {
+        email: formData.email,
+        password: formData.password,
+        user_role: 'tenant',
+        full_name: formData.fullName,
+        phone: formData.phone,
+        ic_number: formData.icNumber,
+        date_of_birth: formData.dateOfBirth
+      };
+
+      // If tenant exists as pending, use complete registration endpoint
+      if (checkResult.exists && checkResult.status === 'pending') {
+        endpoint = '/api/auth/complete-tenant-registration.php';
+        // Verify the details match what landlord entered
+        requestBody.verify_details = true;
+      }
+
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert('✅ Tenant account created successfully!');
+        if (checkResult.exists && checkResult.status === 'pending') {
+          alert('✅ Account activated successfully! You can now login.');
+        } else {
+          alert('✅ Tenant account created successfully!');
+        }
         navigate('/login');
       } else {
         setError(result.message || 'Registration failed. Please try again.');
@@ -184,13 +212,12 @@ export default function SignupTenant() {
       <div className="max-w-2xl mx-auto">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Home className="w-8 h-8 text-white" />
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              JagaSewa
-            </span>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-16 w-auto"
+            />
           </Link>
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
@@ -199,6 +226,9 @@ export default function SignupTenant() {
             <h2 className="text-3xl font-bold text-gray-900">Tenant Registration</h2>
           </div>
           <p className="text-gray-600">Create your tenant account to manage your rental</p>
+          <div className="mt-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p><strong>Already added by your landlord?</strong> Use the same email to complete your registration.</p>
+          </div>
         </div>
 
         {/* Registration Form Card */}

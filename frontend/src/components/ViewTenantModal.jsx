@@ -27,6 +27,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
       const data = await response.json();
       
       if (data.success) {
+        console.log('Tenant details received:', data.data.tenant); // Debug log
         setTenant(data.data.tenant);
       } else {
         setError(data.message || 'Failed to load tenant details');
@@ -124,14 +125,21 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">{tenant.full_name}</h3>
                     <div className="flex items-center gap-2 mb-3">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        tenant.status === 'active' 
-                          ? 'bg-green-100 text-green-700' 
+                        tenant.account_status === 'active' 
+                          ? 'bg-green-100 text-green-700'
+                          : tenant.account_status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700' 
                           : 'bg-gray-100 text-gray-700'
                       }`}>
-                        {tenant.status === 'active' ? (
+                        {tenant.account_status === 'active' ? (
                           <span className="flex items-center gap-1">
                             <CheckCircle size={14} />
-                            Active Tenant
+                            Registered Tenant
+                          </span>
+                        ) : tenant.account_status === 'pending' ? (
+                          <span className="flex items-center gap-1">
+                            <XCircle size={14} />
+                            Pending Registration
                           </span>
                         ) : (
                           <span className="flex items-center gap-1">
