@@ -145,6 +145,33 @@ export default function SignupTenant() {
 
     setIsLoading(true);
 
+    // Check for duplicate email, phone, IC number
+    try {
+      const duplicateCheckResponse = await fetch(`${API_BASE_URL}/api/auth/check-duplicates.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          phone: formData.phone.replace(/\s/g, ''),
+          ic_number: formData.icNumber,
+          user_role: 'tenant'
+        })
+      });
+
+      const duplicateResult = await duplicateCheckResponse.json();
+      
+      if (!duplicateResult.success) {
+        setError(duplicateResult.message);
+        setIsLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Duplicate check error:', error);
+      // Continue with registration if duplicate check fails
+    }
+
     try {
       // First check if this email exists as a pending tenant
       const checkResponse = await fetch(`${API_BASE_URL}/api/auth/check-tenant-status.php`, {

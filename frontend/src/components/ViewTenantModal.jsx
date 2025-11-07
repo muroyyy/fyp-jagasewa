@@ -28,6 +28,13 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
       
       if (data.success) {
         console.log('Tenant details received:', data.data.tenant); // Debug log
+        console.log('Property fields check:', {
+          property_name: data.data.tenant.property_name,
+          property_type: data.data.tenant.property_type,
+          property_address: data.data.tenant.property_address,
+          monthly_rent: data.data.tenant.monthly_rent,
+          property_id: data.data.tenant.property_id
+        });
         setTenant(data.data.tenant);
       } else {
         setError(data.message || 'Failed to load tenant details');

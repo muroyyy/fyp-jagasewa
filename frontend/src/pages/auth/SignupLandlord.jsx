@@ -115,6 +115,32 @@ export default function SignupLandlord() {
 
     setIsLoading(true);
 
+    // Check for duplicate email and phone
+    try {
+      const duplicateCheckResponse = await fetch(`${API_BASE_URL}/api/auth/check-duplicates.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          phone: formData.phone.replace(/\s/g, ''),
+          user_role: 'landlord'
+        })
+      });
+
+      const duplicateResult = await duplicateCheckResponse.json();
+      
+      if (!duplicateResult.success) {
+        setError(duplicateResult.message);
+        setIsLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Duplicate check error:', error);
+      // Continue with registration if duplicate check fails
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/signup.php`, {
         method: 'POST',

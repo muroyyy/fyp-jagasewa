@@ -231,7 +231,9 @@ export default function LandlordTenants() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredTenants.length > 0 ? (
-                  filteredTenants.map((tenant) => (
+                  filteredTenants.map((tenant) => {
+                    console.log('Tenant data:', tenant); // Debug log
+                    return (
                     <tr key={tenant.tenant_id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
@@ -324,7 +326,8 @@ export default function LandlordTenants() {
                         </div>
                       </td>
                     </tr>
-                  ))
+                  );
+                  })
                 ) : (
                   <tr>
                     <td colSpan="6" className="px-6 py-12 text-center">
