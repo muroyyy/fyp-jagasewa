@@ -52,9 +52,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-3">
             <div 
               onClick={() => navigate('/')}
-              className="w-12 h-12 flex items-center justify-center transform hover:scale-105 transition-transform cursor-pointer"
+              className="w-16 h-16 flex items-center justify-center transform hover:scale-105 transition-transform cursor-pointer"
             >
-              <img src={jagasewaLogo} alt="JagaSewa" className="w-12 h-12" />
+              <img src={jagasewaLogo} alt="JagaSewa" className="w-16 h-16" />
             </div>
           </div>
 
