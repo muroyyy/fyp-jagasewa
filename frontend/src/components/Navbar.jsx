@@ -51,7 +51,7 @@ export default function Navbar() {
           {/* Logo - FIXED: Removed constraining wrapper */}
           <div 
             onClick={() => navigate('/')}
-            className="flex items-center transform hover:scale-105 transition-transform cursor-pointer"
+            className="flex items-center cursor-pointer"
           >
             <img 
               src={jagasewaLogo} 

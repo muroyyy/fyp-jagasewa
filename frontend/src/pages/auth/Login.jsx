@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Home, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -68,13 +69,12 @@ export default function Login() {
       <div className="max-w-md w-full">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Home className="w-8 h-8 text-white" />
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              JagaSewa
-            </span>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-16 w-auto"
+            />
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
           <p className="text-gray-600">Sign in to your account to continue</p>

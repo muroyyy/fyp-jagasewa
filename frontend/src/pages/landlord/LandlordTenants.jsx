@@ -188,11 +188,19 @@ export default function LandlordTenants() {
                     <tr key={tenant.tenant_id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
-                              {tenant.full_name.charAt(0)}
-                            </span>
-                          </div>
+                          {tenant.profile_image ? (
+                            <img
+                              src={tenant.profile_image.startsWith('https://') ? tenant.profile_image : `${import.meta.env.VITE_API_URL}/../${tenant.profile_image}`}
+                              alt={tenant.full_name}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-sm">
+                                {tenant.full_name.charAt(0)}
+                              </span>
+                            </div>
+                          )}
                           <div>
                             <p className="font-semibold text-gray-900">{tenant.full_name}</p>
                           </div>

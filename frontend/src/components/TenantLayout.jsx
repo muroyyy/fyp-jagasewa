@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell } from 'lucide-react';
 import { getCurrentUser, logout } from '../utils/auth';
 import NotificationDropdown from './NotificationDropdown';
+import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -86,13 +87,12 @@ export default function TenantLayout({ children }) {
               </button>
               
               {/* JagaSewa Logo - Desktop Only */}
-              <div className="hidden lg:flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg flex items-center justify-center">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                  JagaSewa
-                </span>
+              <div className="hidden lg:flex items-center">
+                <img 
+                  src={jagasewaLogo} 
+                  alt="JagaSewa" 
+                  className="h-10 w-auto"
+                />
               </div>
             </div>
 
@@ -129,13 +129,12 @@ export default function TenantLayout({ children }) {
         <div className="flex flex-col h-full">
           {/* Sidebar Header with Logo */}
           <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg flex items-center justify-center">
-                <Home className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                JagaSewa
-              </span>
+            <div className="flex items-center">
+              <img 
+                src={jagasewaLogo} 
+                alt="JagaSewa" 
+                className="h-10 w-auto"
+              />
             </div>
             
             {/* Close button for mobile */}

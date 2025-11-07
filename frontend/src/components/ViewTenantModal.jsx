@@ -110,7 +110,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
                   <div className="flex-shrink-0">
                     {tenant.profile_image ? (
                       <img
-                        src={`http://localhost:8000/${tenant.profile_image}`}
+                        src={tenant.profile_image.startsWith('https://') ? tenant.profile_image : `${import.meta.env.VITE_API_URL}/../${tenant.profile_image}`}
                         alt={tenant.full_name}
                         className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                       />

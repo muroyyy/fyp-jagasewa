@@ -6,9 +6,9 @@ import {
   Settings, 
   User, 
   LogOut,
-  Shield,
   X
 } from 'lucide-react';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 const AdminSidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -44,9 +44,12 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Shield className="text-indigo-600" size={32} />
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-10 w-auto"
+            />
             <div>
-              <h1 className="text-xl font-bold text-gray-800">JagaSewa</h1>
               <p className="text-sm text-gray-500">Admin Panel</p>
             </div>
           </div>

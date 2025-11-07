@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 import NotificationDropdown from './NotificationDropdown';
+import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
@@ -116,13 +117,12 @@ export default function LandlordLayout({ children }) {
       >
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <Link to="/landlord-dashboard" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Home className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              JagaSewa
-            </span>
+          <Link to="/landlord-dashboard" className="flex items-center">
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-10 w-auto"
+            />
           </Link>
           
           {/* Close button for mobile */}
