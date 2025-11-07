@@ -1,10 +1,7 @@
 import { X, User, Mail, Phone, CreditCard, Calendar, Home, DollarSign, CheckCircle, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchWithAuth } from '../utils/sessionHandler';
 
 const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
-  const navigate = useNavigate();
   const [tenant, setTenant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,16 +17,12 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
     setError('');
     
     try {
-      const response = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/api/landlord/tenant-details.php?tenant_id=${tenantId}`,
-        { method: 'GET' },
-        navigate
-      );
-
-      if (!response) {
-        onClose(); // Close modal if session expired
-        return;
-      }
+      const token = localStorage.getItem('session_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/tenant-details.php?tenant_id=${tenantId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       const data = await response.json();
       
