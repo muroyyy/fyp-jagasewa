@@ -23,7 +23,7 @@ export const TranslationProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/translate.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/translate-minimal.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
