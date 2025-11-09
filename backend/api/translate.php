@@ -1,10 +1,24 @@
 <?php
-require_once '../config/cors.php';
-require_once '../vendor/autoload.php';
-require_once '../config/translate_helper.php';
+// Enable error reporting for debugging
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
-// Set CORS headers
+require_once '../config/cors.php';
+
+// Set CORS headers first
 setCorsHeaders();
+
+try {
+    require_once '../vendor/autoload.php';
+    require_once '../config/translate_helper.php';
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Server configuration error: ' . $e->getMessage()
+    ]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -20,12 +34,21 @@ if (!isset($input['text']) || !isset($input['targetLang'])) {
     exit;
 }
 
-$translateHelper = new TranslateHelper();
-$result = $translateHelper->translateText(
-    $input['text'], 
-    $input['targetLang'], 
-    $input['sourceLang'] ?? 'en'
-);
+try {
+    $translateHelper = new TranslateHelper();
+    $result = $translateHelper->translateText(
+        $input['text'], 
+        $input['targetLang'], 
+        $input['sourceLang'] ?? 'en'
+    );
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Translation service error: ' . $e->getMessage()
+    ]);
+    exit;
+}
 
 if ($result['success']) {
     echo json_encode([
