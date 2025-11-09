@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell } from 'lucide-react';
 import { getCurrentUser, logout } from '../utils/auth';
 import NotificationDropdown from './NotificationDropdown';
+import LanguageSelector from './LanguageSelector';
 import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -97,6 +98,7 @@ export default function TenantLayout({ children }) {
             </div>
 
             <div className="flex items-center space-x-4">
+              <LanguageSelector />
               <NotificationDropdown userType="tenant" />
               <div className="flex items-center space-x-3">
                 <div className="hidden sm:block text-right">

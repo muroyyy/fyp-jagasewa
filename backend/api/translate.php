@@ -1,5 +1,6 @@
 <?php
 require_once '../config/cors.php';
+require_once '../vendor/autoload.php';
 require_once '../config/translate_helper.php';
 
 header('Content-Type: application/json');

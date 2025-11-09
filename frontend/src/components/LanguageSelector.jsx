@@ -13,7 +13,7 @@ const LanguageSelector = () => {
 
   return (
     <div className="relative group">
-      <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+      <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
         <Globe size={18} />
         <span className="text-sm">{languages.find(l => l.code === language)?.flag}</span>
       </button>
@@ -23,7 +23,7 @@ const LanguageSelector = () => {
           <button
             key={lang.code}
             onClick={() => changeLanguage(lang.code)}
-            className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 ${
+            className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${
               language === lang.code ? 'bg-blue-50 text-blue-600' : ''
             }`}
           >

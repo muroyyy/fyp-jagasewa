@@ -1,6 +1,6 @@
-# Composer dependencies
-/vendor/
-composer.lock
+# Composer dependencies (commented out for deployment)
+# /vendor/
+# composer.lock
 
 # AWS SDK cache
 /.aws/

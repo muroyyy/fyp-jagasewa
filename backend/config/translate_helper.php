@@ -1,11 +1,14 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'secrets.php';
+
+use Aws\Translate\TranslateClient;
 
 class TranslateHelper {
     private $translateClient;
     
     public function __construct() {
-        $this->translateClient = new Aws\Translate\TranslateClient([
+        $this->translateClient = new TranslateClient([
             'region' => 'ap-southeast-1',
             'version' => 'latest',
             'credentials' => [
