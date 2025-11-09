@@ -3,6 +3,7 @@ import { Home, Users, DollarSign, Wrench, FileText, Bell, BarChart3, Shield, Arr
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import TranslatedText from '../../components/TranslatedText';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -107,9 +108,9 @@ export default function Landing() {
               
               {/* Main Headline - Outcome Focused */}
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Stop Chasing Rent.
+                <TranslatedText>Stop Chasing Rent.</TranslatedText>
                 <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mt-2">
-                  Start Growing Your Business.
+                  <TranslatedText>Start Growing Your Business.</TranslatedText>
                 </span>
               </h1>
               
@@ -134,7 +135,7 @@ export default function Landing() {
                   onClick={() => navigate('/signup')}
                   className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl text-lg font-semibold hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center group cursor-pointer"
                 >
-                  Start Free 14-Day Trial
+                  <TranslatedText>Start Free 14-Day Trial</TranslatedText>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600">

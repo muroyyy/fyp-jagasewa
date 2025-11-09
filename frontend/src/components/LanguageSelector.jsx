@@ -1,5 +1,5 @@
 import { Globe } from 'lucide-react';
-import { useTranslation } from '../utils/useTranslation';
+import { useTranslation } from '../contexts/TranslationContext';
 
 const LanguageSelector = () => {
   const { language, changeLanguage } = useTranslation();

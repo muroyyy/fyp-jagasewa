@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { TranslationProvider } from './contexts/TranslationContext';
 
 // General
 import Landing from './pages/general/Landing';
@@ -41,8 +42,9 @@ import AdminProfile from './pages/admin/AdminProfile';
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <TranslationProvider>
+      <Router>
+        <Routes>
         {/* Landing */}
         <Route path="/" element={<Landing />} />
 
@@ -81,8 +83,9 @@ function App() {
           <Route path="settings" element={<SystemSettings />} />
           <Route path="profile" element={<AdminProfile />} />
         </Route>
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </TranslationProvider>
   );
 }
 
