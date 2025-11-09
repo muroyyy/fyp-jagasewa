@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once 'secrets.php';
 
 use Aws\Translate\TranslateClient;
 
@@ -10,11 +9,8 @@ class TranslateHelper {
     public function __construct() {
         $this->translateClient = new TranslateClient([
             'region' => 'ap-southeast-1',
-            'version' => 'latest',
-            'credentials' => [
-                'key' => AWS_ACCESS_KEY_ID,
-                'secret' => AWS_SECRET_ACCESS_KEY
-            ]
+            'version' => 'latest'
+            // Uses EC2 instance credentials automatically
         ]);
     }
     

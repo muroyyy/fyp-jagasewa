@@ -1,7 +1,11 @@
 <?php
 // Enable error reporting for debugging
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// Start output buffering to catch any errors
+ob_start();
 
 require_once '../config/cors.php';
 
@@ -51,15 +55,22 @@ try {
 }
 
 if ($result['success']) {
+    // Clear any error output
+    ob_clean();
     echo json_encode([
         'success' => true,
         'translatedText' => $result['translatedText']
     ]);
 } else {
+    // Clear any error output
+    ob_clean();
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => $result['error']
     ]);
 }
+
+// End output buffering
+ob_end_flush();
 ?>
