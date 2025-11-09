@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
+import LanguageSelector from './LanguageSelector';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
+            <LanguageSelector />
             <button
               onClick={() => scrollToSection('how-it-works')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium cursor-pointer"
