@@ -26,83 +26,11 @@ try {
     $database = new Database();
     $conn = $database->getConnection();
 
-    // ✅ OPTIMIZED QUERY 1: Combine session check + ALL tenant/property/landlord data + statistics
+    // Verify session token
     $stmt = $conn->prepare("
-        SELECT 
-            -- Session data
-            s.user_id,
-            s.user_role,
-            
-            -- Tenant info
-            t.tenant_id,
-            t.full_name,
-            t.phone,
-            t.ic_number,
-            t.date_of_birth,
-            t.move_in_date,
-            t.property_id,
-            
-            -- User info
-            u.email,
-            
-            -- Property info
-            p.property_name,
-            p.property_type,
-            p.address,
-            p.city,
-            p.state,
-            p.postal_code,
-            p.monthly_rent,
-            p.status as property_status,
-            
-            -- Landlord info
-            l.full_name as landlord_name,
-            l.phone as landlord_phone,
-            lu.email as landlord_email,
-            
-            -- Payment statistics (using subqueries)
-            (SELECT COUNT(*) 
-             FROM payments 
-             WHERE tenant_id = t.tenant_id
-            ) as total_payments,
-            
-            (SELECT COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0)
-             FROM payments 
-             WHERE tenant_id = t.tenant_id
-            ) as total_paid,
-            
-            (SELECT MAX(payment_date) 
-             FROM payments 
-             WHERE tenant_id = t.tenant_id
-            ) as last_payment_date,
-            
-            -- Maintenance statistics (using subqueries)
-            (SELECT COUNT(*) 
-             FROM maintenance_requests 
-             WHERE tenant_id = t.tenant_id
-            ) as maintenance_total,
-            
-            (SELECT COUNT(*) 
-             FROM maintenance_requests 
-             WHERE tenant_id = t.tenant_id AND status = 'pending'
-            ) as maintenance_pending,
-            
-            (SELECT COUNT(*) 
-             FROM maintenance_requests 
-             WHERE tenant_id = t.tenant_id AND status = 'in_progress'
-            ) as maintenance_in_progress,
-            
-            (SELECT COUNT(*) 
-             FROM maintenance_requests 
-             WHERE tenant_id = t.tenant_id AND status = 'completed'
-            ) as maintenance_completed
-            
+        SELECT s.user_id, s.user_role, t.tenant_id
         FROM sessions s
         JOIN tenants t ON s.user_id = t.user_id
-        JOIN users u ON t.user_id = u.user_id
-        LEFT JOIN properties p ON t.property_id = p.property_id
-        LEFT JOIN landlords l ON p.landlord_id = l.landlord_id
-        LEFT JOIN users lu ON l.user_id = lu.user_id
         WHERE s.session_token = :token 
         AND s.expires_at > NOW()
         AND s.user_role = 'tenant'
@@ -119,73 +47,177 @@ try {
         exit();
     }
 
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    $tenant_id = $session['tenant_id'];
+    $user_id = $session['user_id'];
 
-    // ✅ OPTIMIZED QUERY 2: Only check if payment exists for current month
+    // Get tenant profile with property information
+    $stmt = $conn->prepare("
+        SELECT 
+            t.tenant_id,
+            t.full_name,
+            t.phone,
+            t.ic_number,
+            t.date_of_birth,
+            t.move_in_date,
+            t.property_id,
+            u.email,
+            p.property_name,
+            p.property_type,
+            p.address,
+            p.city,
+            p.state,
+            p.postal_code,
+            p.monthly_rent,
+            p.status as property_status,
+            l.full_name as landlord_name,
+            l.phone as landlord_phone,
+            lu.email as landlord_email
+        FROM tenants t
+        JOIN users u ON t.user_id = u.user_id
+        LEFT JOIN properties p ON t.property_id = p.property_id
+        LEFT JOIN landlords l ON p.landlord_id = l.landlord_id
+        LEFT JOIN users lu ON l.user_id = lu.user_id
+        WHERE t.tenant_id = :tenant_id
+    ");
+    $stmt->bindParam(':tenant_id', $tenant_id);
+    $stmt->execute();
+
+    $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$tenant) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Tenant profile not found'
+        ]);
+        exit();
+    }
+
+    // Get payment statistics (simplified - avoid potential table issues)
+    $payment_stats = [
+        'total_payments' => 0,
+        'total_paid' => 0,
+        'last_payment_date' => null
+    ];
+    
+    // Try to get payment stats if table exists
+    try {
+        $stmt = $conn->prepare("
+            SELECT 
+                COUNT(*) as total_payments,
+                COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0) as total_paid,
+                MAX(payment_date) as last_payment_date
+            FROM payments
+            WHERE tenant_id = :tenant_id
+        ");
+        $stmt->bindParam(':tenant_id', $tenant_id);
+        $stmt->execute();
+        $payment_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Table might not exist, use defaults
+        error_log("Payment stats error: " . $e->getMessage());
+    }
+
+    // Get next payment due (assuming monthly rent)
     $next_payment = null;
-    if ($data['property_id'] && $data['monthly_rent']) {
-        // Calculate next payment date
-        $last_payment = $data['last_payment_date'];
+    if ($tenant['property_id'] && $tenant['monthly_rent']) {
+        // Calculate next payment date (simplified logic)
+        $last_payment = $payment_stats['last_payment_date'];
         if ($last_payment) {
             $next_due = date('Y-m-d', strtotime($last_payment . ' +1 month'));
         } else {
-            $move_in_date = $data['move_in_date'] ?: date('Y-m-d');
+            // If no payments yet, use move-in date as reference or current date
+            $move_in_date = $tenant['move_in_date'] ?: date('Y-m-d');
             $next_due = date('Y-m-d', strtotime($move_in_date . ' +1 month'));
         }
         
-        // Check if payment already made for this month
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) as count
-            FROM payments
-            WHERE tenant_id = :tenant_id
-            AND YEAR(payment_date) = YEAR(:next_due)
-            AND MONTH(payment_date) = MONTH(:next_due)
-            AND status = 'completed'
-        ");
-        $stmt->bindParam(':tenant_id', $data['tenant_id']);
-        $stmt->bindParam(':next_due', $next_due);
-        $stmt->execute();
-        $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Check if payment is already made for current month
+        $payment_check = ['count' => 0];
+        try {
+            $stmt = $conn->prepare("
+                SELECT COUNT(*) as count
+                FROM payments
+                WHERE tenant_id = :tenant_id
+                AND YEAR(payment_date) = YEAR(:next_due)
+                AND MONTH(payment_date) = MONTH(:next_due)
+                AND status = 'completed'
+            ");
+            $stmt->bindParam(':tenant_id', $tenant_id);
+            $stmt->bindParam(':next_due', $next_due);
+            $stmt->execute();
+            $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Table might not exist, assume no payment made
+            error_log("Payment check error: " . $e->getMessage());
+        }
         
         if ($payment_check['count'] == 0) {
             $next_payment = [
-                'amount' => $data['monthly_rent'],
+                'amount' => $tenant['monthly_rent'],
                 'due_date' => $next_due,
-                'property_name' => $data['property_name']
+                'property_name' => $tenant['property_name']
             ];
         }
     }
 
+    // Get maintenance request statistics (simplified - avoid potential table issues)
+    $maintenance_stats = [
+        'total_requests' => 0,
+        'pending_requests' => 0,
+        'in_progress_requests' => 0,
+        'completed_requests' => 0
+    ];
+    
+    // Try to get maintenance stats if table exists
+    try {
+        $stmt = $conn->prepare("
+            SELECT 
+                COUNT(*) as total_requests,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
+                SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_requests,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_requests
+            FROM maintenance_requests
+            WHERE tenant_id = :tenant_id
+        ");
+        $stmt->bindParam(':tenant_id', $tenant_id);
+        $stmt->execute();
+        $maintenance_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Table might not exist, use defaults
+        error_log("Maintenance stats error: " . $e->getMessage());
+    }
+
     // Prepare property information
     $property_info = null;
-    if ($data['property_id']) {
+    if ($tenant['property_id']) {
         $property_info = [
-            'property_id' => $data['property_id'],
-            'property_name' => $data['property_name'],
-            'property_type' => $data['property_type'],
-            'address' => $data['address'],
-            'city' => $data['city'],
-            'state' => $data['state'],
-            'postal_code' => $data['postal_code'],
-            'monthly_rent' => $data['monthly_rent'],
-            'status' => $data['property_status'],
-            'move_in_date' => $data['move_in_date'],
+            'property_id' => $tenant['property_id'],
+            'property_name' => $tenant['property_name'],
+            'property_type' => $tenant['property_type'],
+            'address' => $tenant['address'],
+            'city' => $tenant['city'],
+            'state' => $tenant['state'],
+            'postal_code' => $tenant['postal_code'],
+            'monthly_rent' => $tenant['monthly_rent'],
+            'status' => $tenant['property_status'],
+            'move_in_date' => $tenant['move_in_date'],
             'landlord' => [
-                'name' => $data['landlord_name'],
-                'phone' => $data['landlord_phone'],
-                'email' => $data['landlord_email']
+                'name' => $tenant['landlord_name'],
+                'phone' => $tenant['landlord_phone'],
+                'email' => $tenant['landlord_email']
             ]
         ];
     }
 
     // Prepare tenant profile
     $profile = [
-        'tenant_id' => $data['tenant_id'],
-        'full_name' => $data['full_name'],
-        'email' => $data['email'],
-        'phone' => $data['phone'],
-        'ic_number' => $data['ic_number'],
-        'date_of_birth' => $data['date_of_birth']
+        'tenant_id' => $tenant['tenant_id'],
+        'full_name' => $tenant['full_name'],
+        'email' => $tenant['email'],
+        'phone' => $tenant['phone'],
+        'ic_number' => $tenant['ic_number'],
+        'date_of_birth' => $tenant['date_of_birth']
     ];
 
     http_response_code(200);
@@ -197,19 +229,14 @@ try {
             'property' => $property_info,
             'next_payment' => $next_payment,
             'stats' => [
-                'total_payments' => (int)$data['total_payments'],
-                'total_paid' => (float)$data['total_paid'],
-                'last_payment_date' => $data['last_payment_date'],
-                'maintenance_total' => (int)$data['maintenance_total'],
-                'maintenance_pending' => (int)$data['maintenance_pending'],
-                'maintenance_in_progress' => (int)$data['maintenance_in_progress'],
-                'maintenance_completed' => (int)$data['maintenance_completed']
+                'total_payments' => (int)$payment_stats['total_payments'],
+                'total_paid' => (float)$payment_stats['total_paid'],
+                'last_payment_date' => $payment_stats['last_payment_date'],
+                'maintenance_total' => (int)$maintenance_stats['total_requests'],
+                'maintenance_pending' => (int)$maintenance_stats['pending_requests'],
+                'maintenance_in_progress' => (int)$maintenance_stats['in_progress_requests'],
+                'maintenance_completed' => (int)$maintenance_stats['completed_requests']
             ]
-        ],
-        // Debug info (remove in production)
-        'debug' => [
-            'query_count' => 2,
-            'optimization' => '60% reduction from 5 queries to 2 queries'
         ]
     ]);
 
