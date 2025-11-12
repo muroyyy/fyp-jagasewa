@@ -96,7 +96,7 @@ export default function Navbar() {
             </button>
             <button 
               onClick={() => navigate('/signup')}
-              className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transform hover:-translate-y-0.5 hover:scale-105 transition-all font-semibold cursor-pointer"
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-800 hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-105 transition-all font-semibold cursor-pointer"
             >
               Start Free Trial
             </button>
@@ -146,7 +146,7 @@ export default function Navbar() {
             </button>
             <button 
               onClick={() => navigate('/signup')}
-              className="block w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all cursor-pointer"
+              className="block w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-800 hover:shadow-lg transition-all cursor-pointer"
             >
               Start Free Trial
             </button>

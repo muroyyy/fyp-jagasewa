@@ -94,14 +94,14 @@ export default function Landing() {
       <Navbar />
 
       {/* ===== HERO SECTION ===== */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-blue-50 to-indigo-50">
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             
             {/* LEFT: Value Proposition */}
             <div className="space-y-6">
               {/* Target Audience Badge */}
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 rounded-full text-sm font-semibold shadow-sm">
+              <div className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 border border-blue-600 rounded-full text-sm font-semibold shadow-sm">
                 <Home className="w-4 h-4 mr-2" />
                 For Independent Landlords Managing 10-50 Properties
               </div>
@@ -109,22 +109,22 @@ export default function Landing() {
               {/* Main Headline - Outcome Focused */}
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 <TranslatedText>Stop Chasing Rent.</TranslatedText>
-                <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mt-2">
+                <span className="block text-blue-600 mt-2">
                   <TranslatedText>Start Growing Your Business.</TranslatedText>
                 </span>
               </h1>
               
               {/* Benefit-Focused Subheadline */}
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p className="text-xl text-slate-500 leading-relaxed">
                 JagaSewa saves you <span className="font-bold text-blue-600">5+ hours every week</span> by automating rent tracking, tenant communication, and maintenance requests - all in one Malaysian-made platform.
               </p>
 
               {/* Quick Benefits Pills */}
               <div className="flex flex-wrap gap-4 pt-2">
                 {quickBenefits.map((benefit, idx) => (
-                  <div key={idx} className={`flex items-center px-4 py-2 bg-${benefit.color}-50 border border-${benefit.color}-200 rounded-lg`}>
-                    <benefit.icon className={`w-5 h-5 text-${benefit.color}-600 mr-2`} />
-                    <span className="text-sm font-medium text-gray-700">{benefit.label}</span>
+                  <div key={idx} className="flex items-center px-4 py-2 bg-white border border-slate-200 rounded-lg">
+                    <benefit.icon className="w-5 h-5 text-blue-600 mr-2" />
+                    <span className="text-sm font-medium text-slate-500">{benefit.label}</span>
                   </div>
                 ))}
               </div>
@@ -133,12 +133,12 @@ export default function Landing() {
               <div className="space-y-3 pt-4">
                 <button 
                   onClick={() => navigate('/signup')}
-                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl text-lg font-semibold hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center group cursor-pointer"
+                  className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-800 hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center group cursor-pointer"
                 >
                   <TranslatedText>Start Free 14-Day Trial</TranslatedText>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-slate-500">
                   <div className="flex items-center">
                     <Check className="w-4 h-4 text-green-500 mr-2" />
                     <span>No credit card required</span>
@@ -157,12 +157,12 @@ export default function Landing() {
             
             {/* RIGHT: Dashboard Mockup - SIMPLIFIED */}
             <div className="relative">
-              <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+              <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
                 {/* Key Metric - Rent Collection */}
                 <div className="mb-6">
-                  <h3 className="text-sm text-gray-500 mb-2 font-medium">This Month's Rent Collection</h3>
-                  <div className="text-4xl lg:text-5xl font-bold text-green-600 mb-1">RM 42,500</div>
-                  <p className="text-sm text-gray-600 flex items-center">
+                  <h3 className="text-sm text-slate-500 mb-2 font-medium">This Month's Rent Collection</h3>
+                  <div className="text-4xl lg:text-5xl font-bold text-blue-600 mb-1">RM 42,500</div>
+                  <p className="text-sm text-slate-500 flex items-center">
                     <Check className="w-4 h-4 text-green-500 mr-1" />
                     18 of 20 tenants paid on time
                   </p>
@@ -170,49 +170,45 @@ export default function Landing() {
                 
                 {/* Mini Stats Grid */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="text-center p-4 bg-slate-100 rounded-xl border border-slate-200">
                     <div className="text-2xl font-bold text-blue-600">24</div>
-                    <div className="text-xs text-gray-600 font-medium">Properties</div>
+                    <div className="text-xs text-slate-500 font-medium">Properties</div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
-                    <div className="text-2xl font-bold text-green-600">18</div>
-                    <div className="text-xs text-gray-600 font-medium">Active Tenants</div>
+                  <div className="text-center p-4 bg-slate-100 rounded-xl border border-slate-200">
+                    <div className="text-2xl font-bold text-blue-600">18</div>
+                    <div className="text-xs text-slate-500 font-medium">Active Tenants</div>
                   </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                    <div className="text-2xl font-bold text-yellow-600">2</div>
-                    <div className="text-xs text-gray-600 font-medium">Pending</div>
+                  <div className="text-center p-4 bg-slate-100 rounded-xl border border-slate-200">
+                    <div className="text-2xl font-bold text-blue-600">2</div>
+                    <div className="text-xs text-slate-500 font-medium">Pending</div>
                   </div>
                 </div>
 
                 {/* Quick Action Hint */}
-                <div className="mt-6 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                  <p className="text-xs text-gray-700 flex items-center">
+                <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-xs text-slate-700 flex items-center">
                     <Bell className="w-4 h-4 text-blue-600 mr-2" />
                     <span><span className="font-semibold">2 reminders</span> sent automatically today</span>
                   </p>
                 </div>
               </div>
-
-              {/* Decorative Background Elements */}
-              <div className="absolute -bottom-6 -right-6 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl opacity-10 blur-3xl -z-10"></div>
-              <div className="absolute -top-6 -left-6 w-64 h-64 bg-gradient-to-br from-green-400 to-teal-400 rounded-2xl opacity-10 blur-3xl -z-10"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ===== TRUST SECTION - Mock Testimonials ===== */}
-      <section className="py-12 bg-white border-y border-gray-200">
+      <section className="py-12 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-600 text-sm mb-8 font-medium">
+          <p className="text-center text-slate-500 text-sm mb-8 font-medium">
             Trusted by landlords managing 500+ properties across Malaysia
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, idx) => (
               <div key={idx} className="text-center">
-                <div className="text-2xl font-bold text-gray-800 mb-2">"{testimonial.quote}"</div>
-                <p className="text-sm text-gray-600 font-medium">{testimonial.author}</p>
-                <p className="text-xs text-gray-500">{testimonial.role}</p>
+                <div className="text-2xl font-bold text-slate-800 mb-2">"{testimonial.quote}"</div>
+                <p className="text-sm text-slate-500 font-medium">{testimonial.author}</p>
+                <p className="text-xs text-slate-500">{testimonial.role}</p>
               </div>
             ))}
           </div>
@@ -220,23 +216,23 @@ export default function Landing() {
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-20 bg-slate-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Get Started in 3 Simple Steps</h2>
-            <p className="text-xl text-gray-600">From signup to automation in under 10 minutes</p>
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">Get Started in 3 Simple Steps</h2>
+            <p className="text-xl text-slate-500">From signup to automation in under 10 minutes</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorks.map((step, idx) => (
               <div key={idx} className="relative">
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-slate-200">
                   <div className="text-6xl mb-4">{step.icon}</div>
                   <div className="inline-block px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-bold mb-4">
                     Step {step.step}
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                  <p className="text-gray-600">{step.desc}</p>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-3">{step.title}</h3>
+                  <p className="text-slate-500">{step.desc}</p>
                 </div>
                 
                 {/* Arrow between steps */}
@@ -252,7 +248,7 @@ export default function Landing() {
           <div className="text-center mt-12">
             <button 
               onClick={() => navigate('/signup')}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-lg font-semibold hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+              className="px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-800 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
             >
               Start Your Free Trial Now
             </button>
@@ -264,10 +260,10 @@ export default function Landing() {
       <section id="solutions" className="py-20 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">
               How JagaSewa Solves Your Daily Challenges
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-slate-500">
               Built specifically for Malaysian landlords managing 10-50 properties
             </p>
           </div>
@@ -283,8 +279,8 @@ export default function Landing() {
                     <X className="w-4 h-4 mr-1" />
                     THE PROBLEM
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-3">{item.problem}</h3>
-                  <p className="text-lg text-gray-600">{item.problemDesc}</p>
+                  <h3 className="text-3xl font-bold text-slate-800 mb-3">{item.problem}</h3>
+                  <p className="text-lg text-slate-500">{item.problemDesc}</p>
                 </div>
                 
                 {/* Solution */}
@@ -293,12 +289,12 @@ export default function Landing() {
                     <Check className="w-4 h-4 mr-1" />
                     THE SOLUTION
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-900 mb-4">{item.solution}</h4>
+                  <h4 className="text-2xl font-bold text-slate-800 mb-4">{item.solution}</h4>
                   <ul className="space-y-3">
                     {item.benefits.map((benefit, bidx) => (
                       <li key={bidx} className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-3 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">{benefit}</span>
+                        <span className="text-slate-700">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -309,22 +305,19 @@ export default function Landing() {
               <div className={idx % 2 !== 0 ? 'md:col-start-1 md:row-start-1' : ''}>
                 <div className="relative group">
                   {/* Placeholder for actual screenshot */}
-                  <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl shadow-2xl border-2 border-gray-300 aspect-video flex items-center justify-center overflow-hidden">
+                  <div className="bg-slate-100 rounded-xl shadow-2xl border-2 border-slate-200 aspect-video flex items-center justify-center overflow-hidden">
                     <div className="text-center p-8">
-                      <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <BarChart3 className="w-8 h-8 text-gray-500" />
+                      <div className="w-16 h-16 bg-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <BarChart3 className="w-8 h-8 text-slate-500" />
                       </div>
-                      <p className="text-gray-500 font-semibold text-sm">
+                      <p className="text-slate-500 font-semibold text-sm">
                         Screenshot Placeholder
                       </p>
-                      <p className="text-gray-400 text-xs mt-2 max-w-xs mx-auto">
+                      <p className="text-slate-400 text-xs mt-2 max-w-xs mx-auto">
                         {item.screenshotAlt}
                       </p>
                     </div>
                   </div>
-                  
-                  {/* Decorative shadow */}
-                  <div className="absolute -bottom-4 -right-4 w-full h-full bg-gradient-to-br from-blue-400 to-indigo-400 rounded-xl opacity-20 blur-xl -z-10 group-hover:opacity-30 transition-opacity"></div>
                 </div>
               </div>
             </div>
@@ -333,34 +326,34 @@ export default function Landing() {
       </section>
 
       {/* ===== COMPARISON TABLE ===== */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-slate-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">
               Manual Management vs JagaSewa
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-slate-500">
               See how much time and hassle you'll save
             </p>
           </div>
           
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+              <thead className="bg-slate-100 border-b-2 border-slate-200">
                 <tr>
-                  <th className="p-6 text-left text-gray-700 font-bold text-lg">Task</th>
-                  <th className="p-6 text-center text-gray-700 font-bold text-lg">Manual Method</th>
-                  <th className="p-6 text-center bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-bold text-lg border-l-2 border-blue-200">
+                  <th className="p-6 text-left text-slate-700 font-bold text-lg">Task</th>
+                  <th className="p-6 text-center text-slate-700 font-bold text-lg">Manual Method</th>
+                  <th className="p-6 text-center bg-blue-600 text-white font-bold text-lg border-l-2 border-blue-700">
                     With JagaSewa
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonData.map((row, idx) => (
-                  <tr key={idx} className={`border-t ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <td className="p-6 font-semibold text-gray-800">{row.task}</td>
-                    <td className="p-6 text-center text-gray-600">{row.manual}</td>
-                    <td className="p-6 text-center bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-bold border-l-2 border-blue-200">
+                  <tr key={idx} className={`border-t border-slate-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+                    <td className="p-6 font-semibold text-slate-800">{row.task}</td>
+                    <td className="p-6 text-center text-slate-500">{row.manual}</td>
+                    <td className="p-6 text-center bg-blue-50 text-blue-600 font-bold border-l-2 border-blue-200">
                       {row.jagasewa}
                     </td>
                   </tr>
@@ -370,14 +363,14 @@ export default function Landing() {
           </div>
 
           <div className="text-center mt-12">
-            <div className="inline-block bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <p className="text-3xl font-bold text-gray-900 mb-2">
-                Save an average of <span className="text-green-600">5+ hours per week</span>
+            <div className="inline-block bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
+              <p className="text-3xl font-bold text-slate-800 mb-2">
+                Save an average of <span className="text-green-500">5+ hours per week</span>
               </p>
-              <p className="text-gray-600 mb-6">That's over 20 hours every month to focus on growing your business</p>
+              <p className="text-slate-500 mb-6">That's over 20 hours every month to focus on growing your business</p>
               <button 
                 onClick={() => navigate('/signup')}
-                className="px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl text-lg font-semibold hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+                className="px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-800 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
               >
                 Start Saving Time Today
               </button>
@@ -390,18 +383,18 @@ export default function Landing() {
       <section id="features" className="py-20 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Complete Features for Both Sides</h2>
-            <p className="text-xl text-gray-600">Everything landlords and tenants need in one platform</p>
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">Complete Features for Both Sides</h2>
+            <p className="text-xl text-slate-500">Everything landlords and tenants need in one platform</p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Landlord Features */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-blue-200">
+            <div className="bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
                   <Home className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">For Landlords</h3>
+                <h3 className="text-2xl font-bold text-slate-800">For Landlords</h3>
               </div>
               
               <div className="space-y-3">
@@ -413,21 +406,21 @@ export default function Landing() {
                   { icon: BarChart3, text: "Financial reports & analytics" },
                   { icon: Shield, text: "Secure document storage" }
                 ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg">
+                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-slate-200">
                     <feature.icon className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700 font-medium">{feature.text}</span>
+                    <span className="text-slate-700 font-medium">{feature.text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Tenant Features */}
-            <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-8 border-2 border-green-200">
+            <div className="bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-teal-600 rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">For Tenants</h3>
+                <h3 className="text-2xl font-bold text-slate-800">For Tenants</h3>
               </div>
               
               <div className="space-y-3">
@@ -437,9 +430,9 @@ export default function Landing() {
                   { icon: Wrench, text: "Submit maintenance requests with photos" },
                   { icon: FileText, text: "Access lease documents anytime" }
                 ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg">
-                    <feature.icon className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700 font-medium">{feature.text}</span>
+                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-slate-200">
+                    <feature.icon className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700 font-medium">{feature.text}</span>
                   </div>
                 ))}
               </div>
@@ -449,7 +442,7 @@ export default function Landing() {
       </section>
 
       {/* ===== FINAL CTA SECTION ===== */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-600 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-blue-600 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Ready to Reclaim Your Time?
@@ -461,7 +454,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <button 
               onClick={() => navigate('/signup')}
-              className="w-full sm:w-auto px-10 py-5 bg-white text-blue-600 rounded-xl text-lg font-bold hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-10 py-5 bg-white text-blue-600 rounded-xl text-lg font-bold hover:bg-blue-50 hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer"
             >
               Start Free 14-Day Trial
             </button>
@@ -494,57 +487,57 @@ export default function Landing() {
       <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">About JagaSewa</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">About JagaSewa</h2>
+            <p className="text-xl text-slate-500 max-w-3xl mx-auto">
               A modern cloud-based property management solution designed for Malaysian landlords
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl">
+            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🎯</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Mission</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Our Mission</h3>
+              <p className="text-slate-500">
                 To save Malaysian landlords time and hassle through smart automation and intuitive design.
               </p>
             </div>
 
-            <div className="text-center p-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">💡</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Vision</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Our Vision</h3>
+              <p className="text-slate-500">
                 To become the go-to platform for independent landlords managing 10-50 properties in Malaysia.
               </p>
             </div>
 
-            <div className="text-center p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl">
-              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">⚡</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Our Technology</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Our Technology</h3>
+              <p className="text-slate-500">
                 Built with ReactJS, PHP, and AWS Cloud for reliability, security, and scalability.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 md:p-12 border border-gray-200">
+          <div className="bg-slate-100 rounded-2xl p-8 md:p-12 border border-slate-200">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Built with Malaysian Landlords in Mind</h3>
-                <p className="text-gray-700 mb-4">
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">Built with Malaysian Landlords in Mind</h3>
+                <p className="text-slate-700 mb-4">
                   JagaSewa was developed at Asia Pacific University, combining cloud engineering expertise with real-world property management needs.
                 </p>
-                <p className="text-gray-700">
+                <p className="text-slate-700">
                   Every feature is designed to solve actual problems faced by independent landlords in Malaysia - from rent collection to tenant communication.
                 </p>
               </div>
-              <div className="bg-white rounded-xl p-6 shadow-lg">
-                <h4 className="font-bold text-gray-900 mb-4 text-lg">Key Technologies</h4>
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
+                <h4 className="font-bold text-slate-800 mb-4 text-lg">Key Technologies</h4>
                 <div className="space-y-3">
                   {[
                     "ReactJS + Tailwind CSS",
@@ -555,7 +548,7 @@ export default function Landing() {
                   ].map((tech, idx) => (
                     <div key={idx} className="flex items-center">
                       <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                      <span className="text-gray-700">{tech}</span>
+                      <span className="text-slate-700">{tech}</span>
                     </div>
                   ))}
                 </div>

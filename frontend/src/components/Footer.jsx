@@ -32,29 +32,29 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-slate-800 text-slate-400 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           
           {/* Brand Section */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Home className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-white">JagaSewa</span>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-slate-400 text-sm mb-4">
               Saving Malaysian landlords 5+ hours every week through smart property management automation.
             </p>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center text-gray-400">
+              <div className="flex items-center text-slate-400">
                 <MapPin className="w-4 h-4 mr-2" />
                 <span>Kuala Lumpur, Malaysia</span>
               </div>
-              <div className="flex items-center text-gray-400">
+              <div className="flex items-center text-slate-400">
                 <Mail className="w-4 h-4 mr-2" />
-                <a href="mailto:support@jagasewa.com" className="hover:text-white transition-colors">
+                <a href="mailto:support@jagasewa.com" className="hover:text-blue-600 transition-colors">
                   support@jagasewa.com
                 </a>
               </div>
@@ -68,7 +68,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => scrollToSection('how-it-works')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   How It Works
                 </button>
@@ -76,7 +76,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => scrollToSection('solutions')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Solutions
                 </button>
@@ -84,7 +84,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => scrollToSection('features')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Features
                 </button>
@@ -92,7 +92,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => navigate('/signup')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Start Free Trial
                 </button>
@@ -107,7 +107,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => scrollToSection('about')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   About Us
                 </button>
@@ -115,7 +115,7 @@ export default function Footer() {
               <li>
                 <a 
                   href="mailto:support@jagasewa.com" 
-                  className="hover:text-white transition-colors"
+                  className="hover:text-blue-600 transition-colors"
                 >
                   Contact
                 </a>
@@ -123,7 +123,7 @@ export default function Footer() {
               <li>
                 <a 
                   href="mailto:support@jagasewa.com" 
-                  className="hover:text-white transition-colors"
+                  className="hover:text-blue-600 transition-colors"
                 >
                   Support
                 </a>
@@ -138,7 +138,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => navigate('/login')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Login
                 </button>
@@ -146,7 +146,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => navigate('/signup')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Sign Up
                 </button>
@@ -154,7 +154,7 @@ export default function Footer() {
               <li>
                 <button 
                   onClick={() => navigate('/forgot-password')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  className="hover:text-blue-600 transition-colors cursor-pointer text-left"
                 >
                   Forgot Password
                 </button>
@@ -164,22 +164,22 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 pt-8">
+        <div className="border-t border-slate-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-slate-400">
                 © 2025 JagaSewa. All rights reserved.
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Developed by Amirul Faiz - Asia Pacific University Final Year Project
               </p>
             </div>
             
             <div className="flex items-center space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors">
                 Terms of Service
               </a>
             </div>
