@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { TranslationProvider } from './contexts/TranslationContext';
 
 // General
 import Landing from './pages/general/Landing';
@@ -42,50 +41,48 @@ import AdminProfile from './pages/admin/AdminProfile';
 
 function App() {
   return (
-    <TranslationProvider>
-      <Router>
-        <Routes>
-        {/* Landing */}
-        <Route path="/" element={<Landing />} />
+    <Router>
+      <Routes>
+      {/* Landing */}
+      <Route path="/" element={<Landing />} />
 
-        {/* Auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signup/landlord" element={<SignupLandlord />} />
-        <Route path="/signup/tenant" element={<SignupTenant />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+      {/* Auth */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup/landlord" element={<SignupLandlord />} />
+      <Route path="/signup/tenant" element={<SignupTenant />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Landlord */}
-        <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
-        <Route path="/landlord/properties" element={<LandlordProperties />} />
-        <Route path="/landlord/properties/edit/:id" element={<LandlordEditProperty />} />
-        <Route path="/landlord/tenants" element={<LandlordTenants />} />
-        <Route path="/landlord/add-tenant" element={<LandlordAddTenant />} />
-        <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
-        <Route path="/landlord/payments" element={<LandlordPayments />} />
-        <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
-        <Route path="/landlord/documents" element={<LandlordDocuments />} />
-        <Route path="/landlord/settings" element={<LandlordSettings />} />
+      {/* Landlord */}
+      <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
+      <Route path="/landlord/properties" element={<LandlordProperties />} />
+      <Route path="/landlord/properties/edit/:id" element={<LandlordEditProperty />} />
+      <Route path="/landlord/tenants" element={<LandlordTenants />} />
+      <Route path="/landlord/add-tenant" element={<LandlordAddTenant />} />
+      <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
+      <Route path="/landlord/payments" element={<LandlordPayments />} />
+      <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
+      <Route path="/landlord/documents" element={<LandlordDocuments />} />
+      <Route path="/landlord/settings" element={<LandlordSettings />} />
 
-        {/* Tenant */}
-        <Route path="/tenant-dashboard" element={<TenantDashboard />} />
-        <Route path="/tenant/payments" element={<TenantPayments />} />
-        <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
-        <Route path="/tenant/documents" element={<TenantDocuments />} />
-        <Route path="/tenant/settings" element={<TenantSettings />} />
+      {/* Tenant */}
+      <Route path="/tenant-dashboard" element={<TenantDashboard />} />
+      <Route path="/tenant/payments" element={<TenantPayments />} />
+      <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
+      <Route path="/tenant/documents" element={<TenantDocuments />} />
+      <Route path="/tenant/settings" element={<TenantSettings />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="properties" element={<PropertyManagement />} />
-          <Route path="settings" element={<SystemSettings />} />
-          <Route path="profile" element={<AdminProfile />} />
-        </Route>
-        </Routes>
-      </Router>
-    </TranslationProvider>
+      {/* Admin */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="properties" element={<PropertyManagement />} />
+        <Route path="settings" element={<SystemSettings />} />
+        <Route path="profile" element={<AdminProfile />} />
+      </Route>
+      </Routes>
+    </Router>
   );
 }
 

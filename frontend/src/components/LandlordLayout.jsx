@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 import NotificationDropdown from './NotificationDropdown';
-import LanguageSelector from './LanguageSelector';
 import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -191,9 +190,6 @@ export default function LandlordLayout({ children }) {
 
             {/* User Profile Section */}
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Language Selector */}
-              <LanguageSelector />
-              
               {/* Notifications */}
               <NotificationDropdown userType="landlord" />
 

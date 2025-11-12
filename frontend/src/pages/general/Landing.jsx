@@ -3,7 +3,6 @@ import { Home, Users, DollarSign, Wrench, FileText, Bell, BarChart3, Shield, Arr
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import TranslatedText from '../../components/TranslatedText';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -108,9 +107,9 @@ export default function Landing() {
               
               {/* Main Headline - Outcome Focused */}
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                <TranslatedText>Stop Chasing Rent.</TranslatedText>
+                Stop Chasing Rent.
                 <span className="block text-blue-600 mt-2">
-                  <TranslatedText>Start Growing Your Business.</TranslatedText>
+                  Start Growing Your Business.
                 </span>
               </h1>
               
@@ -135,7 +134,7 @@ export default function Landing() {
                   onClick={() => navigate('/signup')}
                   className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-800 hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center group cursor-pointer"
                 >
-                  <TranslatedText>Start Free 14-Day Trial</TranslatedText>
+                  Start Free 14-Day Trial
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-slate-500">
@@ -518,41 +517,10 @@ export default function Landing() {
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">⚡</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Our Technology</h3>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Our Commitment</h3>
               <p className="text-slate-500">
-                Built with ReactJS, PHP, and AWS Cloud for reliability, security, and scalability.
+                Built for Malaysians. Cloud-based, secure, and always improving.
               </p>
-            </div>
-          </div>
-
-          <div className="bg-slate-100 rounded-2xl p-8 md:p-12 border border-slate-200">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">Built with Malaysian Landlords in Mind</h3>
-                <p className="text-slate-700 mb-4">
-                  JagaSewa was developed at Asia Pacific University, combining cloud engineering expertise with real-world property management needs.
-                </p>
-                <p className="text-slate-700">
-                  Every feature is designed to solve actual problems faced by independent landlords in Malaysia - from rent collection to tenant communication.
-                </p>
-              </div>
-              <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-                <h4 className="font-bold text-slate-800 mb-4 text-lg">Key Technologies</h4>
-                <div className="space-y-3">
-                  {[
-                    "ReactJS + Tailwind CSS",
-                    "PHP Backend API",
-                    "MySQL Database",
-                    "AWS Cloud Hosting",
-                    "Docker Containerization"
-                  ].map((tech, idx) => (
-                    <div key={idx} className="flex items-center">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                      <span className="text-slate-700">{tech}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
