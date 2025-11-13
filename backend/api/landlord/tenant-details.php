@@ -59,7 +59,6 @@ try {
     
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':tenant_id', $tenant_id, PDO::PARAM_INT);
-    $stmt->bindParam(':landlord_id', $landlord_id, PDO::PARAM_INT);
     $stmt->execute();
 
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
