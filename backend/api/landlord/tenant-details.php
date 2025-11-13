@@ -48,16 +48,14 @@ try {
         exit();
     }
 
-    // Get tenant details with rental history
-    $query = "SELECT u.user_id, u.email, u.created_at, t.full_name, t.phone, t.ic_number, t.date_of_birth,
-                     COUNT(DISTINCT t2.tenant_id) as total_rentals,
-                     COUNT(DISTINCT p.property_id) as properties_rented
+    // Get tenant details with current property
+    $query = "SELECT u.user_id, u.email, u.is_active, u.is_verified, u.created_at, 
+                     t.full_name, t.phone, t.ic_number, t.date_of_birth,
+                     t.property_id, t.move_in_date, p.property_name, p.address, p.monthly_rent
               FROM tenants t
               JOIN users u ON t.user_id = u.user_id
-              LEFT JOIN tenants t2 ON u.user_id = t2.user_id 
-              LEFT JOIN properties p ON t2.property_id = p.property_id AND p.landlord_id = :landlord_id
-              WHERE t.tenant_id = :tenant_id AND u.user_role = 'tenant'
-              GROUP BY u.user_id";
+              LEFT JOIN properties p ON t.property_id = p.property_id
+              WHERE t.tenant_id = :tenant_id AND u.user_role = 'tenant'";
     
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':tenant_id', $tenant_id, PDO::PARAM_INT);

@@ -18,7 +18,7 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
-      setTenants(data.tenants || []);
+      setTenants(data.data?.tenants || []);
       setLoading(false);
     } catch (error) {
       console.error('Error loading tenants:', error);
