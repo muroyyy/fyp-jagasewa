@@ -36,11 +36,13 @@ function getMessages($user, $property_id) {
     
     $stmt = $pdo->prepare("
         SELECT m.*, 
-               sender.full_name as sender_name,
-               receiver.full_name as receiver_name
+               COALESCE(sl.full_name, st.full_name, 'User') as sender_name,
+               COALESCE(rl.full_name, rt.full_name, 'User') as receiver_name
         FROM messages m
-        JOIN users sender ON m.sender_id = sender.user_id
-        JOIN users receiver ON m.receiver_id = receiver.user_id
+        LEFT JOIN landlords sl ON m.sender_id = sl.user_id
+        LEFT JOIN tenants st ON m.sender_id = st.user_id
+        LEFT JOIN landlords rl ON m.receiver_id = rl.user_id
+        LEFT JOIN tenants rt ON m.receiver_id = rt.user_id
         WHERE m.property_id = ? 
         AND (m.sender_id = ? OR m.receiver_id = ?)
         ORDER BY m.created_at ASC
@@ -65,8 +67,8 @@ function getConversations($user) {
                 ELSE m.sender_id 
             END as other_user_id,
             CASE 
-                WHEN m.sender_id = ? THEN receiver.full_name 
-                ELSE sender.full_name 
+                WHEN m.sender_id = ? THEN COALESCE(rl.full_name, rt.full_name, 'User')
+                ELSE COALESCE(sl.full_name, st.full_name, 'User')
             END as other_user_name,
             (SELECT message FROM messages m2 
              WHERE m2.property_id = p.property_id 
@@ -77,8 +79,10 @@ function getConversations($user) {
              AND m3.receiver_id = ? AND m3.is_read = FALSE) as unread_count
         FROM messages m
         JOIN properties p ON m.property_id = p.property_id
-        JOIN users sender ON m.sender_id = sender.user_id
-        JOIN users receiver ON m.receiver_id = receiver.user_id
+        LEFT JOIN landlords sl ON m.sender_id = sl.user_id
+        LEFT JOIN tenants st ON m.sender_id = st.user_id
+        LEFT JOIN landlords rl ON m.receiver_id = rl.user_id
+        LEFT JOIN tenants rt ON m.receiver_id = rt.user_id
         WHERE m.sender_id = ? OR m.receiver_id = ?
         ORDER BY m.created_at DESC
     ");

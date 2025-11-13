@@ -30,9 +30,10 @@ $pdo = $database->getConnection();
 while (true) {
     // Check for new messages
     $stmt = $pdo->prepare("
-        SELECT m.*, sender.full_name as sender_name
+        SELECT m.*, COALESCE(l.full_name, t.full_name, 'User') as sender_name
         FROM messages m
-        JOIN users sender ON m.sender_id = sender.user_id
+        LEFT JOIN landlords l ON m.sender_id = l.user_id
+        LEFT JOIN tenants t ON m.sender_id = t.user_id
         WHERE m.property_id = ? 
         AND m.message_id > ?
         AND (m.sender_id = ? OR m.receiver_id = ?)

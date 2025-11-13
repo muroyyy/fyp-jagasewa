@@ -30,10 +30,12 @@ const Messages = () => {
       });
       const data = await response.json();
       
-      if (data.success && data.data?.profile?.user_id) {
-        setCurrentUser({ user_id: data.data.profile.user_id });
-      } else {
-        console.error('Invalid profile response:', data);
+      if (data.success) {
+        // Handle both possible response structures
+        const userId = data.data?.profile?.user_id || data.data?.user_id;
+        if (userId) {
+          setCurrentUser({ user_id: userId });
+        }
       }
     } catch (error) {
       console.error('Error loading user:', error);
