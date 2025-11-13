@@ -4,6 +4,7 @@ import { Users, Search, Mail, Phone, Calendar, UserPlus, Eye, Edit, Link as Link
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/LandlordLayout';
 import ViewTenantModal from '../../components/ViewTenantModal';
+import ConfirmModal from '../../components/ConfirmModal';
 
 export default function LandlordTenants() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function LandlordTenants() {
   // Modal states
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedTenantId, setSelectedTenantId] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [tenantToRemove, setTenantToRemove] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -80,10 +83,13 @@ export default function LandlordTenants() {
     });
   };
 
-  const handleRemoveTenant = async (tenant) => {
-    if (!confirm(`Are you sure you want to remove ${tenant.full_name} from the property? This action cannot be undone.`)) {
-      return;
-    }
+  const handleRemoveTenant = (tenant) => {
+    setTenantToRemove(tenant);
+    setShowConfirmModal(true);
+  };
+
+  const confirmRemoveTenant = async () => {
+    if (!tenantToRemove) return;
 
     try {
       const token = localStorage.getItem('session_token');
@@ -94,7 +100,7 @@ export default function LandlordTenants() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          tenant_id: tenant.tenant_id
+          tenant_id: tenantToRemove.tenant_id
         })
       });
 
@@ -102,7 +108,7 @@ export default function LandlordTenants() {
 
       if (data.success) {
         alert('✅ Tenant removed successfully!');
-        fetchTenants(); // Refresh the list
+        fetchTenants();
       } else {
         alert('❌ ' + (data.message || 'Failed to remove tenant'));
       }
@@ -351,6 +357,21 @@ export default function LandlordTenants() {
         isOpen={showViewModal}
         onClose={() => setShowViewModal(false)}
         tenantId={selectedTenantId}
+      />
+
+      {/* Confirm Remove Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setTenantToRemove(null);
+        }}
+        onConfirm={confirmRemoveTenant}
+        title="Remove Tenant"
+        message={`Are you sure you want to remove ${tenantToRemove?.full_name} from the property? This will delete their account and all associated data. This action cannot be undone.`}
+        confirmText="Remove Tenant"
+        cancelText="Cancel"
+        type="danger"
       />
     </LandlordLayout>
   );
