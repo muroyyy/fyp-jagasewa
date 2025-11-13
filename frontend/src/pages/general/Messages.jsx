@@ -30,8 +30,10 @@ const Messages = () => {
       });
       const data = await response.json();
       
-      if (data.success) {
+      if (data.success && data.data?.profile?.user_id) {
         setCurrentUser({ user_id: data.data.profile.user_id });
+      } else {
+        console.error('Invalid profile response:', data);
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -43,6 +45,13 @@ const Messages = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
+      
+      if (!response.ok) {
+        console.error('Messages API error:', response.status, response.statusText);
+        setLoading(false);
+        return;
+      }
+      
       const data = await response.json();
       setConversations(data.conversations || []);
       setLoading(false);
