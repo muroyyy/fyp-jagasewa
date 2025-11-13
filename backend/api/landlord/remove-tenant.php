@@ -1,4 +1,7 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
+
 require_once '../../config/cors.php';
 setCorsHeaders();
 
@@ -53,6 +56,13 @@ try {
     
     $pdo->beginTransaction();
     
+    // Delete related records first (if not using CASCADE)
+    $stmt = $pdo->prepare("DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?");
+    $stmt->execute([$tenant['user_id'], $tenant['user_id']]);
+    
+    $stmt = $pdo->prepare("DELETE FROM sessions WHERE user_id = ?");
+    $stmt->execute([$tenant['user_id']]);
+    
     // Delete tenant record
     $stmt = $pdo->prepare("DELETE FROM tenants WHERE tenant_id = ?");
     $stmt->execute([$data->tenant_id]);
@@ -67,10 +77,10 @@ try {
     echo json_encode(['success' => true, 'message' => 'Tenant removed successfully']);
     
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) {
+    if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();
     }
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>
