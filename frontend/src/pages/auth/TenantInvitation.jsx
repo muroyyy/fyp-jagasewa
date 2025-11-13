@@ -43,6 +43,52 @@ export default function TenantInvitation() {
       });
   }, [token]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'phone') {
+      let digits = value.replace(/\D/g, '');
+      if (!digits.startsWith('60')) {
+        digits = '60' + digits;
+      }
+      digits = digits.slice(0, 12);
+      
+      let formatted = '+60';
+      if (digits.length > 2) {
+        formatted += digits.slice(2, 3);
+      }
+      if (digits.length > 3) {
+        formatted += ' ' + digits.slice(3, 7);
+      }
+      if (digits.length > 7) {
+        formatted += ' ' + digits.slice(7, 11);
+      }
+      
+      setFormData({...formData, phone: formatted});
+      return;
+    }
+
+    if (name === 'ic_number') {
+      let digits = value.replace(/\D/g, '');
+      let formatted = '';
+      
+      if (digits.length > 0) {
+        formatted = digits.slice(0, 6);
+      }
+      if (digits.length > 6) {
+        formatted += '-' + digits.slice(6, 8);
+      }
+      if (digits.length > 8) {
+        formatted += '-' + digits.slice(8, 12);
+      }
+      
+      setFormData({...formData, ic_number: formatted});
+      return;
+    }
+
+    setFormData({...formData, [name]: value});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -154,11 +200,14 @@ export default function TenantInvitation() {
                 </label>
                 <input
                   type="tel"
+                  name="phone"
                   required
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={handleInputChange}
+                  placeholder="+601x xxxx xxxx"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">Format: +601x xxxx xxxx</p>
               </div>
 
               <div>
@@ -168,11 +217,15 @@ export default function TenantInvitation() {
                 </label>
                 <input
                   type="text"
+                  name="ic_number"
                   required
                   value={formData.ic_number}
-                  onChange={(e) => setFormData({...formData, ic_number: e.target.value})}
+                  onChange={handleInputChange}
+                  placeholder="xxxxxx-xx-xxxx"
+                  maxLength="14"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">Format: xxxxxx-xx-xxxx</p>
               </div>
 
               <div>
@@ -199,10 +252,48 @@ export default function TenantInvitation() {
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <input
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500 ${
+                    formData.confirmPassword && formData.password !== formData.confirmPassword
+                      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                      : formData.confirmPassword && formData.password === formData.confirmPassword
+                      ? 'border-green-300 focus:ring-green-500 focus:border-green-500'
+                      : 'border-gray-300'
+                  }`}
+                />
+                {formData.confirmPassword && (
+                  <p className={`text-xs mt-1 ${
+                    formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {formData.password === formData.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium"
+            >
+              {submitting ? 'Completing Registration...' : 'Complete Registration'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+irm Password</label>
                 <input
                   type="password"
                   required
