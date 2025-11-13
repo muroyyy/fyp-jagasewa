@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, User } from 'lucide-react';
+import { MessageCircle, User, Plus } from 'lucide-react';
+import { getUserRole } from '../utils/auth';
+import LandlordLayout from '../components/LandlordLayout';
+import TenantLayout from '../components/TenantLayout';
 import MessagesList from '../components/messaging/MessagesList';
+import NewMessageModal from '../components/messaging/NewMessageModal';
 
 const Messages = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const userRole = getUserRole();
 
   useEffect(() => {
     loadCurrentUser();
@@ -50,19 +56,29 @@ const Messages = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="flex h-[600px]">
+  const MessagesContent = () => (
+    <div className="p-6">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex h-[600px]">
             
             {/* Conversations List */}
             <div className="w-1/3 border-r border-gray-200">
               <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Messages
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    Messages
+                  </h2>
+                  {userRole === 'landlord' && (
+                    <button
+                      onClick={() => setShowNewMessageModal(true)}
+                      className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition-colors flex items-center"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      New
+                    </button>
+                  )}
+                </div>
               </div>
               
               <div className="overflow-y-auto h-full">
@@ -151,9 +167,38 @@ const Messages = () => {
             </div>
           </div>
         </div>
+        
+        {showNewMessageModal && (
+          <NewMessageModal
+            onClose={() => setShowNewMessageModal(false)}
+            onMessageSent={(conversation) => {
+              setSelectedConversation(conversation);
+              setShowNewMessageModal(false);
+              loadConversations();
+            }}
+          />
+        )}
       </div>
     </div>
   );
+
+  if (userRole === 'landlord') {
+    return (
+      <LandlordLayout>
+        <MessagesContent />
+      </LandlordLayout>
+    );
+  }
+
+  if (userRole === 'tenant') {
+    return (
+      <TenantLayout>
+        <MessagesContent />
+      </TenantLayout>
+    );
+  }
+
+  return <div>Unauthorized</div>;
 };
 
 export default Messages;
