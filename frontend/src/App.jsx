@@ -31,6 +31,9 @@ import TenantMaintenance from './pages/tenant/TenantMaintenance';
 import TenantDocuments from './pages/tenant/TenantDocuments';
 import TenantSettings from './pages/tenant/TenantSettings';
 
+// Messages
+import Messages from './pages/Messages';
+
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -65,6 +68,9 @@ function App() {
       <Route path="/landlord/maintenance" element={<LandlordMaintenance />} />
       <Route path="/landlord/documents" element={<LandlordDocuments />} />
       <Route path="/landlord/settings" element={<LandlordSettings />} />
+
+      {/* Messages - Shared by Landlord and Tenant */}
+      <Route path="/messages" element={<Messages />} />
 
       {/* Tenant */}
       <Route path="/tenant-dashboard" element={<TenantDashboard />} />

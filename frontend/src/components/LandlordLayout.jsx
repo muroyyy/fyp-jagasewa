@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X } from 'lucide-react';
+import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../utils/auth';
 import NotificationDropdown from './NotificationDropdown';
 import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
@@ -57,6 +57,7 @@ export default function LandlordLayout({ children }) {
     { path: '/landlord-dashboard', icon: Home, label: 'Dashboard' },
     { path: '/landlord/properties', icon: Building2, label: 'Properties' },
     { path: '/landlord/tenants', icon: Users, label: 'Tenants' },
+    { path: '/messages', icon: MessageCircle, label: 'Messages' },
     { path: '/landlord/payments', icon: DollarSign, label: 'Payments' },
     { path: '/landlord/maintenance', icon: Wrench, label: 'Maintenance' },
     { path: '/landlord/documents', icon: FileText, label: 'Documents' }, 

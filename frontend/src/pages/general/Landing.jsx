@@ -115,7 +115,7 @@ export default function Landing() {
               
               {/* Benefit-Focused Subheadline */}
               <p className="text-xl text-slate-500 leading-relaxed">
-                JagaSewa saves you <span className="font-bold text-blue-600">5+ hours every week</span> by automating rent tracking, tenant communication, and maintenance requests - all in one Malaysian-made platform.
+                JagaSewa saves you <span className="font-bold text-blue-600">5+ hours every week</span> by automating rent tracking, tenant communication, and maintenance requests.
               </p>
 
               {/* Quick Benefits Pills */}
