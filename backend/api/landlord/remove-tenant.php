@@ -14,7 +14,15 @@ $pdo = $database->getConnection();
 $auth = authenticate();
 if (!$auth['success'] || $auth['user_role'] !== 'landlord') {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Unauthorized',
+        'debug' => [
+            'auth_success' => $auth['success'] ?? false,
+            'user_role' => $auth['user_role'] ?? 'none',
+            'expected_role' => 'landlord'
+        ]
+    ]);
     exit();
 }
 

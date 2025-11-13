@@ -93,7 +93,10 @@ export default function LandlordTenants() {
 
     try {
       const token = localStorage.getItem('session_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/remove-tenant.php`, {
+      console.log('Removing tenant:', tenantToRemove.tenant_id);
+      console.log('Token:', token);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/remove-tenant.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +107,9 @@ export default function LandlordTenants() {
         })
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (data.success) {
         alert('✅ Tenant removed successfully!');
