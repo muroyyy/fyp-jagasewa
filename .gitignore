@@ -10,6 +10,9 @@ aws-credentials
 project_context.md
 docs/
 
+# SQL files (database schema - execute manually)
+*.sql
+
 # ASG scaling scripts (local development)
 scale-up.sh
 scale-down.sh

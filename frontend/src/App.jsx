@@ -11,6 +11,7 @@ import SignupLandlord from './pages/auth/SignupLandlord';
 import SignupTenant from './pages/auth/SignupTenant';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import TenantInvitation from './pages/auth/TenantInvitation';
 
 // Landlord
 import LandlordDashboard from './pages/landlord/LandlordDashboard';
@@ -56,6 +57,7 @@ function App() {
       <Route path="/signup/tenant" element={<SignupTenant />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/tenant-invitation" element={<TenantInvitation />} />
 
       {/* Landlord */}
       <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
