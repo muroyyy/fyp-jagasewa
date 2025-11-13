@@ -27,7 +27,7 @@ export default function TenantInvitation() {
       return;
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/auth/verify-invitation.php?token=${token}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify-invitation.php?token=${token}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -55,7 +55,7 @@ export default function TenantInvitation() {
     setSubmitting(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/complete-tenant-registration.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/complete-tenant-registration.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, token })
