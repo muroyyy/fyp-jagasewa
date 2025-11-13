@@ -41,9 +41,9 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
 
   const setupSSE = () => {
     const lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.message_id)) : 0;
+    const token = localStorage.getItem('session_token');
     const eventSource = new EventSource(
-      `${import.meta.env.VITE_API_URL}/api/messages-sse.php?property_id=${propertyId}&last_message_id=${lastMessageId}`,
-      { headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }}
+      `${import.meta.env.VITE_API_URL}/api/messages-sse.php?property_id=${propertyId}&last_message_id=${lastMessageId}&token=${token}`
     );
 
     eventSource.onmessage = (event) => {

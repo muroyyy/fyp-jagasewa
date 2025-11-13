@@ -8,7 +8,14 @@ setCorsHeaders();
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
-$user = authenticate();
+$token = $_GET['token'] ?? '';
+if (empty($token)) {
+    echo "event: error\n";
+    echo "data: Unauthorized\n\n";
+    exit;
+}
+
+$user = verifyJWT($token);
 if (!$user) {
     echo "event: error\n";
     echo "data: Unauthorized\n\n";
