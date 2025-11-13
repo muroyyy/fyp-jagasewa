@@ -293,27 +293,3 @@ export default function TenantInvitation() {
     </div>
   );
 }
-irm Password</label>
-                <input
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium"
-            >
-              {submitting ? 'Completing Registration...' : 'Complete Registration'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-}
