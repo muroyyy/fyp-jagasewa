@@ -101,22 +101,31 @@ export default function TenantInvitation() {
     setSubmitting(true);
 
     try {
+      // Remove spaces from phone number before submitting
+      const cleanedPhone = formData.phone.replace(/\s/g, '');
+      const submitData = { ...formData, phone: cleanedPhone, token };
+      
+      console.log('Submitting registration:', submitData);
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/complete-tenant-registration.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, token })
+        body: JSON.stringify(submitData)
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (data.success) {
         alert('Registration completed! Please login with your credentials.');
         navigate('/login');
       } else {
-        setError(data.message);
+        setError(data.message || 'Registration failed');
       }
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      console.error('Registration error:', err);
+      setError('Registration failed: ' + err.message);
     } finally {
       setSubmitting(false);
     }
@@ -283,7 +292,7 @@ export default function TenantInvitation() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium"
+              className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium cursor-pointer"
             >
               {submitting ? 'Completing Registration...' : 'Complete Registration'}
             </button>
