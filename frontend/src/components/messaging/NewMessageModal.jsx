@@ -31,28 +31,40 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
 
     setSending(true);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      const payload = {
+        property_id: selectedTenant.property_id,
+        receiver_id: selectedTenant.user_id,
+        message: message,
+        message_type: 'text'
+      };
+      console.log('Sending message:', payload);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('session_token')}`
         },
-        body: JSON.stringify({
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+      console.log('Message response:', result);
+      
+      if (result.success) {
+        onMessageSent({
           property_id: selectedTenant.property_id,
-          receiver_id: selectedTenant.user_id,
-          message: message,
-          message_type: 'text'
-        })
-      });
-
-      onMessageSent({
-        property_id: selectedTenant.property_id,
-        other_user_id: selectedTenant.user_id,
-        other_user_name: selectedTenant.full_name,
-        property_name: selectedTenant.property_name
-      });
+          other_user_id: selectedTenant.user_id,
+          other_user_name: selectedTenant.full_name,
+          property_name: selectedTenant.property_name
+        });
+      } else {
+        console.error('Failed to send message:', result.error);
+        alert('Failed to send message: ' + (result.error || 'Unknown error'));
+      }
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Error sending message. Check console for details.');
     } finally {
       setSending(false);
     }

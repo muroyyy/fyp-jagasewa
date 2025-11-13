@@ -97,25 +97,41 @@ function getConversations($user) {
 }
 
 function sendMessage($user) {
-    $database = new Database();
-    $pdo = $database->getConnection();
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    $stmt = $pdo->prepare("
-        INSERT INTO messages (property_id, sender_id, receiver_id, message, message_type)
-        VALUES (?, ?, ?, ?, ?)
-    ");
-    
-    $stmt->execute([
-        $data['property_id'],
-        $user['user_id'],
-        $data['receiver_id'],
-        $data['message'],
-        $data['message_type'] ?? 'text'
-    ]);
-    
-    echo json_encode(['success' => true, 'message_id' => $pdo->lastInsertId()]);
+    try {
+        $database = new Database();
+        $pdo = $database->getConnection();
+        
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data || !isset($data['property_id']) || !isset($data['receiver_id']) || !isset($data['message'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+            return;
+        }
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO messages (property_id, sender_id, receiver_id, message, message_type)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        
+        $result = $stmt->execute([
+            $data['property_id'],
+            $user['user_id'],
+            $data['receiver_id'],
+            $data['message'],
+            $data['message_type'] ?? 'text'
+        ]);
+        
+        if ($result) {
+            echo json_encode(['success' => true, 'message_id' => $pdo->lastInsertId()]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Failed to insert message']);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 }
 
 function markAsRead($user) {
