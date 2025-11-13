@@ -13,14 +13,10 @@ export default function LandlordAddTenant() {
   const [loadingProperties, setLoadingProperties] = useState(true);
 
   const [formData, setFormData] = useState({
-    full_name: '',
     email: '',
-    phone: '',
-    ic_number: '',
-    date_of_birth: '',
-    property_id: '',
-    move_in_date: ''
+    property_id: ''
   });
+  const [invitationLink, setInvitationLink] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -60,98 +56,22 @@ export default function LandlordAddTenant() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Format IC number automatically (xxxxxx-xx-xxxx)
-    if (name === 'ic_number') {
-      let formatted = value.replace(/\D/g, ''); // Remove non-digits
-      if (formatted.length > 6) {
-        formatted = formatted.slice(0, 6) + '-' + formatted.slice(6);
-      }
-      if (formatted.length > 9) {
-        formatted = formatted.slice(0, 9) + '-' + formatted.slice(9, 13);
-      }
-      setFormData(prev => ({ ...prev, [name]: formatted }));
-      return;
-    }
-
-    // Format phone number automatically (+60xxxxxxxxxx)
-    if (name === 'phone') {
-      let formatted = value.replace(/\D/g, ''); // Remove non-digits
-      if (formatted.length > 0 && !formatted.startsWith('60')) {
-        formatted = '60' + formatted;
-      }
-      if (formatted.length > 0) {
-        formatted = '+' + formatted.slice(0, 12);
-      }
-      setFormData(prev => ({ ...prev, [name]: formatted }));
-      return;
-    }
-
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
-    // Check required fields
-    if (!formData.full_name.trim()) {
-      setError('Full name is required');
-      return false;
-    }
     if (!formData.email.trim()) {
       setError('Email is required');
-      return false;
-    }
-    if (!formData.phone.trim()) {
-      setError('Phone number is required');
-      return false;
-    }
-    if (!formData.ic_number.trim()) {
-      setError('IC number is required');
-      return false;
-    }
-    if (!formData.date_of_birth) {
-      setError('Date of birth is required');
       return false;
     }
     if (!formData.property_id) {
       setError('Please select a property');
       return false;
     }
-    if (!formData.move_in_date) {
-      setError('Move-in date is required');
-      return false;
-    }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
-      return false;
-    }
-
-    // Validate IC number format (xxxxxx-xx-xxxx)
-    const icRegex = /^\d{6}-\d{2}-\d{4}$/;
-    if (!icRegex.test(formData.ic_number)) {
-      setError('IC number must be in format: xxxxxx-xx-xxxx');
-      return false;
-    }
-
-    // Validate phone number format (+60xxxxxxxxxx)
-    const phoneRegex = /^\+60\d{9,10}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      setError('Phone number must be in format: +60xxxxxxxxxx');
-      return false;
-    }
-
-    // Validate age (must be at least 18 years old)
-    const dob = new Date(formData.date_of_birth);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    if (age < 18) {
-      setError('Tenant must be at least 18 years old');
       return false;
     }
 
@@ -183,10 +103,8 @@ export default function LandlordAddTenant() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setSuccess('Tenant added successfully!');
-        setTimeout(() => {
-          navigate('/landlord/tenants');
-        }, 2000);
+        setSuccess(data.message);
+        setInvitationLink(data.invitation_link);
       } else {
         setError(data.message || 'Failed to add tenant');
       }
@@ -227,36 +145,51 @@ export default function LandlordAddTenant() {
         )}
 
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
-            <Save className="w-5 h-5 mr-2" />
-            {success}
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center mb-2">
+              <Save className="w-5 h-5 mr-2" />
+              <span className="font-semibold">{success}</span>
+            </div>
+            {invitationLink && (
+              <div className="mt-3 p-3 bg-white rounded border border-green-300">
+                <p className="text-sm font-medium text-gray-700 mb-2">Invitation Link:</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={invitationLink}
+                    readOnly
+                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded bg-gray-50"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(invitationLink);
+                      alert('Link copied to clipboard!');
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm cursor-pointer"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">Share this link with the tenant to complete registration</p>
+              </div>
+            )}
+            <button
+              onClick={() => navigate('/landlord/tenants')}
+              className="mt-3 text-sm text-green-700 hover:underline cursor-pointer"
+            >
+              Go to Tenants List
+            </button>
           </div>
         )}
 
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Full Name */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <User className="w-4 h-4" />
-                <span>Full Name *</span>
-              </label>
-              <input
-                type="text"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                placeholder="Enter tenant's full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
             {/* Email */}
             <div>
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                 <Mail className="w-4 h-4" />
-                <span>Email Address *</span>
+                <span>Tenant Email Address *</span>
               </label>
               <input
                 type="email"
@@ -266,58 +199,7 @@ export default function LandlordAddTenant() {
                 placeholder="tenant@example.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <Phone className="w-4 h-4" />
-                <span>Phone Number *</span>
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="+60123456789"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 mt-1">Format: +60xxxxxxxxxx</p>
-            </div>
-
-            {/* IC Number */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <CreditCard className="w-4 h-4" />
-                <span>IC Number *</span>
-              </label>
-              <input
-                type="text"
-                name="ic_number"
-                value={formData.ic_number}
-                onChange={handleInputChange}
-                placeholder="123456-12-1234"
-                maxLength={14}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 mt-1">Format: xxxxxx-xx-xxxx</p>
-            </div>
-
-            {/* Date of Birth */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <Calendar className="w-4 h-4" />
-                <span>Date of Birth *</span>
-              </label>
-              <input
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
-                onChange={handleInputChange}
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 18 years old</p>
+              <p className="text-xs text-gray-500 mt-1">An invitation will be sent to this email</p>
             </div>
 
             {/* Property Selection */}
@@ -350,21 +232,6 @@ export default function LandlordAddTenant() {
                 </select>
               )}
             </div>
-
-            {/* Move-in Date */}
-            <div>
-              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                <Calendar className="w-4 h-4" />
-                <span>Move-in Date *</span>
-              </label>
-              <input
-                type="date"
-                name="move_in_date"
-                value={formData.move_in_date}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
           </div>
 
           {/* Action Buttons */}
@@ -385,8 +252,8 @@ export default function LandlordAddTenant() {
                 </>
               ) : (
                 <>
-                  <Save className="w-5 h-5" />
-                  <span>Add Tenant</span>
+                  <Mail className="w-5 h-5" />
+                  <span>Send Invitation</span>
                 </>
               )}
             </button>
@@ -403,14 +270,14 @@ export default function LandlordAddTenant() {
 
         {/* Info Box */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">Important Notes:</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">How It Works:</h3>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>All fields marked with * are required</li>
-            <li>Tenant must be at least 18 years old</li>
-            <li>IC number must be valid Malaysian IC format</li>
-            <li>Phone number must include country code (+60)</li>
-            <li>An email invitation will be sent to the tenant to set up their account</li>
-            <li>You can only assign tenants to active properties</li>
+            <li>Enter the tenant's email address and select a property</li>
+            <li>An invitation link will be generated (email may not be delivered without SMTP)</li>
+            <li>Share the invitation link with your tenant via WhatsApp, SMS, or email</li>
+            <li>Tenant clicks the link and completes their registration</li>
+            <li>Once registered, the tenant will be assigned to the selected property</li>
+            <li>Invitation links expire after 7 days</li>
           </ul>
         </div>
       </div>
