@@ -29,6 +29,12 @@ try {
     $stmt->execute([$auth['user_id']]);
     $landlord = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    if (!$landlord) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Landlord not found']);
+        exit();
+    }
+    
     // Verify tenant belongs to landlord's property
     $stmt = $pdo->prepare("
         SELECT t.user_id, t.property_id 
@@ -61,7 +67,9 @@ try {
     echo json_encode(['success' => true, 'message' => 'Tenant removed successfully']);
     
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

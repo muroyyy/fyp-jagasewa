@@ -1,120 +1,14 @@
 <?php
-include_once '../../config/cors.php';
+require_once '../../config/cors.php';
 setCorsHeaders();
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/email_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
+$auth = authenticate();
+if (!$auth['success'] || $auth['user_role'] !== 'landlord') {
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
@@ -123,45 +17,20 @@ try {
     $database = new Database();
     $conn = $database->getConnection();
 
-    // Verify session token
-    $stmt = $conn->prepare("
-        SELECT s.user_id, s.user_role, l.landlord_id
-        FROM sessions s
-        JOIN landlords l ON s.user_id = l.user_id
-        WHERE s.session_token = :token 
-        AND s.expires_at > NOW()
-        AND s.user_role = 'landlord'
-    ");
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-
-    if ($stmt->rowCount() === 0) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid or expired session'
-        ]);
-        exit();
-    }
-
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    $landlord_id = $session['landlord_id'];
-    $user_id = $session['user_id'];
+    // Get landlord_id
+    $stmt = $conn->prepare("SELECT landlord_id, full_name FROM landlords WHERE user_id = ?");
+    $stmt->execute([$auth['user_id']]);
+    $landlord = $stmt->fetch(PDO::FETCH_ASSOC);
+    $landlord_id = $landlord['landlord_id'];
 
     // Get request body
     $data = json_decode(file_get_contents('php://input'), true);
 
-    // Validate required fields
-    $required_fields = ['full_name', 'email', 'phone', 'ic_number', 'date_of_birth', 'property_id', 'move_in_date'];
-    foreach ($required_fields as $field) {
-        if (!isset($data[$field]) || empty(trim($data[$field]))) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => ucfirst(str_replace('_', ' ', $field)) . ' is required'
-            ]);
-            exit();
-        }
+    // Validate required fields (only email and property_id for invitation)
+    if (empty($data['email']) || empty($data['property_id'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Email and property_id required']);
+        exit();
     }
 
     // Validate email format
@@ -174,167 +43,54 @@ try {
         exit();
     }
 
-    // Validate IC number format (xxxxxx-xx-xxxx)
-    if (!preg_match('/^\d{6}-\d{2}-\d{4}$/', $data['ic_number'])) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'IC number must be in format: xxxxxx-xx-xxxx'
-        ]);
-        exit();
-    }
 
-    // Validate phone number format (+60xxxxxxxxxx)
-    if (!preg_match('/^\+60\d{9,10}$/', $data['phone'])) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Phone number must be in format: +60xxxxxxxxxx'
-        ]);
-        exit();
-    }
 
-    // Validate age (must be at least 18 years old)
-    $dob = new DateTime($data['date_of_birth']);
-    $today = new DateTime();
-    $age = $today->diff($dob)->y;
+    // Get property details
+    $stmt = $conn->prepare("SELECT property_name FROM properties WHERE property_id = ? AND landlord_id = ?");
+    $stmt->execute([$data['property_id'], $landlord_id]);
+    $property = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($age < 18) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Tenant must be at least 18 years old'
-        ]);
+    if (!$property) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Property not found']);
         exit();
     }
 
-    // Verify property belongs to this landlord
+    // Check if email already registered
+    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+    $stmt->execute([$data['email']]);
+    if ($stmt->fetch()) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Email already registered']);
+        exit();
+    }
+    
+    // Generate invitation token
+    $token = bin2hex(random_bytes(32));
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+    
+    // Save invitation
     $stmt = $conn->prepare("
-        SELECT property_id 
-        FROM properties 
-        WHERE property_id = :property_id 
-        AND landlord_id = :landlord_id
-        AND status = 'Active'
+        INSERT INTO tenant_invitations (landlord_id, property_id, tenant_email, invitation_token, expires_at)
+        VALUES (?, ?, ?, ?, ?)
     ");
-    $stmt->bindParam(':property_id', $data['property_id']);
-    $stmt->bindParam(':landlord_id', $landlord_id);
-    $stmt->execute();
-
-    if ($stmt->rowCount() === 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid property or property does not belong to you'
-        ]);
-        exit();
-    }
-
-    // Check if email already exists
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = :email");
-    $stmt->bindParam(':email', $data['email']);
-    $stmt->execute();
-
-    if ($stmt->rowCount() > 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Email address already exists'
-        ]);
-        exit();
-    }
-
-    // Check if IC number already exists
-    $stmt = $conn->prepare("SELECT tenant_id FROM tenants WHERE ic_number = :ic_number");
-    $stmt->bindParam(':ic_number', $data['ic_number']);
-    $stmt->execute();
-
-    if ($stmt->rowCount() > 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'IC number already exists'
-        ]);
-        exit();
-    }
-
-    // Start transaction
-    $conn->beginTransaction();
-
-    try {
-        // Generate a temporary password (tenant will need to reset it)
-        $temp_password = bin2hex(random_bytes(8)); // 16 character random password
-        $password_hash = password_hash($temp_password, PASSWORD_DEFAULT);
-
-        // Create user account
-        $stmt = $conn->prepare("
-            INSERT INTO users (email, password_hash, user_role, is_active, is_verified, created_at, updated_at)
-            VALUES (:email, :password_hash, 'tenant', 1, 0, NOW(), NOW())
-        ");
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':password_hash', $password_hash);
-        $stmt->execute();
-
-        $tenant_user_id = $conn->lastInsertId();
-
-        // Create tenant record
-        $stmt = $conn->prepare("
-            INSERT INTO tenants (
-                user_id, 
-                property_id, 
-                full_name, 
-                phone, 
-                ic_number, 
-                date_of_birth, 
-                move_in_date,
-                created_at, 
-                updated_at
-            ) VALUES (
-                :user_id, 
-                :property_id, 
-                :full_name, 
-                :phone, 
-                :ic_number, 
-                :date_of_birth, 
-                :move_in_date,
-                NOW(), 
-                NOW()
-            )
-        ");
-        
-        $stmt->bindParam(':user_id', $tenant_user_id);
-        $stmt->bindParam(':property_id', $data['property_id']);
-        $stmt->bindParam(':full_name', $data['full_name']);
-        $stmt->bindParam(':phone', $data['phone']);
-        $stmt->bindParam(':ic_number', $data['ic_number']);
-        $stmt->bindParam(':date_of_birth', $data['date_of_birth']);
-        $stmt->bindParam(':move_in_date', $data['move_in_date']);
-        $stmt->execute();
-
-        $tenant_id = $conn->lastInsertId();
-
-        // Commit transaction
-        $conn->commit();
-
-        // TODO: Send email invitation to tenant with temporary password
-        // For now, we'll just return the temp password (in production, email it)
-
-        http_response_code(201);
-        echo json_encode([
-            'success' => true,
-            'message' => 'Tenant added successfully',
-            'data' => [
-                'tenant_id' => $tenant_id,
-                'user_id' => $tenant_user_id,
-                'email' => $data['email'],
-                'temp_password' => $temp_password // Remove in production, send via email
-            ]
-        ]);
-
-    } catch (Exception $e) {
-        // Rollback transaction on error
-        $conn->rollBack();
-        throw $e;
-    }
+    $stmt->execute([$landlord_id, $data['property_id'], $data['email'], $token, $expiresAt]);
+    
+    // Send invitation email
+    $emailResult = sendTenantInvitation(
+        $data['email'],
+        $landlord['full_name'],
+        $property['property_name'],
+        $token
+    );
+    
+    http_response_code(201);
+    echo json_encode([
+        'success' => true,
+        'message' => $emailResult['email_sent'] ? 'Invitation sent successfully' : 'Invitation created',
+        'email_sent' => $emailResult['email_sent'],
+        'invitation_link' => $emailResult['invitation_link']
+    ]);
 
 } catch (PDOException $e) {
     http_response_code(500);
