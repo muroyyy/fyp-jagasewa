@@ -27,8 +27,8 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
 
   const loadMessages = async () => {
     try {
-      const response = await fetch(`/api/messages.php?property_id=${propertyId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php?property_id=${propertyId}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
       setMessages(data.messages || []);
@@ -42,8 +42,8 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
   const setupSSE = () => {
     const lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.message_id)) : 0;
     const eventSource = new EventSource(
-      `/api/messages-sse.php?property_id=${propertyId}&last_message_id=${lastMessageId}`,
-      { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}
+      `${import.meta.env.VITE_API_URL}/api/messages-sse.php?property_id=${propertyId}&last_message_id=${lastMessageId}`,
+      { headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }}
     );
 
     eventSource.onmessage = (event) => {
@@ -59,11 +59,11 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
     if (!newMessage.trim()) return;
 
     try {
-      await fetch('/api/messages.php', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('session_token')}`
         },
         body: JSON.stringify({
           property_id: propertyId,
@@ -91,10 +91,10 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
     formData.append('message', file.name);
 
     try {
-      await fetch('/api/messages-upload.php', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/messages-upload.php`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('session_token')}`
         },
         body: formData
       });

@@ -21,8 +21,8 @@ const Messages = () => {
 
   const loadCurrentUser = async () => {
     try {
-      const response = await fetch('/api/auth/profile.php', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile.php`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
       setCurrentUser(data.user);
@@ -33,8 +33,8 @@ const Messages = () => {
 
   const loadConversations = async () => {
     try {
-      const response = await fetch('/api/messages.php', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
       setConversations(data.conversations || []);

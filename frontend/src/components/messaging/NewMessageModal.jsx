@@ -14,8 +14,8 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('/api/landlord/tenants.php', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/tenants.php`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
       setTenants(data.tenants || []);
@@ -31,11 +31,11 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
 
     setSending(true);
     try {
-      await fetch('/api/messages.php', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('session_token')}`
         },
         body: JSON.stringify({
           property_id: selectedTenant.property_id,
