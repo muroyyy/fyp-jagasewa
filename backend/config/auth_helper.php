@@ -173,4 +173,18 @@ function cleanExpiredSessions() {
         return 0;
     }
 }
+
+/**
+ * Authenticate user from request headers
+ * @return array|false User data array or false if invalid
+ */
+function authenticate() {
+    $token = getBearerToken();
+    
+    if (empty($token)) {
+        return false;
+    }
+    
+    return verifyJWT($token);
+}
 ?>
