@@ -96,7 +96,7 @@ export default function LandlordTenants() {
       console.log('Removing tenant:', tenantToRemove.tenant_id);
       console.log('Token:', token);
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/landlord/remove-tenant.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/remove-tenant.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
