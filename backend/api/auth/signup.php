@@ -4,10 +4,10 @@
  * POST /api/auth/register.php
  */
 
-include_once '../../config/cors.php';
+require_once '../../config/cors.php';
 setCorsHeaders();
 
-include_once '../../config/database.php';
+require_once '../../config/database.php';
 include_once '../../models/User.php';
 include_once '../../models/Landlord.php';
 include_once '../../models/Tenant.php';
