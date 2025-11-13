@@ -4,6 +4,8 @@ require_once '../config/database.php';
 require_once '../config/auth_helper.php';
 require_once '../config/s3_helper.php';
 
+setCorsHeaders();
+
 $user = authenticate();
 if (!$user) {
     http_response_code(401);

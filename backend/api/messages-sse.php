@@ -1,11 +1,12 @@
 <?php
+require_once '../config/cors.php';
 require_once '../config/database.php';
 require_once '../config/auth_helper.php';
 
+setCorsHeaders();
+
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Authorization');
 
 $user = authenticate();
 if (!$user) {
