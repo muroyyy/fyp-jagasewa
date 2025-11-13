@@ -101,11 +101,18 @@ function sendMessage($user) {
         $database = new Database();
         $pdo = $database->getConnection();
         
-        $data = json_decode(file_get_contents('php://input'), true);
+        $raw_input = file_get_contents('php://input');
+        $data = json_decode($raw_input, true);
         
-        if (!$data || !isset($data['property_id']) || !isset($data['receiver_id']) || !isset($data['message'])) {
+        if (!$data) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+            echo json_encode(['success' => false, 'error' => 'Invalid JSON', 'raw' => $raw_input, 'json_error' => json_last_error_msg()]);
+            return;
+        }
+        
+        if (!isset($data['property_id']) || !isset($data['receiver_id']) || !isset($data['message'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Missing required fields', 'received' => $data]);
             return;
         }
         
