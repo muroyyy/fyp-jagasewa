@@ -21,11 +21,18 @@ const Messages = () => {
 
   const loadCurrentUser = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile.php`, {
+      const endpoint = userRole === 'landlord' 
+        ? `${import.meta.env.VITE_API_URL}/api/landlord/profile.php`
+        : `${import.meta.env.VITE_API_URL}/api/tenant/profile.php`;
+      
+      const response = await fetch(endpoint, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
-      setCurrentUser(data.user);
+      
+      if (data.success) {
+        setCurrentUser({ user_id: data.data.profile.user_id });
+      }
     } catch (error) {
       console.error('Error loading user:', error);
     }

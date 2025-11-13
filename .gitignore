@@ -8,6 +8,7 @@ aws-credentials
 
 # Project context (local development reference)
 project_context.md
+docs/
 
 # ASG scaling scripts (local development)
 scale-up.sh
