@@ -24,6 +24,9 @@ if (!$property_id) {
 
 $last_message_id = $_GET['last_message_id'] ?? 0;
 
+$database = new Database();
+$pdo = $database->getConnection();
+
 while (true) {
     // Check for new messages
     $stmt = $pdo->prepare("

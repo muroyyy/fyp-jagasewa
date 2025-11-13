@@ -31,7 +31,8 @@ switch ($method) {
 }
 
 function getMessages($user, $property_id) {
-    global $pdo;
+    $database = new Database();
+    $pdo = $database->getConnection();
     
     $stmt = $pdo->prepare("
         SELECT m.*, 
@@ -52,7 +53,8 @@ function getMessages($user, $property_id) {
 }
 
 function getConversations($user) {
-    global $pdo;
+    $database = new Database();
+    $pdo = $database->getConnection();
     
     $stmt = $pdo->prepare("
         SELECT DISTINCT 
@@ -91,7 +93,8 @@ function getConversations($user) {
 }
 
 function sendMessage($user) {
-    global $pdo;
+    $database = new Database();
+    $pdo = $database->getConnection();
     
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -112,7 +115,8 @@ function sendMessage($user) {
 }
 
 function markAsRead($user) {
-    global $pdo;
+    $database = new Database();
+    $pdo = $database->getConnection();
     
     $data = json_decode(file_get_contents('php://input'), true);
     
