@@ -1,4 +1,7 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
+
 require_once '../../config/cors.php';
 setCorsHeaders();
 
@@ -7,7 +10,7 @@ require_once '../../config/auth_helper.php';
 require_once '../../config/email_helper.php';
 
 $auth = authenticate();
-if (!$auth['success'] || $auth['user_role'] !== 'landlord') {
+if (!$auth || $auth['role'] !== 'landlord') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
