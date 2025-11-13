@@ -1,8 +1,8 @@
 <?php
-require_once '../config/cors.php';
+require_once '../../config/cors.php';
 setCorsHeaders();
 
-require_once '../config/database.php';
+require_once '../../config/database.php';
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
