@@ -32,7 +32,7 @@ import TenantDocuments from './pages/tenant/TenantDocuments';
 import TenantSettings from './pages/tenant/TenantSettings';
 
 // Messages
-import Messages from './pages/Messages';
+import Messages from './pages/general/Messages';
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
