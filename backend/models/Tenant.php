@@ -11,6 +11,8 @@ class Tenant {
     // Tenant properties
     public $tenant_id;
     public $user_id;
+    public $property_id;
+    public $move_in_date;
     public $full_name;
     public $phone;
     public $ic_number;
@@ -32,6 +34,8 @@ class Tenant {
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
                 SET user_id = :user_id,
+                    property_id = :property_id,
+                    move_in_date = :move_in_date,
                     full_name = :full_name,
                     phone = :phone,
                     ic_number = :ic_number,
@@ -46,6 +50,8 @@ class Tenant {
 
         // Bind values
         $stmt->bindParam(":user_id", $this->user_id);
+        $stmt->bindParam(":property_id", $this->property_id);
+        $stmt->bindParam(":move_in_date", $this->move_in_date);
         $stmt->bindParam(":full_name", $this->full_name);
         $stmt->bindParam(":phone", $this->phone);
         $stmt->bindParam(":ic_number", $this->ic_number);
