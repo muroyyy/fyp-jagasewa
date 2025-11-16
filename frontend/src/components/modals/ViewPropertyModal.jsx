@@ -1,6 +1,6 @@
 import { X, Building2, MapPin, Home, DollarSign, Users, Calendar, FileText, CheckCircle, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import ImageSlider from './ImageSlider';
+import ImageSlider from '../shared/ImageSlider';
 
 const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
   const [property, setProperty] = useState(null);
