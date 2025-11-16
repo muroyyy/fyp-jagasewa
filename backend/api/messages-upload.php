@@ -6,12 +6,32 @@ require_once '../config/s3_helper.php';
 
 setCorsHeaders();
 
-$user = authenticate();
-if (!$user) {
+$database = new Database();
+$pdo = $database->getConnection();
+
+$token = getBearerToken();
+if (empty($token)) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
+
+$stmt = $pdo->prepare("
+    SELECT s.user_id, s.user_role 
+    FROM sessions s 
+    WHERE s.session_token = :token AND s.expires_at > NOW()
+");
+$stmt->bindParam(':token', $token);
+$stmt->execute();
+$session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$session) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
+$user = ['user_id' => $session['user_id'], 'role' => $session['user_role']];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
