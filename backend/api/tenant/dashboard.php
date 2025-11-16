@@ -70,6 +70,7 @@ try {
             p.postal_code,
             p.monthly_rent,
             p.status as property_status,
+            p.images as property_images,
             l.full_name as landlord_name,
             l.phone as landlord_phone,
             lu.email as landlord_email
@@ -191,6 +192,14 @@ try {
     // Prepare property information
     $property_info = null;
     if ($tenant['property_id']) {
+        $property_images = [];
+        if (!empty($tenant['property_images'])) {
+            $property_images = json_decode($tenant['property_images'], true);
+            if (!is_array($property_images)) {
+                $property_images = [];
+            }
+        }
+        
         $property_info = [
             'property_id' => $tenant['property_id'],
             'property_name' => $tenant['property_name'],
@@ -202,6 +211,7 @@ try {
             'monthly_rent' => $tenant['monthly_rent'],
             'status' => $tenant['property_status'],
             'move_in_date' => $tenant['move_in_date'],
+            'images' => $property_images,
             'landlord' => [
                 'name' => $tenant['landlord_name'],
                 'phone' => $tenant['landlord_phone'],

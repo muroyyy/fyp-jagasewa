@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Search, Mail, Phone, Calendar, UserPlus, Eye, Edit } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import LandlordLayout from '../../components/LandlordLayout';
-import ViewTenantModal from '../../components/ViewTenantModal';
+import LandlordLayout from '../../components/layout/LandlordLayout';
+import ViewTenantModal from '../../components/modals/ViewTenantModal';
 
 export default function LandlordTenants() {
   const navigate = useNavigate();

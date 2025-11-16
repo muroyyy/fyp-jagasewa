@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, Phone, CreditCard, Calendar, Home, AlertCircle } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import LandlordLayout from '../../components/LandlordLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
 
 export default function LandlordEditTenant() {
   const navigate = useNavigate();

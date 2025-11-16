@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, Download, Eye, Calendar, File, Folder, AlertCircle, FileCheck } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import TenantLayout from '../../components/TenantLayout';
+import TenantLayout from '../../components/layout/TenantLayout';
 
 export default function TenantDocuments() {
   const [documents, setDocuments] = useState([]);

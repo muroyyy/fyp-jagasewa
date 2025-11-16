@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import TenantLayout from '../../components/TenantLayout';
+import TenantLayout from '../../components/layout/TenantLayout';
 
 export default function TenantMaintenance() {
   const [requests, setRequests] = useState([]);

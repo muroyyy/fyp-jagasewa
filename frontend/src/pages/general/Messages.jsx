@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, User, Plus } from 'lucide-react';
 import { getUserRole } from '../../utils/auth';
-import LandlordLayout from '../../components/LandlordLayout';
-import TenantLayout from '../../components/TenantLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
+import TenantLayout from '../../components/layout/TenantLayout';
 import MessagesList from '../../components/messaging/MessagesList';
 import NewMessageModal from '../../components/messaging/NewMessageModal';
 

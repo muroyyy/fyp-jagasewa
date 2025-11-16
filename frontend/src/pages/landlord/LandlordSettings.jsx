@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Building2, Camera, Lock, AlertCircle, CheckCircle } from 'lucide-react';
-import LandlordLayout from '../../components/LandlordLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 

@@ -27,14 +27,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
       const data = await response.json();
       
       if (data.success) {
-        console.log('Tenant details received:', data.data.tenant); // Debug log
-        console.log('Property fields check:', {
-          property_name: data.data.tenant.property_name,
-          property_type: data.data.tenant.property_type,
-          property_address: data.data.tenant.property_address,
-          monthly_rent: data.data.tenant.monthly_rent,
-          property_id: data.data.tenant.property_id
-        });
+
         setTenant(data.data.tenant);
       } else {
         setError(data.message || 'Failed to load tenant details');
@@ -256,7 +249,7 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-sm text-gray-500 mb-1 block">Address</label>
-                    <p className="text-gray-800 font-medium">{tenant.property_address || 'N/A'}</p>
+                    <p className="text-gray-800 font-medium">{tenant.address || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Monthly Rent</label>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 export default function Navbar() {
   const navigate = useNavigate();

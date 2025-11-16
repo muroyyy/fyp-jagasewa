@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle } from 'lucide-react';
-import { isAuthenticated, getUserRole } from '../utils/auth';
-import NotificationDropdown from './NotificationDropdown';
-import jagasewaLogo from '../assets/jagasewa-logo-2.svg';
+import { isAuthenticated, getUserRole } from '../../utils/auth';
+import NotificationDropdown from '../shared/NotificationDropdown';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 

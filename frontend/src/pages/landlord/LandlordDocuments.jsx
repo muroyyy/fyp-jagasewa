@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Upload, Search, Filter, Download, Trash2, Eye, File, FileImage, X, Plus } from 'lucide-react';
-import LandlordLayout from '../../components/LandlordLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
 
 export default function LandlordDocuments() {
   const [documents, setDocuments] = useState([]);

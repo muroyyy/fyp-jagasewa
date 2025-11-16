@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, AlertCircle, Wrench, Clock, CheckCircle, XCircle, Eye, MessageSquare, Calendar, User, Building2, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
-import LandlordLayout from '../../components/LandlordLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 

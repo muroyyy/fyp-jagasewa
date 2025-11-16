@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Save, AlertCircle, CheckCircle, Eye, EyeOff, Camera, Mail, Phone, CreditCard, Calendar } from 'lucide-react';
 import { getCurrentUser, updateUserData, logout } from '../../utils/auth';
-import TenantLayout from '../../components/TenantLayout';
+import TenantLayout from '../../components/layout/TenantLayout';
 
 export default function TenantSettings() {
   const [activeTab, setActiveTab] = useState('profile');

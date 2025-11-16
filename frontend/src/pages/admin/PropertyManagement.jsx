@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye, MapPin, DollarSign, Calendar, User } from 'lucide-react';
-import ImageSlider from '../../components/ImageSlider';
-import ViewPropertyModal from '../../components/ViewPropertyModal';
+import ImageSlider from '../../components/shared/ImageSlider';
+import ViewPropertyModal from '../../components/modals/ViewPropertyModal';
 
 const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);

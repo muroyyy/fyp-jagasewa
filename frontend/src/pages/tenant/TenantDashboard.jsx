@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, DollarSign, Wrench, FileText, MapPin, User as UserIcon, Phone, Mail } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import TenantLayout from '../../components/TenantLayout';
+import TenantLayout from '../../components/layout/TenantLayout';
 
 export default function TenantDashboard() {
   const navigate = useNavigate();
@@ -200,8 +200,16 @@ export default function TenantDashboard() {
         </div>
 
         {/* Property Information */}
-        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">My Property</h2>
+        <div 
+          className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8 cursor-pointer hover:shadow-xl transition-shadow"
+          onClick={() => property && navigate('/tenant/my-property')}
+        >
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center justify-between">
+            <span>My Property</span>
+            {property && (
+              <span className="text-sm text-green-600 font-normal">Click to view details →</span>
+            )}
+          </h2>
           {property ? (
             <div className="space-y-6">
               {/* Property Details */}

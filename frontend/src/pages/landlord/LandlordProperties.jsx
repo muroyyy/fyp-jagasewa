@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, Image as ImageIcon } from 'lucide-react';
-import LandlordLayout from '../../components/LandlordLayout';
-import ViewPropertyModal from '../../components/ViewPropertyModal';
-import ImageSlider from '../../components/ImageSlider';
+import LandlordLayout from '../../components/layout/LandlordLayout';
+import ViewPropertyModal from '../../components/modals/ViewPropertyModal';
+import ImageSlider from '../../components/shared/ImageSlider';
 import { getStatesList, getCitiesByState } from '../../data/malaysianLocations';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;

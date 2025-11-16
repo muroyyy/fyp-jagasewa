@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, CreditCard, Calendar, Receipt } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import TenantLayout from '../../components/TenantLayout';
-import PaymentModal from '../../components/PaymentModal';
+import TenantLayout from '../../components/layout/TenantLayout';
+import PaymentModal from '../../components/modals/PaymentModal';
 
 export default function TenantPayments() {
   const [payments, setPayments] = useState([]);

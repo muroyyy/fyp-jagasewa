@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Building2, MapPin, Home, DollarSign, AlertCircle, Upload, X } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
-import LandlordLayout from '../../components/LandlordLayout';
+import LandlordLayout from '../../components/layout/LandlordLayout';
 import { getStatesList, getCitiesByState } from '../../data/malaysianLocations';
 
 export default function LandlordEditProperty() {

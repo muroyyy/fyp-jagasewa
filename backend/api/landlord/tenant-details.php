@@ -51,7 +51,7 @@ try {
     // Get tenant details with current property
     $query = "SELECT u.user_id, u.email, u.is_active, u.is_verified, u.created_at, 
                      t.full_name, t.phone, t.ic_number, t.date_of_birth,
-                     t.property_id, t.move_in_date, p.property_name, p.address, p.monthly_rent
+                     t.property_id, t.move_in_date, p.property_name, p.property_type, p.address, p.monthly_rent
               FROM tenants t
               JOIN users u ON t.user_id = u.user_id
               LEFT JOIN properties p ON t.property_id = p.property_id
