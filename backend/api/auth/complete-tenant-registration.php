@@ -67,10 +67,10 @@ try {
         exit();
     }
     
-    // Mark invitation as completed
+    // Mark invitation as accepted
     $stmt = $db->prepare("
         UPDATE tenant_invitations 
-        SET status = 'completed', completed_at = NOW() 
+        SET status = 'accepted', accepted_at = NOW() 
         WHERE invitation_id = ?
     ");
     $stmt->execute([$invitation['invitation_id']]);
