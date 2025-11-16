@@ -24,7 +24,15 @@ class SecretsManager {
                 throw new Exception("Secret string not found in response");
             }
             
-            return json_decode($result['SecretString'], true);
+            $secret = json_decode($result['SecretString'], true);
+            
+            // Normalize keys to uppercase format expected by Database class
+            return [
+                'DB_HOST' => $secret['host'] ?? $secret['DB_HOST'] ?? null,
+                'DB_NAME' => $secret['dbname'] ?? $secret['DB_NAME'] ?? null,
+                'DB_USERNAME' => $secret['username'] ?? $secret['DB_USERNAME'] ?? null,
+                'DB_PASSWORD' => $secret['password'] ?? $secret['DB_PASSWORD'] ?? null
+            ];
             
         } catch (Exception $e) {
             error_log("Secrets Manager Error: " . $e->getMessage());

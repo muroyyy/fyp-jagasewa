@@ -19,15 +19,22 @@ try {
         exit();
     }
 
-    // Verify token and check landlord role
-    $user_data = verifyJWT($token);
-    if (!$user_data || $user_data['role'] !== 'landlord') {
+    // Verify session token and check landlord role
+    $stmt = $db->prepare("
+        SELECT s.user_id, s.user_role 
+        FROM sessions s 
+        WHERE s.session_token = ? AND s.expires_at > NOW() AND s.user_role = 'landlord'
+    ");
+    $stmt->execute([$token]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$session) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    $userId = $user_data['user_id'];
+    $userId = $session['user_id'];
     
     // Get landlord profile information
     $landlordModel = new Landlord($db);
