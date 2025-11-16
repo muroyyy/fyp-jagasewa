@@ -82,6 +82,8 @@ try {
     $uploadedPhotos = [];
     $uploadErrors = [];
     
+    error_log("FILES array: " . print_r($_FILES, true));
+    
     if (isset($_FILES['photos']) && !empty($_FILES['photos']['name'][0])) {
         $files = $_FILES['photos'];
         $fileCount = count($files['name']);
@@ -128,6 +130,9 @@ try {
         }
     }
 
+    // Log upload results
+    error_log("Upload completed. Photos uploaded: " . count($uploadedPhotos) . ", Errors: " . count($uploadErrors));
+    
     // If there were upload errors and no photos were uploaded, return error
     if (!empty($uploadErrors) && empty($uploadedPhotos)) {
         http_response_code(500);

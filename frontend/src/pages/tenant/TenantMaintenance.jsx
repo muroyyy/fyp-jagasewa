@@ -351,8 +351,8 @@ function NewRequestModal({ onClose, onSuccess }) {
         submitData.append(key, formData[key]);
       });
       
-      selectedImages.forEach((image, index) => {
-        submitData.append(`images[${index}]`, image);
+      selectedImages.forEach((image) => {
+        submitData.append('photos[]', image);
       });
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/submit-maintenance.php`, {
@@ -631,6 +631,24 @@ function RequestDetailsModal({ request, onClose }) {
               </div>
             )}
           </div>
+
+          {/* Photos */}
+          {request.photos && request.photos.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Attached Photos</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {request.photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo}
+                    alt={`Maintenance photo ${index + 1}`}
+                    onClick={() => window.open(photo, '_blank')}
+                    className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Landlord Response */}
           {request.landlord_response && (
