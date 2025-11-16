@@ -43,6 +43,12 @@ if (!empty($data->email) && !empty($data->password)) {
         } elseif ($login_result['user_role'] === 'tenant') {
             $tenant = new Tenant($db);
             $profile_data = $tenant->getByUserId($login_result['user_id']);
+            
+            // Update tenant account_status to active on successful login
+            $update_status = "UPDATE tenants SET account_status = 'active' WHERE user_id = :user_id";
+            $update_stmt = $db->prepare($update_status);
+            $update_stmt->bindParam(':user_id', $login_result['user_id']);
+            $update_stmt->execute();
         } elseif ($login_result['user_role'] === 'admin') {
             // Get admin profile data
             $admin_query = "SELECT full_name, phone, department, profile_image FROM admins WHERE user_id = :user_id";

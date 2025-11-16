@@ -53,6 +53,7 @@ try {
                         u.email,
                         t.phone,
                         t.move_in_date,
+                        t.account_status,
                         p.property_name,
                         p.property_id,
                         CASE 
