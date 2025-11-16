@@ -80,72 +80,58 @@ try {
 
     // Handle photo uploads to S3
     $uploadedPhotos = [];
-    $uploadErrors = [];
     
     error_log("FILES array: " . print_r($_FILES, true));
     
-    if (isset($_FILES['photos']) && !empty($_FILES['photos']['name'][0])) {
+    if (isset($_FILES['photos'])) {
         $files = $_FILES['photos'];
-        $fileCount = count($files['name']);
+        $fileCount = is_array($files['name']) ? count($files['name']) : 1;
         
         for ($i = 0; $i < $fileCount; $i++) {
-            if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                $tmpName = $files['tmp_name'][$i];
-                $fileName = $files['name'][$i];
-                $fileSize = $files['size'][$i];
-                $fileType = $files['type'][$i];
-                
-                // Validate file type
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-                if (!in_array($fileType, $allowedTypes)) {
-                    $uploadErrors[] = "File '$fileName' has invalid type. Only JPEG, PNG, GIF, and WebP are allowed.";
-                    continue;
-                }
-                
-                // Validate file size (10MB max)
-                if ($fileSize > 10 * 1024 * 1024) {
-                    $uploadErrors[] = "File '$fileName' exceeds 10MB size limit.";
-                    continue;
-                }
-                
-                // Generate unique S3 key
-                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-                $uniqueId = uniqid('', true);
-                $s3Key = "maintenance/tenant_{$tenant_id}_{$uniqueId}.{$extension}";
-                
-                // Upload to S3
-                error_log("Attempting S3 upload for file: $fileName with key: $s3Key");
-                $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
-                
-                if ($s3Url) {
-                    error_log("S3 upload successful: $s3Url");
-                    $uploadedPhotos[] = $s3Url;
-                } else {
-                    error_log("S3 upload failed for file: $fileName");
-                    $uploadErrors[] = "Failed to upload '$fileName' to S3. Please ensure the server has proper AWS credentials.";
-                }
+            $tmpName = is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'];
+            $fileName = is_array($files['name']) ? $files['name'][$i] : $files['name'];
+            $fileSize = is_array($files['size']) ? $files['size'][$i] : $files['size'];
+            $fileError = is_array($files['error']) ? $files['error'][$i] : $files['error'];
+            
+            if ($fileError !== UPLOAD_ERR_OK) {
+                continue;
+            }
+            
+            // Get actual MIME type
+            $fileType = mime_content_type($tmpName);
+            
+            // Validate file type
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($fileType, $allowedTypes)) {
+                continue;
+            }
+            
+            // Validate file size (10MB max)
+            if ($fileSize > 10 * 1024 * 1024) {
+                continue;
+            }
+            
+            // Generate unique S3 key
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            $s3Key = "maintenance/tenant_{$tenant_id}_" . time() . '_' . uniqid() . ".{$extension}";
+            
+            // Upload to S3
+            error_log("Attempting S3 upload for file: $fileName with key: $s3Key");
+            $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
+            
+            if ($s3Url) {
+                error_log("S3 upload successful: $s3Url");
+                $uploadedPhotos[] = $s3Url;
             } else {
-                $uploadErrors[] = "File upload error for '{$files['name'][$i]}': Error code {$files['error'][$i]}";
+                error_log("S3 upload failed for file: $fileName");
             }
         }
     }
-
-    // Log upload results
-    error_log("Upload completed. Photos uploaded: " . count($uploadedPhotos) . ", Errors: " . count($uploadErrors));
     
-    // If there were upload errors and no photos were uploaded, return error
-    if (!empty($uploadErrors) && empty($uploadedPhotos)) {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Failed to upload photos to S3',
-            'errors' => $uploadErrors
-        ]);
-        exit();
-    }
+    error_log("Upload completed. Photos uploaded: " . count($uploadedPhotos));
     
-    // Convert photos array to JSON
-    $photosJson = !empty($uploadedPhotos) ? json_encode($uploadedPhotos) : null;
+    // Convert photos array to JSON (empty array if no photos)
+    $photosJson = json_encode($uploadedPhotos);
 
     // Insert maintenance request
     $stmt = $conn->prepare("
