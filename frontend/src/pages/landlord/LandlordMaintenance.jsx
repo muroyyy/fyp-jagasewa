@@ -599,15 +599,22 @@ export default function LandlordMaintenance() {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Attached Photos ({selectedRequest.photos.length})</h4>
                   <div className="grid grid-cols-2 gap-4">
-                    {selectedRequest.photos.map((photo, index) => (
-                      <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-                        <img 
-                          src={`${API_BASE_URL}/../uploads/maintenance/${photo}`} 
-                          alt={`Photo ${index + 1}`}
-                          className="w-full h-48 object-cover"
-                        />
-                      </div>
-                    ))}
+                    {selectedRequest.photos.map((photo, index) => {
+                      const photoUrl = photo.startsWith('http') ? photo : `${API_BASE_URL}/../uploads/maintenance/${photo}`;
+                      return (
+                        <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group">
+                          <img 
+                            src={photoUrl} 
+                            alt={`Photo ${index + 1}`}
+                            className="w-full h-48 object-cover cursor-pointer"
+                            onClick={() => window.open(photoUrl, '_blank')}
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                            <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

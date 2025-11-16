@@ -2,7 +2,6 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -10,107 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
 $token = getBearerToken();
 
 if (empty($token)) {
@@ -137,10 +37,7 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid or expired session'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid or expired session']);
         exit();
     }
 
@@ -148,26 +45,19 @@ try {
     $tenant_id = $session['tenant_id'];
     $property_id = $session['property_id'];
 
-    // Check if tenant has a property assigned
     if (empty($property_id)) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'You must be assigned to a property to submit maintenance requests'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'You must be assigned to a property to submit maintenance requests']);
         exit();
     }
 
-    // Get request data
-    $data = json_decode(file_get_contents('php://input'), true);
+    // Get form data
+    $data = $_POST;
 
     // Validate required fields
     if (empty($data['title']) || empty($data['description']) || empty($data['category'])) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Title, description, and category are required'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Title, description, and category are required']);
         exit();
     }
 
@@ -175,10 +65,7 @@ try {
     $valid_categories = ['plumbing', 'electrical', 'appliances', 'hvac', 'carpentry', 'painting', 'pest_control', 'cleaning', 'other'];
     if (!in_array($data['category'], $valid_categories)) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid category'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid category']);
         exit();
     }
 
@@ -187,12 +74,51 @@ try {
     $priority = isset($data['priority']) ? $data['priority'] : 'medium';
     if (!in_array($priority, $valid_priorities)) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid priority level'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid priority level']);
         exit();
     }
+
+    // Handle photo uploads to S3
+    $uploadedPhotos = [];
+    if (isset($_FILES['photos']) && !empty($_FILES['photos']['name'][0])) {
+        $files = $_FILES['photos'];
+        $fileCount = count($files['name']);
+        
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                $tmpName = $files['tmp_name'][$i];
+                $fileName = $files['name'][$i];
+                $fileSize = $files['size'][$i];
+                $fileType = $files['type'][$i];
+                
+                // Validate file type
+                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!in_array($fileType, $allowedTypes)) {
+                    continue;
+                }
+                
+                // Validate file size (10MB max)
+                if ($fileSize > 10 * 1024 * 1024) {
+                    continue;
+                }
+                
+                // Generate unique S3 key
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $uniqueId = uniqid('', true);
+                $s3Key = "maintenance/tenant_{$tenant_id}_{$uniqueId}.{$extension}";
+                
+                // Upload to S3
+                $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
+                
+                if ($s3Url) {
+                    $uploadedPhotos[] = $s3Url;
+                }
+            }
+        }
+    }
+
+    // Convert photos array to JSON
+    $photosJson = !empty($uploadedPhotos) ? json_encode($uploadedPhotos) : null;
 
     // Insert maintenance request
     $stmt = $conn->prepare("
@@ -205,6 +131,7 @@ try {
             priority,
             status,
             preferred_date,
+            photos,
             created_at,
             updated_at
         ) VALUES (
@@ -216,6 +143,7 @@ try {
             :priority,
             'pending',
             :preferred_date,
+            :photos,
             NOW(),
             NOW()
         )
@@ -229,6 +157,7 @@ try {
     $stmt->bindParam(':priority', $priority);
     $preferred_date = !empty($data['preferred_date']) ? $data['preferred_date'] : null;
     $stmt->bindParam(':preferred_date', $preferred_date);
+    $stmt->bindParam(':photos', $photosJson);
 
     if ($stmt->execute()) {
         $request_id = $conn->lastInsertId();
@@ -238,28 +167,20 @@ try {
             'success' => true,
             'message' => 'Maintenance request submitted successfully',
             'data' => [
-                'request_id' => $request_id
+                'request_id' => $request_id,
+                'photos' => $uploadedPhotos
             ]
         ]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Failed to submit maintenance request'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Failed to submit maintenance request']);
     }
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error: ' . $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error: ' . $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
 }
 ?>
