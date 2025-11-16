@@ -15,12 +15,25 @@ if (empty($token)) {
     exit;
 }
 
-$user = verifyJWT($token);
-if (!$user) {
+$database = new Database();
+$pdo = $database->getConnection();
+
+$stmt = $pdo->prepare("
+    SELECT s.user_id, s.user_role 
+    FROM sessions s 
+    WHERE s.session_token = :token AND s.expires_at > NOW()
+");
+$stmt->bindParam(':token', $token);
+$stmt->execute();
+$session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$session) {
     echo "event: error\n";
     echo "data: Unauthorized\n\n";
     exit;
 }
+
+$user = ['user_id' => $session['user_id'], 'role' => $session['user_role']];
 
 $property_id = $_GET['property_id'] ?? null;
 if (!$property_id) {

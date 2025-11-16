@@ -16,12 +16,22 @@ try {
         exit();
     }
 
-    $user_data = verifyJWT($token);
-    if (!$user_data || $user_data['role'] !== 'admin') {
+    $stmt = $db->prepare("
+        SELECT s.user_id, s.user_role 
+        FROM sessions s 
+        WHERE s.session_token = :token AND s.expires_at > NOW() AND s.user_role = 'admin'
+    ");
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$session) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
+    
+    $user_data = ['user_id' => $session['user_id'], 'role' => $session['user_role']];
 
     // Get system notifications for admin
     $notifications = [];

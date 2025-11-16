@@ -13,12 +13,25 @@ try {
         exit();
     }
 
-    $user_data = verifyJWT($token);
-    if (!$user_data) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $stmt = $db->prepare("
+        SELECT s.user_id, s.user_role 
+        FROM sessions s 
+        WHERE s.session_token = :token AND s.expires_at > NOW()
+    ");
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$session) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Invalid token']);
         exit();
     }
+    
+    $user_data = ['user_id' => $session['user_id'], 'role' => $session['user_role']];
 
     // Invalidate all user sessions
     $success = invalidateUserSessions($user_data['user_id']);
