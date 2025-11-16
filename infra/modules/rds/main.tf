@@ -35,7 +35,7 @@ resource "aws_db_instance" "this" {
   # Backup & Snapshot Configuration
   skip_final_snapshot       = var.environment == "dev" ? true : false
   final_snapshot_identifier = var.environment == "dev" ? null : "${var.project_name}-rds-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
-  backup_retention_period   = 7
+  backup_retention_period   = 1  # Free tier max is 1 day
   backup_window             = "03:00-04:00"  # UTC time
   maintenance_window        = "mon:04:00-mon:05:00"  # UTC time
   
