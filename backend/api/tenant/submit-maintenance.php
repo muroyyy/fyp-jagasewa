@@ -80,6 +80,8 @@ try {
 
     // Handle photo uploads to S3
     $uploadedPhotos = [];
+    $uploadErrors = [];
+    
     if (isset($_FILES['photos']) && !empty($_FILES['photos']['name'][0])) {
         $files = $_FILES['photos'];
         $fileCount = count($files['name']);
@@ -94,11 +96,13 @@ try {
                 // Validate file type
                 $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                 if (!in_array($fileType, $allowedTypes)) {
+                    $uploadErrors[] = "File '$fileName' has invalid type. Only JPEG, PNG, GIF, and WebP are allowed.";
                     continue;
                 }
                 
                 // Validate file size (10MB max)
                 if ($fileSize > 10 * 1024 * 1024) {
+                    $uploadErrors[] = "File '$fileName' exceeds 10MB size limit.";
                     continue;
                 }
                 
@@ -108,15 +112,33 @@ try {
                 $s3Key = "maintenance/tenant_{$tenant_id}_{$uniqueId}.{$extension}";
                 
                 // Upload to S3
+                error_log("Attempting S3 upload for file: $fileName with key: $s3Key");
                 $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
                 
                 if ($s3Url) {
+                    error_log("S3 upload successful: $s3Url");
                     $uploadedPhotos[] = $s3Url;
+                } else {
+                    error_log("S3 upload failed for file: $fileName");
+                    $uploadErrors[] = "Failed to upload '$fileName' to S3. Please ensure the server has proper AWS credentials.";
                 }
+            } else {
+                $uploadErrors[] = "File upload error for '{$files['name'][$i]}': Error code {$files['error'][$i]}";
             }
         }
     }
 
+    // If there were upload errors and no photos were uploaded, return error
+    if (!empty($uploadErrors) && empty($uploadedPhotos)) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to upload photos to S3',
+            'errors' => $uploadErrors
+        ]);
+        exit();
+    }
+    
     // Convert photos array to JSON
     $photosJson = !empty($uploadedPhotos) ? json_encode($uploadedPhotos) : null;
 
