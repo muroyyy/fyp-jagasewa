@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, AlertCircle, Wrench, Clock, CheckCircle, XCircle, Eye, MessageSquare, Calendar, User, Building2, Image as ImageIcon } from 'lucide-react';
+import { Search, Filter, AlertCircle, Wrench, Clock, CheckCircle, XCircle, Eye, MessageSquare, Calendar, User, Building2, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
 import LandlordLayout from '../../components/layout/LandlordLayout';
@@ -161,18 +161,18 @@ export default function LandlordMaintenance() {
   };
 
   const getCategoryIcon = (category) => {
-    const icons = {
-      'plumbing': '🚰',
-      'electrical': '⚡',
-      'appliances': '🔧',
-      'hvac': '❄️',
-      'carpentry': '🪚',
-      'painting': '🎨',
-      'pest_control': '🐛',
-      'cleaning': '🧹',
-      'other': '🔨'
+    const iconMap = {
+      plumbing: <Droplets className="w-6 h-6 text-blue-600" />,
+      electrical: <Zap className="w-6 h-6 text-yellow-600" />,
+      appliances: <Wrench className="w-6 h-6 text-gray-600" />,
+      hvac: <Wind className="w-6 h-6 text-cyan-600" />,
+      carpentry: <Hammer className="w-6 h-6 text-amber-600" />,
+      painting: <Paintbrush className="w-6 h-6 text-purple-600" />,
+      pest_control: <Bug className="w-6 h-6 text-red-600" />,
+      cleaning: <Sparkles className="w-6 h-6 text-green-600" />,
+      other: <Wrench className="w-6 h-6 text-gray-600" />
     };
-    return icons[category] || '🔧';
+    return iconMap[category] || <Wrench className="w-6 h-6 text-gray-600" />;
   };
 
   const formatDate = (dateString) => {
@@ -411,7 +411,7 @@ export default function LandlordMaintenance() {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start space-x-3">
-                    <div className="text-3xl">{getCategoryIcon(request.category)}</div>
+                    <div className="p-2 bg-gray-100 rounded-lg">{getCategoryIcon(request.category)}</div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-1">{request.title}</h3>
                       <p className="text-sm text-gray-600 capitalize">{request.category.replace('_', ' ')}</p>
@@ -536,7 +536,7 @@ export default function LandlordMaintenance() {
               {/* Title and Category */}
               <div>
                 <div className="flex items-center space-x-3 mb-2">
-                  <div className="text-4xl">{getCategoryIcon(selectedRequest.category)}</div>
+                  <div className="p-3 bg-gray-100 rounded-xl">{getCategoryIcon(selectedRequest.category)}</div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{selectedRequest.title}</h3>
                     <p className="text-sm text-gray-600 capitalize">{selectedRequest.category.replace('_', ' ')}</p>
@@ -602,25 +602,23 @@ export default function LandlordMaintenance() {
                     <span>Attached Photos ({selectedRequest.photos.length})</span>
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
-                    {selectedRequest.photos.map((photo, index) => {
-                      const photoUrl = photo.startsWith('http') ? photo : `${API_BASE_URL}/../uploads/maintenance/${photo}`;
-                      return (
-                        <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group">
-                          <img 
-                            src={photoUrl} 
-                            alt={`Photo ${index + 1}`}
-                            className="w-full h-48 object-cover cursor-pointer"
-                            onClick={() => window.open(photoUrl, '_blank')}
-                            onError={(e) => {
-                              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                            <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
+                    {selectedRequest.photos.map((photo, index) => (
+                      <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group">
+                        <img 
+                          src={photo} 
+                          alt={`Photo ${index + 1}`}
+                          className="w-full h-48 object-cover cursor-pointer"
+                          onClick={() => window.open(photo, '_blank')}
+                          onError={(e) => {
+                            console.error('Image load error:', photo);
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ) : (

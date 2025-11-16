@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon } from 'lucide-react';
+import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 
@@ -85,19 +85,19 @@ export default function TenantMaintenance() {
     }
   };
 
-  const getCategoryEmoji = (category) => {
-    const emojiMap = {
-      plumbing: '🚰',
-      electrical: '⚡',
-      appliances: '🔧',
-      hvac: '❄️',
-      carpentry: '🪚',
-      painting: '🎨',
-      pest_control: '🐛',
-      cleaning: '🧹',
-      other: '🔨'
+  const getCategoryIcon = (category) => {
+    const iconMap = {
+      plumbing: <Droplets className="w-6 h-6 text-blue-600" />,
+      electrical: <Zap className="w-6 h-6 text-yellow-600" />,
+      appliances: <Wrench className="w-6 h-6 text-gray-600" />,
+      hvac: <Wind className="w-6 h-6 text-cyan-600" />,
+      carpentry: <Hammer className="w-6 h-6 text-amber-600" />,
+      painting: <Paintbrush className="w-6 h-6 text-purple-600" />,
+      pest_control: <Bug className="w-6 h-6 text-red-600" />,
+      cleaning: <Sparkles className="w-6 h-6 text-green-600" />,
+      other: <Wrench className="w-6 h-6 text-gray-600" />
     };
-    return emojiMap[category] || '🔨';
+    return iconMap[category] || <Wrench className="w-6 h-6 text-gray-600" />;
   };
 
   const filteredRequests = requests.filter(request => {
@@ -204,7 +204,7 @@ export default function TenantMaintenance() {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-start gap-3 mb-3">
-                      <span className="text-3xl">{getCategoryEmoji(request.category)}</span>
+                      <div className="p-2 bg-gray-100 rounded-lg">{getCategoryIcon(request.category)}</div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">{request.title}</h3>
                         <p className="text-sm text-gray-600 line-clamp-2">{request.description}</p>
@@ -301,15 +301,15 @@ function NewRequestModal({ onClose, onSuccess }) {
   const [selectedImages, setSelectedImages] = useState([]);
 
   const categories = [
-    { value: 'plumbing', label: '🚰 Plumbing' },
-    { value: 'electrical', label: '⚡ Electrical' },
-    { value: 'appliances', label: '🔧 Appliances' },
-    { value: 'hvac', label: '❄️ HVAC' },
-    { value: 'carpentry', label: '🪚 Carpentry' },
-    { value: 'painting', label: '🎨 Painting' },
-    { value: 'pest_control', label: '🐛 Pest Control' },
-    { value: 'cleaning', label: '🧹 Cleaning' },
-    { value: 'other', label: '🔨 Other' }
+    { value: 'plumbing', label: 'Plumbing', icon: Droplets },
+    { value: 'electrical', label: 'Electrical', icon: Zap },
+    { value: 'appliances', label: 'Appliances', icon: Wrench },
+    { value: 'hvac', label: 'HVAC', icon: Wind },
+    { value: 'carpentry', label: 'Carpentry', icon: Hammer },
+    { value: 'painting', label: 'Painting', icon: Paintbrush },
+    { value: 'pest_control', label: 'Pest Control', icon: Bug },
+    { value: 'cleaning', label: 'Cleaning', icon: Sparkles },
+    { value: 'other', label: 'Other', icon: Wrench }
   ];
 
   const handleImageSelect = (e) => {
