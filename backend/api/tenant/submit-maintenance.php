@@ -81,11 +81,15 @@ try {
     // Handle photo uploads to S3
     $uploadedPhotos = [];
     
+    error_log("=== MAINTENANCE PHOTO UPLOAD START ===");
     error_log("FILES array: " . print_r($_FILES, true));
+    error_log("POST array: " . print_r($_POST, true));
     
     if (isset($_FILES['photos'])) {
+        error_log("Photos field found in FILES");
         $files = $_FILES['photos'];
         $fileCount = is_array($files['name']) ? count($files['name']) : 1;
+        error_log("File count: $fileCount");
         
         for ($i = 0; $i < $fileCount; $i++) {
             $tmpName = is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'];
@@ -93,45 +97,60 @@ try {
             $fileSize = is_array($files['size']) ? $files['size'][$i] : $files['size'];
             $fileError = is_array($files['error']) ? $files['error'][$i] : $files['error'];
             
+            error_log("Processing file $i: $fileName (size: $fileSize, error: $fileError)");
+            
             if ($fileError !== UPLOAD_ERR_OK) {
+                error_log("File $i has upload error: $fileError");
+                continue;
+            }
+            
+            if (!file_exists($tmpName)) {
+                error_log("Temp file does not exist: $tmpName");
                 continue;
             }
             
             // Get actual MIME type
             $fileType = mime_content_type($tmpName);
+            error_log("File $i MIME type: $fileType");
             
             // Validate file type
             $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!in_array($fileType, $allowedTypes)) {
+                error_log("File $i has invalid type: $fileType");
                 continue;
             }
             
             // Validate file size (10MB max)
             if ($fileSize > 10 * 1024 * 1024) {
+                error_log("File $i exceeds size limit: $fileSize bytes");
                 continue;
             }
             
             // Generate unique S3 key
             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
             $s3Key = "maintenance/tenant_{$tenant_id}_" . time() . '_' . uniqid() . ".{$extension}";
+            error_log("Generated S3 key: $s3Key");
             
             // Upload to S3
-            error_log("Attempting S3 upload for file: $fileName with key: $s3Key");
+            error_log("Calling uploadToS3 for file: $fileName");
             $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
             
             if ($s3Url) {
-                error_log("S3 upload successful: $s3Url");
+                error_log("✓ S3 upload successful: $s3Url");
                 $uploadedPhotos[] = $s3Url;
             } else {
-                error_log("S3 upload failed for file: $fileName");
+                error_log("✗ S3 upload FAILED for file: $fileName");
             }
         }
+    } else {
+        error_log("No 'photos' field in FILES array");
     }
     
-    error_log("Upload completed. Photos uploaded: " . count($uploadedPhotos));
+    error_log("=== UPLOAD COMPLETED: " . count($uploadedPhotos) . " photos uploaded ===");
     
     // Convert photos array to JSON (empty array if no photos)
     $photosJson = json_encode($uploadedPhotos);
+    error_log("Photos JSON to be saved: $photosJson");
 
     // Insert maintenance request
     $stmt = $conn->prepare("
