@@ -595,9 +595,12 @@ export default function LandlordMaintenance() {
               )}
 
               {/* Photos */}
-              {selectedRequest.photos && selectedRequest.photos.length > 0 && (
+              {selectedRequest.photos && Array.isArray(selectedRequest.photos) && selectedRequest.photos.length > 0 ? (
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Attached Photos ({selectedRequest.photos.length})</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                    <ImageIcon className="w-5 h-5 text-blue-600" />
+                    <span>Attached Photos ({selectedRequest.photos.length})</span>
+                  </h4>
                   <div className="grid grid-cols-2 gap-4">
                     {selectedRequest.photos.map((photo, index) => {
                       const photoUrl = photo.startsWith('http') ? photo : `${API_BASE_URL}/../uploads/maintenance/${photo}`;
@@ -608,6 +611,9 @@ export default function LandlordMaintenance() {
                             alt={`Photo ${index + 1}`}
                             className="w-full h-48 object-cover cursor-pointer"
                             onClick={() => window.open(photoUrl, '_blank')}
+                            onError={(e) => {
+                              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
+                            }}
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
                             <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -616,6 +622,11 @@ export default function LandlordMaintenance() {
                       );
                     })}
                   </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                  <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">No photos attached to this request</p>
                 </div>
               )}
 
