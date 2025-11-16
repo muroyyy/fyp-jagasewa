@@ -1,4 +1,4 @@
-# S3 Bucket Policy to allow public read access to documents and payments
+# S3 Bucket Policy to allow public read access to documents, payments, and maintenance
 resource "aws_s3_bucket_policy" "artifacts_public_policy" {
   bucket = aws_s3_bucket.artifacts.id
 
@@ -18,6 +18,13 @@ resource "aws_s3_bucket_policy" "artifacts_public_policy" {
         Principal = "*"
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.artifacts.arn}/payments/*"
+      },
+      {
+        Sid       = "PublicReadMaintenance"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.artifacts.arn}/maintenance/*"
       }
     ]
   })
