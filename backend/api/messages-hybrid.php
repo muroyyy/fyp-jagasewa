@@ -55,23 +55,46 @@ switch ($method) {
 }
 
 function getMessages($user, $property_id, $db, $dynamodb) {
-    // Get conversation partner from MySQL
+    // For new conversations, we need to determine the other user from the property
+    // Get property details to find the other participant
     $stmt = $db->prepare("
-        SELECT DISTINCT 
-            CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END as other_user_id
-        FROM messages 
-        WHERE property_id = ? AND (sender_id = ? OR receiver_id = ?)
-        LIMIT 1
+        SELECT p.landlord_id, l.user_id as landlord_user_id
+        FROM properties p
+        JOIN landlords l ON p.landlord_id = l.landlord_id
+        WHERE p.property_id = ?
     ");
-    $stmt->execute([$user['user_id'], $property_id, $user['user_id'], $user['user_id']]);
-    $partner = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([$property_id]);
+    $property = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$partner) {
+    if (!$property) {
         echo json_encode(['messages' => []]);
         return;
     }
     
-    $conversationId = "property_{$property_id}_" . min($user['user_id'], $partner['other_user_id']) . "_" . max($user['user_id'], $partner['other_user_id']);
+    // Determine the other user (if current user is landlord, find tenant; if tenant, use landlord)
+    $other_user_id = null;
+    if ($user['role'] === 'landlord') {
+        // Find tenant for this property
+        $stmt = $db->prepare("
+            SELECT t.user_id 
+            FROM tenants t 
+            JOIN properties p ON t.tenant_id = p.tenant_id 
+            WHERE p.property_id = ?
+        ");
+        $stmt->execute([$property_id]);
+        $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+        $other_user_id = $tenant['user_id'] ?? null;
+    } else {
+        // Current user is tenant, other user is landlord
+        $other_user_id = $property['landlord_user_id'];
+    }
+    
+    if (!$other_user_id) {
+        echo json_encode(['messages' => []]);
+        return;
+    }
+    
+    $conversationId = "property_{$property_id}_" . min($user['user_id'], $other_user_id) . "_" . max($user['user_id'], $other_user_id);
     $messages = $dynamodb->getMessages($conversationId);
     
     // Get user details from MySQL
