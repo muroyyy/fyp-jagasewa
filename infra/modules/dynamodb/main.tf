@@ -20,9 +20,10 @@ resource "aws_dynamodb_table" "messages" {
   }
 
   global_secondary_index {
-    name     = "ReceiverIndex"
-    hash_key = "receiver_id"
-    range_key = "timestamp"
+    name               = "ReceiverIndex"
+    hash_key           = "receiver_id"
+    range_key          = "timestamp"
+    projection_type    = "ALL"
   }
 
   ttl {
@@ -53,8 +54,9 @@ resource "aws_dynamodb_table" "conversations" {
   }
 
   global_secondary_index {
-    name     = "UserIndex"
-    hash_key = "user_id"
+    name               = "UserIndex"
+    hash_key           = "user_id"
+    projection_type    = "ALL"
   }
 
   tags = {
