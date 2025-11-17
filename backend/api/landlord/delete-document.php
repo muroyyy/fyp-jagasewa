@@ -68,19 +68,8 @@ try {
         exit();
     }
 
-    // Delete from S3 if it's an S3 URL
-    if (strpos($document['file_path'], 'https://') === 0) {
-        $s3Key = str_replace('https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/', '', $document['file_path']);
-        deleteFromS3($s3Key);
-    } else {
-        // Delete local file
-        $filePath = '../../' . $document['file_path'];
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-    }
-
-    // Soft delete (set is_active = 0)
+    // Soft delete only - keep file in S3 for audit/legal compliance
+    // S3 lifecycle policy will handle cleanup after retention period
     $stmt = $conn->prepare("
         UPDATE documents 
         SET is_active = 0, updated_at = NOW()

@@ -88,3 +88,36 @@ resource "aws_s3_bucket_versioning" "assets" {
     status = "Enabled"
   }
 }
+
+# Lifecycle policy for document retention and cleanup
+resource "aws_s3_bucket_lifecycle_configuration" "assets" {
+  bucket = aws_s3_bucket.assets.id
+
+  rule {
+    id     = "delete-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90  # Keep old versions for 90 days
+    }
+  }
+
+  rule {
+    id     = "transition-old-documents"
+    status = "Enabled"
+
+    filter {
+      prefix = "documents/"
+    }
+
+    transition {
+      days          = 180  # Move to cheaper storage after 6 months
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 365  # Move to glacier after 1 year
+      storage_class = "GLACIER"
+    }
+  }
+}
