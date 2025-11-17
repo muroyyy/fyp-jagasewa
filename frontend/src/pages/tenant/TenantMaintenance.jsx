@@ -559,6 +559,7 @@ function NewRequestModal({ onClose, onSuccess }) {
 
 // Request Details Modal Component
 function RequestDetailsModal({ request, onClose }) {
+  const [enlargedImage, setEnlargedImage] = useState(null);
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -638,13 +639,20 @@ function RequestDetailsModal({ request, onClose }) {
               <h4 className="font-semibold text-gray-900 mb-3">Attached Photos</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {request.photos.map((photo, index) => (
-                  <img
+                  <div
                     key={index}
-                    src={photo}
-                    alt={`Maintenance photo ${index + 1}`}
-                    onClick={() => window.open(photo, '_blank')}
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                  />
+                    className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group cursor-pointer"
+                    onClick={() => setEnlargedImage(photo)}
+                  >
+                    <img
+                      src={photo}
+                      alt={`Maintenance photo ${index + 1}`}
+                      className="w-full h-32 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center pointer-events-none">
+                      <ImageIcon className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -664,6 +672,27 @@ function RequestDetailsModal({ request, onClose }) {
             </div>
           )}
         </div>
+
+        {/* Image Enlargement Modal */}
+        {enlargedImage && (
+          <div 
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+            onClick={() => setEnlargedImage(null)}
+          >
+            <button
+              onClick={() => setEnlargedImage(null)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors cursor-pointer"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img 
+              src={enlargedImage} 
+              alt="Enlarged view"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
