@@ -35,6 +35,13 @@ resource "aws_s3_bucket_policy" "assets" {
         Principal = "*"
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.assets.arn}/profiles/*"
+      },
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.assets.arn}/maintenance/*"
       }
     ]
   })
