@@ -26,7 +26,7 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
 
   const loadMessages = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php?property_id=${propertyId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php?property_id=${propertyId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
@@ -47,13 +47,16 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
 
   const markMessagesAsRead = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('session_token')}`
         },
-        body: JSON.stringify({ property_id: propertyId })
+        body: JSON.stringify({ 
+          property_id: propertyId,
+          other_user_id: otherUser.user_id 
+        })
       });
     } catch (error) {
       console.error('Error marking messages as read:', error);
@@ -103,7 +106,7 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

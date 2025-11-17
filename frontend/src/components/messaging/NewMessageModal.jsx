@@ -39,7 +39,7 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
       };
       console.log('Sending message:', payload);
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

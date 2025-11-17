@@ -55,7 +55,7 @@ const Messages = () => {
 
   const loadConversations = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       
