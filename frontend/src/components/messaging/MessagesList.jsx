@@ -29,7 +29,17 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages-hybrid.php?property_id=${propertyId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
-      const data = await response.json();
+      
+      const responseText = await response.text();
+      console.log('API Response:', responseText);
+      
+      if (!response.ok) {
+        console.error('API Error:', response.status, responseText);
+        setLoading(false);
+        return;
+      }
+      
+      const data = JSON.parse(responseText);
       const loadedMessages = data.messages || [];
       setMessages(loadedMessages);
       setLoading(false);

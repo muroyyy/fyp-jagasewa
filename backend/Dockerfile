@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf awscliv2.zip aws \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
@@ -36,6 +39,9 @@ RUN echo "extension=pdo_mysql.so" > /usr/local/etc/php/conf.d/pdo_mysql.ini \
 
 # Copy application files
 COPY . .
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/uploads/profiles \
