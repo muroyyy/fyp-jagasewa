@@ -23,6 +23,7 @@ export default function LandlordMaintenance() {
   const [newStatus, setNewStatus] = useState('');
   const [estimatedCompletion, setEstimatedCompletion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState(null);
 
   // Stats
   const [stats, setStats] = useState({
@@ -608,7 +609,7 @@ export default function LandlordMaintenance() {
                           src={photo} 
                           alt={`Photo ${index + 1}`}
                           className="w-full h-48 object-cover cursor-pointer"
-                          onClick={() => window.open(photo, '_blank')}
+                          onClick={() => setEnlargedImage(photo)}
                           onError={(e) => {
                             console.error('Image load error:', photo);
                             e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
@@ -757,6 +758,27 @@ export default function LandlordMaintenance() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Image Enlargement Modal */}
+      {enlargedImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+          onClick={() => setEnlargedImage(null)}
+        >
+          <button
+            onClick={() => setEnlargedImage(null)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors cursor-pointer"
+          >
+            <XCircle className="w-8 h-8" />
+          </button>
+          <img 
+            src={enlargedImage} 
+            alt="Enlarged view"
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </LandlordLayout>
