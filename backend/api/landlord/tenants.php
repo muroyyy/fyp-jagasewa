@@ -57,6 +57,7 @@ try {
     // Get all tenants associated with this landlord's properties
     $tenantsQuery = "SELECT DISTINCT
                         t.tenant_id,
+                        t.user_id,
                         t.full_name,
                         u.email,
                         t.phone,
