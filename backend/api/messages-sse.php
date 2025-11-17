@@ -50,10 +50,16 @@ $pdo = $database->getConnection();
 while (true) {
     // Check for new messages
     $stmt = $pdo->prepare("
-        SELECT m.*, COALESCE(l.full_name, t.full_name, 'User') as sender_name
+        SELECT m.*, 
+               COALESCE(sl.full_name, st.full_name, 'User') as sender_name,
+               COALESCE(rl.full_name, rt.full_name, 'User') as receiver_name,
+               COALESCE(sl.profile_image, st.profile_image) as sender_image,
+               COALESCE(rl.profile_image, rt.profile_image) as receiver_image
         FROM messages m
-        LEFT JOIN landlords l ON m.sender_id = l.user_id
-        LEFT JOIN tenants t ON m.sender_id = t.user_id
+        LEFT JOIN landlords sl ON m.sender_id = sl.user_id
+        LEFT JOIN tenants st ON m.sender_id = st.user_id
+        LEFT JOIN landlords rl ON m.receiver_id = rl.user_id
+        LEFT JOIN tenants rt ON m.receiver_id = rt.user_id
         WHERE m.property_id = ? 
         AND m.message_id > ?
         AND (m.sender_id = ? OR m.receiver_id = ?)

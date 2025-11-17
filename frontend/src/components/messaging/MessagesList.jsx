@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Wrench, CreditCard, Paperclip, Image, FileText, Download } from 'lucide-react';
 
-const MessagesList = ({ propertyId, currentUser, otherUser }) => {
+const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,6 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
 
   useEffect(() => {
     loadMessages();
-    setupSSE();
     
     return () => {
       if (eventSourceRef.current) {
@@ -31,16 +30,43 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('session_token')}` }
       });
       const data = await response.json();
-      setMessages(data.messages || []);
+      const loadedMessages = data.messages || [];
+      setMessages(loadedMessages);
       setLoading(false);
+      
+      // Mark messages as read
+      markMessagesAsRead();
+      
+      // Setup SSE after messages are loaded
+      setupSSE(loadedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
       setLoading(false);
     }
   };
 
-  const setupSSE = () => {
-    const lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.message_id)) : 0;
+  const markMessagesAsRead = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('session_token')}`
+        },
+        body: JSON.stringify({ property_id: propertyId })
+      });
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
+  const setupSSE = (currentMessages = messages) => {
+    // Close existing connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    
+    const lastMessageId = currentMessages.length > 0 ? Math.max(...currentMessages.map(m => m.message_id)) : 0;
     const token = localStorage.getItem('session_token');
     const eventSource = new EventSource(
       `${import.meta.env.VITE_API_URL}/api/messages-sse.php?property_id=${propertyId}&last_message_id=${lastMessageId}&token=${token}`
@@ -48,7 +74,25 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
 
     eventSource.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => {
+        // Prevent duplicate messages
+        if (prev.some(m => m.message_id === message.message_id)) {
+          return prev;
+        }
+        return [...prev, message];
+      });
+      
+      // Refresh conversations to update last message and unread counts
+      if (onNewMessage) {
+        onNewMessage();
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE error:', error);
+      eventSource.close();
+      // Reconnect after 3 seconds
+      setTimeout(() => setupSSE(), 3000);
     };
 
     eventSourceRef.current = eventSource;
@@ -78,7 +122,7 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
       
       if (result.success) {
         setNewMessage('');
-        loadMessages(); // Reload messages to show the new one
+        // Don't reload messages - SSE will handle the new message
       } else {
         console.error('Failed to send message:', result.message);
         alert('Failed to send message: ' + result.message);

@@ -85,6 +85,10 @@ const Messages = () => {
     );
   }
 
+  const refreshConversations = () => {
+    loadConversations();
+  };
+
   const MessagesContent = () => (
     <div className="p-6">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -195,6 +199,7 @@ const Messages = () => {
                     propertyId={selectedConversation.property_id}
                     currentUser={currentUser}
                     otherUser={{ user_id: selectedConversation.other_user_id }}
+                    onNewMessage={refreshConversations}
                   />
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500">
