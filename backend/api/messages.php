@@ -15,10 +15,30 @@ if (empty($token)) {
     exit;
 }
 
-$user = verifyJWT($token);
-if (!$user) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Invalid token']);
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Check if session exists
+    $stmt = $db->prepare("SELECT user_id, user_role FROM sessions WHERE session_token = :token AND expires_at > NOW()");
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$session) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Unauthorized - Session not found or expired',
+            'debug' => ['token_length' => strlen($token)]
+        ]);
+        exit;
+    }
+    
+    $user = ['user_id' => $session['user_id'], 'role' => $session['user_role']];
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
     exit;
 }
 
