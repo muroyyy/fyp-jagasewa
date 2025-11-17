@@ -95,7 +95,9 @@ function getMessages($user, $property_id, $db, $dynamodb) {
     }
     
     $conversationId = "property_{$property_id}_" . min($user['user_id'], $other_user_id) . "_" . max($user['user_id'], $other_user_id);
+    error_log("Getting messages for conversation: $conversationId");
     $messages = $dynamodb->getMessages($conversationId);
+    error_log("Retrieved " . count($messages) . " messages from DynamoDB");
     
     // Get user details from MySQL
     $userIds = array_unique(array_merge(
