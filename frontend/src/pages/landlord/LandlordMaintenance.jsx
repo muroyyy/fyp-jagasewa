@@ -604,18 +604,21 @@ export default function LandlordMaintenance() {
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
                     {selectedRequest.photos.map((photo, index) => (
-                      <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group">
+                      <div 
+                        key={index} 
+                        className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group cursor-pointer"
+                        onClick={() => setEnlargedImage(photo)}
+                      >
                         <img 
                           src={photo} 
                           alt={`Photo ${index + 1}`}
-                          className="w-full h-48 object-cover cursor-pointer"
-                          onClick={() => setEnlargedImage(photo)}
+                          className="w-full h-48 object-cover"
                           onError={(e) => {
                             console.error('Image load error:', photo);
                             e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
                           }}
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center pointer-events-none">
                           <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
