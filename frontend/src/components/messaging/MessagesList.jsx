@@ -129,7 +129,7 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
   };
 
   const renderMessage = (message) => {
-    const isOwn = message.sender_id === currentUser.user_id;
+    const isOwn = currentUser && message.sender_id === currentUser.user_id;
     const isSystem = message.message_type.startsWith('system_');
 
     if (isSystem) {
@@ -210,8 +210,15 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
     );
   };
 
-  if (loading) {
-    return <div className="flex justify-center p-8">Loading messages...</div>;
+  if (loading || !currentUser) {
+    return (
+      <div className="flex justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p>Loading messages...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -31,11 +31,22 @@ const Messages = () => {
       const data = await response.json();
       
       if (data.success) {
-        // Handle both possible response structures
-        const userId = data.data?.profile?.user_id || data.data?.user_id;
+        let userId;
+        if (userRole === 'landlord') {
+          // Landlord profile returns data directly
+          userId = data.data?.user_id;
+        } else {
+          // Tenant profile returns data.profile
+          userId = data.data?.profile?.user_id;
+        }
+        
         if (userId) {
           setCurrentUser({ user_id: userId });
+        } else {
+          console.error('User ID not found in profile response:', data);
         }
+      } else {
+        console.error('Failed to load user profile:', data.message);
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -117,8 +128,16 @@ const Messages = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-gray-600" />
+                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                          {conversation.other_user_image ? (
+                            <img 
+                              src={`https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/${conversation.other_user_image}`}
+                              alt={conversation.other_user_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-5 h-5 text-gray-600" />
+                          )}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
@@ -149,8 +168,16 @@ const Messages = () => {
               <div className="h-full flex flex-col">
                 <div className="p-4 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-gray-600" />
+                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                      {selectedConversation.other_user_image ? (
+                        <img 
+                          src={`https://jagasewa-assets-prod.s3.ap-southeast-1.amazonaws.com/${selectedConversation.other_user_image}`}
+                          alt={selectedConversation.other_user_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-4 h-4 text-gray-600" />
+                      )}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
@@ -163,11 +190,20 @@ const Messages = () => {
                   </div>
                 </div>
 
-                <MessagesList
-                  propertyId={selectedConversation.property_id}
-                  currentUser={currentUser}
-                  otherUser={{ user_id: selectedConversation.other_user_id }}
-                />
+                {currentUser ? (
+                  <MessagesList
+                    propertyId={selectedConversation.property_id}
+                    currentUser={currentUser}
+                    otherUser={{ user_id: selectedConversation.other_user_id }}
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <p>Loading user data...</p>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="h-full flex items-center justify-center text-gray-500">

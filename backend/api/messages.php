@@ -65,7 +65,9 @@ function getMessages($user, $property_id) {
     $stmt = $pdo->prepare("
         SELECT m.*, 
                COALESCE(sl.full_name, st.full_name, 'User') as sender_name,
-               COALESCE(rl.full_name, rt.full_name, 'User') as receiver_name
+               COALESCE(rl.full_name, rt.full_name, 'User') as receiver_name,
+               COALESCE(sl.profile_image, st.profile_image) as sender_image,
+               COALESCE(rl.profile_image, rt.profile_image) as receiver_image
         FROM messages m
         LEFT JOIN landlords sl ON m.sender_id = sl.user_id
         LEFT JOIN tenants st ON m.sender_id = st.user_id
@@ -98,6 +100,10 @@ function getConversations($user) {
                 WHEN m.sender_id = ? THEN COALESCE(rl.full_name, rt.full_name, 'User')
                 ELSE COALESCE(sl.full_name, st.full_name, 'User')
             END as other_user_name,
+            CASE 
+                WHEN m.sender_id = ? THEN COALESCE(rl.profile_image, rt.profile_image)
+                ELSE COALESCE(sl.profile_image, st.profile_image)
+            END as other_user_image,
             (SELECT message FROM messages m2 
              WHERE m2.property_id = p.property_id 
              AND (m2.sender_id = ? OR m2.receiver_id = ?)
@@ -116,7 +122,7 @@ function getConversations($user) {
     ");
     
     $stmt->execute([
-        $user['user_id'], $user['user_id'], $user['user_id'], 
+        $user['user_id'], $user['user_id'], $user['user_id'], $user['user_id'], 
         $user['user_id'], $user['user_id'], $user['user_id'], $user['user_id']
     ]);
     

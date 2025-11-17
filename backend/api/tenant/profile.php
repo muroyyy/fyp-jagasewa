@@ -2,7 +2,6 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -11,106 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 
-// Get Authorization header
-// Get authorization token using helper function
-$token = getBearerToken();
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$token = getBearerToken();
-
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
 $token = getBearerToken();
 
 if (empty($token)) {
@@ -152,6 +51,7 @@ try {
     $stmt = $conn->prepare("
         SELECT 
             t.tenant_id,
+            t.user_id,
             t.full_name,
             t.phone,
             t.ic_number,
