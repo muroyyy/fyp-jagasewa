@@ -560,6 +560,23 @@ function NewRequestModal({ onClose, onSuccess }) {
 // Request Details Modal Component
 function RequestDetailsModal({ request, onClose }) {
   const [enlargedImage, setEnlargedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    if (request.photos && currentImageIndex < request.photos.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+      setEnlargedImage(request.photos[currentImageIndex + 1]);
+    }
+  };
+
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+      setEnlargedImage(request.photos[currentImageIndex - 1]);
+    }
+  };
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -642,7 +659,10 @@ function RequestDetailsModal({ request, onClose }) {
                   <div
                     key={index}
                     className="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group cursor-pointer"
-                    onClick={() => setEnlargedImage(photo)}
+                    onClick={() => {
+                      setCurrentImageIndex(index);
+                      setEnlargedImage(photo);
+                    }}
                   >
                     <img
                       src={photo}
@@ -674,23 +694,53 @@ function RequestDetailsModal({ request, onClose }) {
         </div>
 
         {/* Image Enlargement Modal */}
-        {enlargedImage && (
+        {enlargedImage && request.photos && (
           <div 
             className="fixed inset-0 bg-white/30 backdrop-blur-xl flex items-center justify-center z-[60] p-4"
             onClick={() => setEnlargedImage(null)}
           >
             <button
               onClick={() => setEnlargedImage(null)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors cursor-pointer"
+              className="absolute top-4 right-4 text-gray-800 hover:text-gray-600 transition-colors cursor-pointer bg-white/80 rounded-full p-2"
             >
-              <X className="w-8 h-8" />
+              <X className="w-6 h-6" />
             </button>
-            <img 
-              src={enlargedImage} 
-              alt="Enlarged view"
-              className="max-w-full max-h-full object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
+            
+            {/* Previous Button */}
+            {currentImageIndex > 0 && (
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-3 transition-all cursor-pointer"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+            
+            {/* Next Button */}
+            {currentImageIndex < request.photos.length - 1 && (
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-3 transition-all cursor-pointer"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+            
+            <div className="flex flex-col items-center">
+              <img 
+                src={enlargedImage} 
+                alt="Enlarged view"
+                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="mt-4 bg-white/80 px-4 py-2 rounded-full text-sm text-gray-800 font-medium">
+                {currentImageIndex + 1} / {request.photos.length}
+              </div>
+            </div>
           </div>
         )}
       </div>
