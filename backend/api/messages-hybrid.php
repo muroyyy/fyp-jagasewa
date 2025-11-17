@@ -78,8 +78,7 @@ function getMessages($user, $property_id, $db, $dynamodb) {
         $stmt = $db->prepare("
             SELECT t.user_id 
             FROM tenants t 
-            JOIN properties p ON t.tenant_id = p.tenant_id 
-            WHERE p.property_id = ?
+            WHERE t.property_id = ?
         ");
         $stmt->execute([$property_id]);
         $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
