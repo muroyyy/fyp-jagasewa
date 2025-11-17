@@ -59,7 +59,7 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
     if (!newMessage.trim()) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,9 +73,19 @@ const MessagesList = ({ propertyId, currentUser, otherUser }) => {
         })
       });
       
-      setNewMessage('');
+      const result = await response.json();
+      console.log('Message response:', result);
+      
+      if (result.success) {
+        setNewMessage('');
+        loadMessages(); // Reload messages to show the new one
+      } else {
+        console.error('Failed to send message:', result.message);
+        alert('Failed to send message: ' + result.message);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Error sending message. Please try again.');
     }
   };
 
