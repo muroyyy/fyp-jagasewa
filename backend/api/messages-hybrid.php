@@ -99,10 +99,13 @@ function getMessages($user, $property_id, $db, $dynamodb) {
     error_log("Retrieved " . count($messages) . " messages from DynamoDB");
     
     // Get user details from MySQL
-    $userIds = array_unique(array_merge(
-        array_column($messages, 'sender_id'),
-        array_column($messages, 'receiver_id')
-    ));
+    $userIds = [];
+    if (!empty($messages)) {
+        $userIds = array_unique(array_merge(
+            array_column($messages, 'sender_id'),
+            array_column($messages, 'receiver_id')
+        ));
+    }
     
     $userDetails = [];
     if (!empty($userIds)) {
