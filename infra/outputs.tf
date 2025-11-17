@@ -46,3 +46,13 @@ output "ecr_repository_url" {
   description = "ECR repository URL for backend Docker images"
   value       = module.ecr.repository_url
 }
+
+output "dynamodb_messages_table" {
+  description = "DynamoDB messages table name"
+  value       = module.dynamodb.messages_table_name
+}
+
+output "dynamodb_conversations_table" {
+  description = "DynamoDB conversations table name"
+  value       = module.dynamodb.conversations_table_name
+}

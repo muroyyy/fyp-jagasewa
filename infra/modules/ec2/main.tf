@@ -91,6 +91,35 @@ resource "aws_iam_role_policy" "s3_assets_access" {
   })
 }
 
+# Custom policy for DynamoDB access
+resource "aws_iam_role_policy" "dynamodb_access" {
+  name = "${var.project_name}-dynamodb-access"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = [
+          "arn:aws:dynamodb:*:*:table/${var.project_name}-messages-${var.environment}",
+          "arn:aws:dynamodb:*:*:table/${var.project_name}-conversations-${var.environment}",
+          "arn:aws:dynamodb:*:*:table/${var.project_name}-messages-${var.environment}/index/*",
+          "arn:aws:dynamodb:*:*:table/${var.project_name}-conversations-${var.environment}/index/*"
+        ]
+      }
+    ]
+  })
+}
+
 # Create Instance Profile
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "${var.project_name}-ec2-instance-profile"

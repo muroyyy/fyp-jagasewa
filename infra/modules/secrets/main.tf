@@ -57,5 +57,7 @@ resource "aws_secretsmanager_secret_version" "app_config" {
     API_URL     = "https://api.${var.domain_name}"
     ENVIRONMENT = var.environment
     PROJECT_NAME = var.project_name
+    DYNAMODB_MESSAGES_TABLE = "${var.project_name}-messages-${var.environment}"
+    DYNAMODB_CONVERSATIONS_TABLE = "${var.project_name}-conversations-${var.environment}"
   })
 }
