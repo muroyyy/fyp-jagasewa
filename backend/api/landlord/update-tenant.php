@@ -50,23 +50,60 @@ try {
     $tenantId = $input['tenant_id'];
     $userId = $user_data['user_id'];
     
-    // Verify landlord owns the property where this tenant lives
-    $verifyQuery = "SELECT t.tenant_id FROM tenants t 
-                    INNER JOIN properties p ON t.property_id = p.property_id 
-                    INNER JOIN landlords l ON p.landlord_id = l.landlord_id 
-                    WHERE t.tenant_id = :tenant_id AND l.user_id = :user_id";
+    // Check if tenant exists and verify landlord has permission
+    $verifyQuery = "SELECT t.tenant_id, t.property_id FROM tenants t WHERE t.tenant_id = :tenant_id";
     $verifyStmt = $db->prepare($verifyQuery);
     $verifyStmt->bindParam(':tenant_id', $tenantId);
-    $verifyStmt->bindParam(':user_id', $userId);
     $verifyStmt->execute();
+    $tenant = $verifyStmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$verifyStmt->fetch()) {
-        http_response_code(403);
+    if (!$tenant) {
+        http_response_code(404);
         echo json_encode([
             "success" => false,
-            "message" => "Access denied. You can only edit tenants in your properties."
+            "message" => "Tenant not found"
         ]);
         exit();
+    }
+    
+    // If tenant has a property assigned, verify landlord owns it
+    if ($tenant['property_id']) {
+        // Debug: Get landlord_id for current user
+        $landlordQuery = "SELECT landlord_id FROM landlords WHERE user_id = :user_id";
+        $landlordStmt = $db->prepare($landlordQuery);
+        $landlordStmt->bindParam(':user_id', $userId);
+        $landlordStmt->execute();
+        $landlordData = $landlordStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$landlordData) {
+            http_response_code(403);
+            echo json_encode([
+                "success" => false,
+                "message" => "Landlord profile not found"
+            ]);
+            exit();
+        }
+        
+        // Check if property belongs to this landlord
+        $ownerQuery = "SELECT property_id, landlord_id FROM properties WHERE property_id = :property_id";
+        $ownerStmt = $db->prepare($ownerQuery);
+        $ownerStmt->bindParam(':property_id', $tenant['property_id']);
+        $ownerStmt->execute();
+        $propertyData = $ownerStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$propertyData || $propertyData['landlord_id'] != $landlordData['landlord_id']) {
+            http_response_code(403);
+            echo json_encode([
+                "success" => false,
+                "message" => "Access denied. Property belongs to different landlord.",
+                "debug" => [
+                    "tenant_property_id" => $tenant['property_id'],
+                    "property_landlord_id" => $propertyData['landlord_id'] ?? null,
+                    "current_landlord_id" => $landlordData['landlord_id']
+                ]
+            ]);
+            exit();
+        }
     }
     
     // Build update query dynamically
@@ -114,7 +151,11 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Database error: " . $e->getMessage()
+        "message" => "Database error: " . $e->getMessage(),
+        "debug" => [
+            "tenant_id" => $tenantId ?? null,
+            "user_id" => $userId ?? null
+        ]
     ]);
 } catch (Exception $e) {
     http_response_code(500);
