@@ -98,33 +98,30 @@ function getMessages($user, $property_id, $db, $dynamodb) {
     $messages = $dynamodb->getMessages($conversationId);
     error_log("Retrieved " . count($messages) . " messages from DynamoDB");
     
-    // Get user details from MySQL
-    $userIds = [];
-    if (!empty($messages)) {
-        $userIds = array_unique(array_merge(
-            array_column($messages, 'sender_id'),
-            array_column($messages, 'receiver_id')
-        ));
+    // Get user details from MySQL - just get current user and other user
+    $userDetails = [];
+    
+    // Get current user details
+    $stmt = $db->prepare("
+        SELECT u.user_id, 
+               COALESCE(l.full_name, t.full_name, 'User') as full_name,
+               COALESCE(l.profile_image, t.profile_image) as profile_image
+        FROM users u
+        LEFT JOIN landlords l ON u.user_id = l.user_id
+        LEFT JOIN tenants t ON u.user_id = t.user_id
+        WHERE u.user_id = ?
+    ");
+    $stmt->execute([$user['user_id']]);
+    $currentUserData = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($currentUserData) {
+        $userDetails[$user['user_id']] = $currentUserData;
     }
     
-    $userDetails = [];
-    if (!empty($userIds)) {
-        $placeholders = str_repeat('?,', count($userIds) - 1) . '?';
-        $stmt = $db->prepare("
-            SELECT u.user_id, 
-                   COALESCE(l.full_name, t.full_name, 'User') as full_name,
-                   COALESCE(l.profile_image, t.profile_image) as profile_image
-            FROM users u
-            LEFT JOIN landlords l ON u.user_id = l.user_id
-            LEFT JOIN tenants t ON u.user_id = t.user_id
-            WHERE u.user_id IN ($placeholders)
-        ");
-        $stmt->execute($userIds);
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($users as $u) {
-            $userDetails[$u['user_id']] = $u;
-        }
+    // Get other user details
+    $stmt->execute([$other_user_id]);
+    $otherUserData = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($otherUserData) {
+        $userDetails[$other_user_id] = $otherUserData;
     }
     
     // Enhance messages with user details
