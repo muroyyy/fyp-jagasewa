@@ -49,6 +49,20 @@ resource "aws_s3_bucket_policy" "assets" {
         Principal = "*"
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.assets.arn}/receipts/*"
+      },
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.assets.arn}/documents/*"
+      },
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.assets.arn}/payments/*"
       }
     ]
   })
