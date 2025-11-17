@@ -131,21 +131,13 @@ try {
     // Update tenant
     $updateQuery = "UPDATE tenants SET " . implode(', ', $updateFields) . " WHERE tenant_id = :tenant_id";
     $stmt = $db->prepare($updateQuery);
-    $result = $stmt->execute($params);
+    $stmt->execute($params);
     
-    if ($result && $stmt->rowCount() > 0) {
-        http_response_code(200);
-        echo json_encode([
-            "success" => true,
-            "message" => "Tenant updated successfully"
-        ]);
-    } else {
-        http_response_code(404);
-        echo json_encode([
-            "success" => false,
-            "message" => "Tenant not found or no changes made"
-        ]);
-    }
+    http_response_code(200);
+    echo json_encode([
+        "success" => true,
+        "message" => "Tenant updated successfully"
+    ]);
     
 } catch (PDOException $e) {
     http_response_code(500);
