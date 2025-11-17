@@ -676,7 +676,7 @@ function RequestDetailsModal({ request, onClose }) {
         {/* Image Enlargement Modal */}
         {enlargedImage && (
           <div 
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+            className="fixed inset-0 bg-white/30 backdrop-blur-xl flex items-center justify-center z-[60] p-4"
             onClick={() => setEnlargedImage(null)}
           >
             <button
