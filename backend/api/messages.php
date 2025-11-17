@@ -6,11 +6,19 @@ require_once '../config/auth_helper.php';
 setCorsHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
-$user = authenticate();
 
+// Check authentication
+$token = getBearerToken();
+if (empty($token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized - No token provided']);
+    exit;
+}
+
+$user = verifyJWT($token);
 if (!$user) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized - Invalid token']);
     exit;
 }
 
