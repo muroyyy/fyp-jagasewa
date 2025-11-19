@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Building, DollarSign, Activity, Eye, UserCheck } from 'lucide-react';
+import { Users, Building, DollarSign, Activity, Eye, UserCheck, TrendingUp, TrendingDown } from 'lucide-react';
 import AnalyticsCard from '../../components/admin/AnalyticsCard';
 
 const AdminDashboard = () => {
@@ -11,7 +11,9 @@ const AdminDashboard = () => {
     activeRentals: 0,
     monthlyRevenue: 0,
     pendingVerifications: 0,
-    systemUptime: '99.9%'
+    systemUptime: '99.9%',
+    totalExpenses: 0,
+    propertyStatus: { occupied: 0, vacant: 0, maintenance: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [recentActivities, setRecentActivities] = useState([]);
@@ -138,6 +140,102 @@ const AdminDashboard = () => {
             <div>
               <p className="text-sm text-gray-600">System Uptime</p>
               <p className="text-2xl font-bold text-gray-900">{stats.systemUptime}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Financial Overview & Property Status Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Financial Overview */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Financial Overview</h3>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <TrendingUp className="text-green-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900">RM {stats.monthlyRevenue.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-red-100 rounded-lg">
+                  <TrendingDown className="text-red-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Expenses</p>
+                  <p className="text-2xl font-bold text-gray-900">RM {stats.totalExpenses.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <DollarSign className="text-blue-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Net Profit</p>
+                  <p className="text-2xl font-bold text-gray-900">RM {(stats.monthlyRevenue - stats.totalExpenses).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Property Status Distribution */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Property Status Distribution</h3>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Building className="text-green-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Occupied</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.propertyStatus.occupied}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">{stats.totalProperties > 0 ? ((stats.propertyStatus.occupied / stats.totalProperties) * 100).toFixed(1) : 0}%</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-yellow-100 rounded-lg">
+                  <Building className="text-yellow-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Vacant</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.propertyStatus.vacant}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">{stats.totalProperties > 0 ? ((stats.propertyStatus.vacant / stats.totalProperties) * 100).toFixed(1) : 0}%</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <Activity className="text-orange-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Maintenance</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.propertyStatus.maintenance}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">{stats.totalProperties > 0 ? ((stats.propertyStatus.maintenance / stats.totalProperties) * 100).toFixed(1) : 0}%</p>
+              </div>
             </div>
           </div>
         </div>

@@ -78,6 +78,31 @@ try {
     $pending_stmt->execute();
     $pending_verifications = $pending_stmt->fetch(PDO::FETCH_ASSOC)['pending_verifications'];
 
+    // Get total expenses from maintenance
+    $expenses_query = "SELECT SUM(expense_amount) as total_expenses FROM maintenance_requests";
+    $expenses_stmt = $conn->prepare($expenses_query);
+    $expenses_stmt->execute();
+    $total_expenses = $expenses_stmt->fetch(PDO::FETCH_ASSOC)['total_expenses'] ?? 0;
+
+    // Get property status distribution
+    $status_query = "SELECT status, COUNT(*) as count FROM properties GROUP BY status";
+    $status_stmt = $conn->prepare($status_query);
+    $status_stmt->execute();
+    $status_results = $status_stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $property_status = [
+        'occupied' => 0,
+        'vacant' => 0,
+        'maintenance' => 0
+    ];
+    
+    foreach ($status_results as $row) {
+        $status = strtolower($row['status']);
+        if (isset($property_status[$status])) {
+            $property_status[$status] = (int)$row['count'];
+        }
+    }
+
     echo json_encode([
         'success' => true,
         'data' => [
@@ -88,7 +113,9 @@ try {
             'activeRentals' => (int)$active_rentals,
             'monthlyRevenue' => (float)$monthly_revenue,
             'pendingVerifications' => (int)$pending_verifications,
-            'systemUptime' => '99.9%'
+            'systemUptime' => '99.9%',
+            'totalExpenses' => (float)$total_expenses,
+            'propertyStatus' => $property_status
         ]
     ]);
 

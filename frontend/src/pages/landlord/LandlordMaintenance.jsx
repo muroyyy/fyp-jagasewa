@@ -22,6 +22,7 @@ export default function LandlordMaintenance() {
   const [responseText, setResponseText] = useState('');
   const [newStatus, setNewStatus] = useState('');
   const [estimatedCompletion, setEstimatedCompletion] = useState('');
+  const [expenseAmount, setExpenseAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -214,6 +215,7 @@ export default function LandlordMaintenance() {
     setNewStatus(request.status);
     setResponseText('');
     setEstimatedCompletion('');
+    setExpenseAmount('');
     setShowResponseModal(true);
   };
 
@@ -238,7 +240,8 @@ export default function LandlordMaintenance() {
           request_id: selectedRequest.request_id,
           status: newStatus,
           response: responseText,
-          estimated_completion: estimatedCompletion || null
+          estimated_completion: estimatedCompletion || null,
+          expense_amount: expenseAmount || 0
         })
       });
 
@@ -749,6 +752,24 @@ export default function LandlordMaintenance() {
                   />
                 </div>
               )}
+
+              {/* Expense Amount */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Expense Amount (RM) (Optional)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={expenseAmount}
+                  onChange={(e) => setExpenseAmount(e.target.value)}
+                  disabled={isSubmitting}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">Enter the cost of maintenance work (if applicable)</p>
+              </div>
 
               {/* Previous Response (if exists) */}
               {selectedRequest.landlord_response && (

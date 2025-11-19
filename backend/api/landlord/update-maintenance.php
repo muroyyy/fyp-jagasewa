@@ -11,95 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
 $sessionToken = getBearerToken();
 
 if (empty($sessionToken)) {
@@ -123,6 +34,9 @@ $response = $data['response'];
 $estimatedCompletion = isset($data['estimated_completion']) && !empty($data['estimated_completion']) 
     ? $data['estimated_completion'] 
     : null;
+$expenseAmount = isset($data['expense_amount']) && !empty($data['expense_amount']) 
+    ? floatval($data['expense_amount']) 
+    : 0.00;
 
 try {
     $database = new Database();
@@ -170,11 +84,12 @@ try {
             landlord_response = ?,
             response_date = NOW(),
             estimated_completion = ?,
+            expense_amount = ?,
             updated_at = NOW()
         WHERE request_id = ?
     ");
     
-    $stmt->execute([$status, $response, $estimatedCompletion, $requestId]);
+    $stmt->execute([$status, $response, $estimatedCompletion, $expenseAmount, $requestId]);
 
     echo json_encode([
         'success' => true,
