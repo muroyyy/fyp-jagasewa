@@ -165,49 +165,6 @@ const AdminDashboard = () => {
             <p className="text-gray-500 text-center py-8">No recent activities</p>
           )}
         </div>
-      </div>lProperties > 0 ? ((stats.propertyStatus.vacant / stats.totalProperties) * 100).toFixed(1) : 0}%</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-orange-100 rounded-lg">
-                  <Activity className="text-orange-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Maintenance</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.propertyStatus.maintenance}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">{stats.totalProperties > 0 ? ((stats.propertyStatus.maintenance / stats.totalProperties) * 100).toFixed(1) : 0}%</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activities */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
-        </div>
-        <div className="p-6">
-          {recentActivities.length > 0 ? (
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900">{activity.description}</p>
-                    <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No recent activities</p>
-          )}
-        </div>
       </div>
     </div>
   );
