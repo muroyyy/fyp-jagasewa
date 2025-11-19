@@ -82,6 +82,33 @@ try {
     $maintenanceStmt->execute([$landlordId]);
     $pendingRequests = $maintenanceStmt->fetch(PDO::FETCH_ASSOC)['total'];
     
+    // Total Expenses (sum of maintenance expenses)
+    $expensesQuery = "SELECT COALESCE(SUM(mr.expense_amount), 0) as total FROM maintenance_requests mr 
+                      JOIN properties p ON mr.property_id = p.property_id 
+                      WHERE p.landlord_id = ?";
+    $expensesStmt = $db->prepare($expensesQuery);
+    $expensesStmt->execute([$landlordId]);
+    $totalExpenses = $expensesStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Property Status Distribution
+    $statusQuery = "SELECT status, COUNT(*) as count FROM properties WHERE landlord_id = ? GROUP BY status";
+    $statusStmt = $db->prepare($statusQuery);
+    $statusStmt->execute([$landlordId]);
+    $statusResults = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $propertyStatus = [
+        'occupied' => 0,
+        'vacant' => 0,
+        'maintenance' => 0
+    ];
+    
+    foreach ($statusResults as $row) {
+        $status = strtolower($row['status']);
+        if (isset($propertyStatus[$status])) {
+            $propertyStatus[$status] = (int)$row['count'];
+        }
+    }
+    
     // Return successful response with profile data and statistics
     http_response_code(200);
     echo json_encode([
@@ -98,7 +125,9 @@ try {
                 "total_properties" => (int)$totalProperties,
                 "total_tenants" => (int)$totalTenants,
                 "monthly_revenue" => (float)$monthlyRevenue,
-                "pending_requests" => (int)$pendingRequests
+                "pending_requests" => (int)$pendingRequests,
+                "total_expenses" => (float)$totalExpenses,
+                "property_status" => $propertyStatus
             ]
         ]
     ]);

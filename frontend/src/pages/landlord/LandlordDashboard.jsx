@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, DollarSign, Wrench, Bell } from 'lucide-react';
+import { Building2, Users, DollarSign, Wrench, Bell, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/layout/LandlordLayout';
@@ -115,6 +115,98 @@ export default function LandlordDashboard() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Financial Overview & Property Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Financial Overview */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Financial Overview</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-green-100 rounded-lg">
+                    <TrendingUp className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900">RM {(stats?.monthly_revenue || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-red-100 rounded-lg">
+                    <TrendingDown className="text-red-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Expenses</p>
+                    <p className="text-2xl font-bold text-gray-900">RM {(stats?.total_expenses || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <DollarSign className="text-blue-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Net Profit</p>
+                    <p className="text-2xl font-bold text-gray-900">RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Property Status Distribution */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Property Status Distribution</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-green-100 rounded-lg">
+                    <Building2 className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Occupied</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.property_status?.occupied || 0}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">{stats?.total_properties > 0 ? (((stats?.property_status?.occupied || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-yellow-100 rounded-lg">
+                    <Building2 className="text-yellow-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Vacant</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.property_status?.vacant || 0}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">{stats?.total_properties > 0 ? (((stats?.property_status?.vacant || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-orange-100 rounded-lg">
+                    <Activity className="text-orange-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Maintenance</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.property_status?.maintenance || 0}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">{stats?.total_properties > 0 ? (((stats?.property_status?.maintenance || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}
