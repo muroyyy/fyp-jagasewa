@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Lock, Save, AlertCircle, CheckCircle, Eye, EyeOff, Camera, Mail, Phone, CreditCard, Calendar } from 'lucide-react';
 import { getCurrentUser, updateUserData, logout } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
+import { formatDateMY } from '../../utils/dateFormatter';
 
 export default function TenantSettings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -367,7 +368,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
           </label>
           <input
             type="text"
-            value={profile?.move_out_date ? new Date(profile.move_out_date).toLocaleDateString('en-MY') : 'Still residing'}
+            value={profile?.move_out_date ? formatDateMY(profile.move_out_date) : 'Still residing'}
             disabled
             className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed"
           />
