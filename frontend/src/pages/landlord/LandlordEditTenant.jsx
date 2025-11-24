@@ -258,7 +258,7 @@ export default function LandlordEditTenant() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date of Birth *
+                    Date of Birth * <span className="text-xs text-gray-500 font-normal">(DD-MM-YYYY)</span>
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -275,7 +275,7 @@ export default function LandlordEditTenant() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Move-in Date *
+                    Move-in Date * <span className="text-xs text-gray-500 font-normal">(DD-MM-YYYY)</span>
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -292,7 +292,7 @@ export default function LandlordEditTenant() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Move-out Date (Optional)
+                    Move-out Date (Optional) <span className="text-xs text-gray-500 font-normal">(DD-MM-YYYY)</span>
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
