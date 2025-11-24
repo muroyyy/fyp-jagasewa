@@ -151,10 +151,14 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Calendar size={16} className="text-blue-600" />
-                        <span>Tenant since: <strong>{formatDate(tenant.move_in_date)}</strong></span>
+                        <span>Move In: <strong>{formatDate(tenant.move_in_date)}</strong></span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <Calendar size={16} className="text-indigo-600" />
+                        <span>Move Out: <strong>{tenant.move_out_date ? formatDate(tenant.move_out_date) : <span className="text-green-600">Still residing</span>}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar size={16} className="text-purple-600" />
                         <span>Duration: <strong>{calculateTenancyDuration(tenant.move_in_date)}</strong></span>
                       </div>
                     </div>

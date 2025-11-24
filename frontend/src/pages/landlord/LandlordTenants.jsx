@@ -237,6 +237,7 @@ export default function LandlordTenants() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Property</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Move-in Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Move-out Date</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Account Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -286,6 +287,12 @@ export default function LandlordTenants() {
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(tenant.move_in_date)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>{tenant.move_out_date ? formatDate(tenant.move_out_date) : <span className="text-green-600 font-medium">Still residing</span>}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -342,7 +349,7 @@ export default function LandlordTenants() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center">
+                    <td colSpan="7" className="px-6 py-12 text-center">
                       <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">No tenants found</h3>
                       <p className="text-gray-600">
