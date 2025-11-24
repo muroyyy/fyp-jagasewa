@@ -110,7 +110,7 @@ try {
     $updateFields = [];
     $params = [':tenant_id' => $tenantId];
     
-    $allowedFields = ['full_name', 'phone', 'move_in_date', 'ic_number'];
+    $allowedFields = ['full_name', 'phone', 'move_in_date', 'move_out_date', 'ic_number'];
     
     foreach ($allowedFields as $field) {
         if (isset($input[$field])) {

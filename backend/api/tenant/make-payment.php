@@ -10,11 +10,11 @@ require_once '../../config/receipt_generator.php';
 $data = json_decode(file_get_contents("php://input"));
 
 // Validate required fields
-if (empty($data->amount) || empty($data->payment_method) || empty($data->transaction_id)) {
+if (empty($data->amount) || empty($data->payment_method) || empty($data->transaction_id) || empty($data->payment_type) || empty($data->payment_period)) {
     http_response_code(400);
     echo json_encode([
         "success" => false,
-        "message" => "Missing required fields: amount, payment_method, transaction_id"
+        "message" => "Missing required fields: amount, payment_method, transaction_id, payment_type, payment_period"
     ]);
     exit();
 }
@@ -71,16 +71,35 @@ try {
     $tenantId = $tenant['tenant_id'];
     $propertyId = $tenant['property_id'];
     
+    // Validate payment type
+    $validPaymentTypes = ['full_month', 'fortnight_1', 'fortnight_2', 'advance'];
+    if (!in_array($data->payment_type, $validPaymentTypes)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Invalid payment type']);
+        exit();
+    }
+    
+    // Set fortnight number if applicable
+    $fortnightNumber = null;
+    if ($data->payment_type === 'fortnight_1') {
+        $fortnightNumber = 1;
+    } elseif ($data->payment_type === 'fortnight_2') {
+        $fortnightNumber = 2;
+    }
+    
     // Insert payment record
     $insertQuery = "INSERT INTO payments 
-                    (tenant_id, property_id, amount, payment_method, payment_provider, transaction_id, status, payment_date, created_at)
+                    (tenant_id, property_id, amount, payment_type, payment_period, fortnight_number, payment_method, payment_provider, transaction_id, status, payment_date, created_at)
                     VALUES 
-                    (:tenant_id, :property_id, :amount, :payment_method, :payment_provider, :transaction_id, 'completed', NOW(), NOW())";
+                    (:tenant_id, :property_id, :amount, :payment_type, :payment_period, :fortnight_number, :payment_method, :payment_provider, :transaction_id, 'completed', NOW(), NOW())";
     
     $insertStmt = $db->prepare($insertQuery);
     $insertStmt->bindParam(':tenant_id', $tenantId);
     $insertStmt->bindParam(':property_id', $propertyId);
     $insertStmt->bindParam(':amount', $data->amount);
+    $insertStmt->bindParam(':payment_type', $data->payment_type);
+    $insertStmt->bindParam(':payment_period', $data->payment_period);
+    $insertStmt->bindParam(':fortnight_number', $fortnightNumber);
     $insertStmt->bindParam(':payment_method', $data->payment_method);
     $insertStmt->bindParam(':payment_provider', $data->payment_provider);
     $insertStmt->bindParam(':transaction_id', $data->transaction_id);

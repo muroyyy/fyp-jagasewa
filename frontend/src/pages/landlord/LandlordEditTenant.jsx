@@ -20,7 +20,8 @@ export default function LandlordEditTenant() {
     ic_number: '',
     date_of_birth: '',
     property_id: '',
-    move_in_date: ''
+    move_in_date: '',
+    move_out_date: ''
   });
 
   useEffect(() => {
@@ -54,7 +55,8 @@ export default function LandlordEditTenant() {
           ic_number: tenant.ic_number || '',
           date_of_birth: tenant.date_of_birth ? tenant.date_of_birth.split(' ')[0] : '',
           property_id: tenant.property_id ? tenant.property_id.toString() : '',
-          move_in_date: tenant.move_in_date ? tenant.move_in_date.split(' ')[0] : ''
+          move_in_date: tenant.move_in_date ? tenant.move_in_date.split(' ')[0] : '',
+          move_out_date: tenant.move_out_date ? tenant.move_out_date.split(' ')[0] : ''
         });
       } else {
         setError(data.message);
@@ -286,6 +288,24 @@ export default function LandlordEditTenant() {
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Move-out Date (Optional)
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="date"
+                      name="move_out_date"
+                      value={formData.move_out_date}
+                      onChange={handleInputChange}
+                      min={formData.move_in_date}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Leave empty if tenant is still residing</p>
                 </div>
               </div>
             </div>

@@ -178,6 +178,7 @@ export default function LandlordTenants() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Property</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Move-in Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Move-out Date</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -217,6 +218,12 @@ export default function LandlordTenants() {
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(tenant.move_in_date)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>{tenant.move_out_date ? formatDate(tenant.move_out_date) : 'Still residing'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">

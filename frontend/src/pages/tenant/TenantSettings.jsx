@@ -343,6 +343,37 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
         <p className="text-xs text-gray-500 mt-1">Date of birth cannot be changed</p>
       </div>
 
+      {/* Rental Period Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Move-in Date (Read-only) */}
+        <div>
+          <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+            <Calendar className="w-4 h-4" />
+            <span>Move-in Date</span>
+          </label>
+          <input
+            type="date"
+            value={profile?.move_in_date ? profile.move_in_date.split(' ')[0] : ''}
+            disabled
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Move-out Date (Read-only) */}
+        <div>
+          <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+            <Calendar className="w-4 h-4" />
+            <span>Move-out Date</span>
+          </label>
+          <input
+            type="text"
+            value={profile?.move_out_date ? new Date(profile.move_out_date).toLocaleDateString('en-MY') : 'Still residing'}
+            disabled
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+      </div>
+
       {/* Save Button */}
       <button
         type="submit"
