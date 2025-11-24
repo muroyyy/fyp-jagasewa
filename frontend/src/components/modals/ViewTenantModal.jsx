@@ -43,11 +43,10 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   const formatCurrency = (amount) => {
@@ -261,6 +260,17 @@ const ViewTenantModal = ({ isOpen, onClose, tenantId }) => {
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Move-in Date</label>
                     <p className="text-gray-800 font-medium">{formatDate(tenant.move_in_date)}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500 mb-1 block">Move-out Date</label>
+                    <p className="text-gray-800 font-medium">
+                      {tenant.move_out_date ? formatDate(tenant.move_out_date) : (
+                        <span className="text-green-600 flex items-center gap-1">
+                          <CheckCircle size={14} />
+                          Still residing
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
