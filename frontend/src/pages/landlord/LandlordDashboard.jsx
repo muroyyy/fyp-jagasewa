@@ -125,55 +125,81 @@ export default function LandlordDashboard() {
             
             {/* Bar Chart */}
             <div className="mb-6">
-              <div className="flex items-end justify-center gap-8 h-64">
-                {/* Revenue Bar */}
-                <div className="flex flex-col items-center gap-2 flex-1 max-w-[120px]">
-                  <div className="w-full flex flex-col justify-end h-full">
-                    <div 
-                      className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500 hover:shadow-lg relative group"
-                      style={{ height: `${Math.min((stats?.monthly_revenue || 0) / Math.max(stats?.monthly_revenue || 1, stats?.total_expenses || 1) * 100, 100)}%` }}
-                    >
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        RM {(stats?.monthly_revenue || 0).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+              {(() => {
+                const revenue = stats?.monthly_revenue || 0;
+                const expenses = stats?.total_expenses || 0;
+                const maxValue = Math.max(revenue, expenses, 1);
+                const revenueHeight = (revenue / maxValue) * 100;
+                const expensesHeight = (expenses / maxValue) * 100;
+                
+                return (
+                  <div className="flex items-end justify-center gap-12 h-80 px-4">
+                    {/* Revenue Bar */}
+                    <div className="flex flex-col items-center gap-3 w-32">
+                      <div className="w-full flex flex-col justify-end h-full relative">
+                        <div 
+                          className="w-full bg-gradient-to-t from-green-600 via-green-500 to-green-400 rounded-t-xl transition-all duration-700 ease-out hover:shadow-2xl hover:scale-105 relative group shadow-lg"
+                          style={{ 
+                            height: `${Math.max(revenueHeight, 5)}%`,
+                            minHeight: revenue > 0 ? '40px' : '0px'
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-t-xl"></div>
+                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-10">
+                            RM {revenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-xs font-semibold text-green-600 uppercase tracking-wide">Revenue</p>
+                        <p className="text-lg font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs font-semibold text-green-600">Revenue</p>
-                    <p className="text-sm font-bold text-gray-900">RM {(stats?.monthly_revenue || 0).toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
-                  </div>
-                </div>
 
-                {/* Expenses Bar */}
-                <div className="flex flex-col items-center gap-2 flex-1 max-w-[120px]">
-                  <div className="w-full flex flex-col justify-end h-full">
-                    <div 
-                      className="w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg transition-all duration-500 hover:shadow-lg relative group"
-                      style={{ height: `${Math.min((stats?.total_expenses || 0) / Math.max(stats?.monthly_revenue || 1, stats?.total_expenses || 1) * 100, 100)}%` }}
-                    >
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        RM {(stats?.total_expenses || 0).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                    {/* Expenses Bar */}
+                    <div className="flex flex-col items-center gap-3 w-32">
+                      <div className="w-full flex flex-col justify-end h-full relative">
+                        <div 
+                          className="w-full bg-gradient-to-t from-red-600 via-red-500 to-red-400 rounded-t-xl transition-all duration-700 ease-out hover:shadow-2xl hover:scale-105 relative group shadow-lg"
+                          style={{ 
+                            height: `${Math.max(expensesHeight, 5)}%`,
+                            minHeight: expenses > 0 ? '40px' : '0px'
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-t-xl"></div>
+                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-10">
+                            RM {expenses.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-xs font-semibold text-red-600 uppercase tracking-wide">Expenses</p>
+                        <p className="text-lg font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs font-semibold text-red-600">Expenses</p>
-                    <p className="text-sm font-bold text-gray-900">RM {(stats?.total_expenses || 0).toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* Net Profit Summary */}
-            <div className="pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <DollarSign className="text-blue-600" size={20} />
+                  <div className="p-2.5 bg-blue-100 rounded-lg">
+                    <DollarSign className="text-blue-600" size={22} />
                   </div>
-                  <p className="text-sm font-semibold text-gray-700">Net Profit</p>
+                  <p className="text-sm font-semibold text-gray-700">Net Profit This Month</p>
                 </div>
-                <p className="text-xl font-bold text-gray-900">RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className={`text-2xl font-bold ${
+                  ((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)) >= 0 
+                    ? 'text-green-600' 
+                    : 'text-red-600'
+                }`}>
+                  RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
               </div>
             </div>
           </div>
