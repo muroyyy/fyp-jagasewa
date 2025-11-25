@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, Image as ImageIcon } from 'lucide-react';
+import { Building2, MapPin, Plus, Search, X, AlertCircle, CheckCircle, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 import ViewPropertyModal from '../../components/modals/ViewPropertyModal';
 import ImageSlider from '../../components/shared/ImageSlider';
@@ -24,6 +24,11 @@ export default function LandlordProperties() {
   // View Property Modal States
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+  
+  // Delete Property Modal States
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -81,6 +86,50 @@ export default function LandlordProperties() {
 
   const handleEditProperty = (propertyId) => {
     navigate(`/landlord/properties/edit/${propertyId}`);
+  };
+
+  const handleDeleteProperty = (property) => {
+    setPropertyToDelete(property);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteProperty = async () => {
+    if (!propertyToDelete) return;
+
+    setIsDeleting(true);
+    setError('');
+
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      
+      const response = await fetch(`${API_BASE_URL}/api/landlord/delete-property.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          property_id: propertyToDelete.property_id
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess('Property deleted successfully!');
+        setShowDeleteModal(false);
+        setPropertyToDelete(null);
+        fetchProperties();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.message || 'Failed to delete property');
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -328,13 +377,19 @@ export default function LandlordProperties() {
                         onClick={() => handleViewProperty(property.property_id)}
                         className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-medium transition-colors cursor-pointer"
                       >
-                        View Details
+                        View
                       </button>
                       <button 
                         onClick={() => handleEditProperty(property.property_id)}
                         className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
                       >
                         Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteProperty(property)}
+                        className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -660,6 +715,51 @@ export default function LandlordProperties() {
         onClose={() => setShowViewModal(false)}
         propertyId={selectedPropertyId}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Delete Property
+              </h3>
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to delete <span className="font-semibold">{propertyToDelete?.property_name}</span>? This action cannot be undone and will remove all associated data.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setPropertyToDelete(null);
+                  }}
+                  disabled={isDeleting}
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteProperty}
+                  disabled={isDeleting}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 flex items-center justify-center cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
