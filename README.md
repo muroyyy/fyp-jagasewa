@@ -26,10 +26,11 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 | **Frontend**         | ReactJS + Tailwind CSS + Vite          | Modern SPA with responsive design                           |
 | **Backend**          | PHP (RESTful API)                      | Handles authentication, CRUD operations, and business logic |
 | **Database**         | MySQL (AWS RDS)                        | Stores user, property, and rental data                      |
-| **Infrastructure**   | AWS (EC2, S3, RDS, VPC, IAM, Route 53) | Cloud environment hosting the full stack                    |
+| **Infrastructure**   | AWS (EC2, S3, RDS, VPC, IAM, Route 53, CloudFront, ECR) | Cloud environment hosting the full stack                    |
 | **IaC Tool**         | Terraform                              | Automates provisioning of cloud resources                   |
-| **Containerization** | Docker + Docker Compose                | Ensures consistent runtime for frontend and backend         |
-| **Version Control**  | GitHub + GitHub Actions                | CI/CD pipeline for automated build and deployment           |
+| **Containerization** | Docker                                 | Backend containerization with Docker images                 |
+| **CI/CD**            | GitHub Actions                         | Automated build and deployment pipeline                     |
+| **Version Control**  | GitHub                                 | Source code management and collaboration                    |
 
 ---
 
@@ -47,48 +48,7 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 - View rental history and payments
 - Provide ratings and comments
 
-## 📁 Project Structure
-```
-jagasewa-claude/
-├── frontend/                 # ReactJS + Tailwind CSS (Vite)
-│   ├── src/                  # Core source files (pages, components, assets)
-│   ├── public/               # Static assets
-│   ├── index.html            # Root HTML entry file
-│   ├── package.json          # Frontend dependencies
-│   └── vite.config.js        # Vite configuration
-│
-├── backend/                  # PHP RESTful API
-│   ├── api/                  # Endpoint scripts (auth, property, tenant)
-│   ├── config/               # Database and environment configuration
-│   ├── models/               # PHP models (User, Tenant, Landlord)
-│   ├── uploads/              # File uploads and documents
-│   ├── Dockerfile            # Backend container configuration
-│   └── composer.json         # PHP dependencies (if applicable)
-│
-├── infra/                    # Terraform Infrastructure as Code (IaC)
-│   ├── main.tf               # Root Terraform configuration
-│   ├── variables.tf          # Global variable definitions
-│   ├── outputs.tf            # Root output values (RDS endpoint, EC2 IP, etc.)
-│   ├── providers.tf          # AWS provider configuration
-│   ├── user_data/            # EC2 initialization scripts (e.g., Docker setup)
-│   ├── modules/              # Modular Terraform components
-│   │   ├── vpc/              # Network, subnets, gateways
-│   │   ├── ec2/              # Backend EC2 instance
-│   │   ├── rds/              # MySQL database
-│   │   ├── s3/               # Frontend hosting
-│   │   ├── iam/              # IAM roles and permissions
-│   │   └── security/         # Security groups and firewall rules
-│   └── env/                  # Environment variable files
-│       ├── dev.tfvars        # Development configuration
-│       └── prod.tfvars       # Production configuration
-│
-├── docker-compose.yml        # Docker multi-container setup
-├── .gitignore
-├── package-lock.json
-└── README.md
-```
 
----
 
 ## 🔒 Security Highlights
 
@@ -96,13 +56,80 @@ jagasewa-claude/
 - Private subnets for RDS and backend EC2
 - HTTPS via ALB / CloudFront
 - Docker isolation between services
-- Encrypted credentials stored in AWS SSM Parameter Stor
+- Encrypted credentials stored in AWS SSM Parameter Store
+- Secrets management via GitHub Secrets and AWS Secrets Manager
 
 ---
 
 ## 🧩 CI/CD Workflow
 
-GitHub Actions automates:
-- Build → React app build and backend lint check
-- Package → Docker images built and tagged
-- Deploy → Terraform applies changes to AWS infrastructure
+The project implements an automated CI/CD pipeline using **GitHub Actions** that triggers on every push to the `main` branch, deploying both frontend and backend to AWS infrastructure.
+
+### Frontend Deployment Pipeline
+
+**Trigger**: Push to `main` branch
+
+1. **Build Stage**
+   - Installs dependencies using `npm install`
+   - Builds optimized production bundle with `npm run build`
+   - Generates static files ready for deployment
+
+2. **Deploy to S3**
+   - Uploads build artifacts to AWS S3 bucket
+   - S3 bucket configured for static website hosting
+   - Files are publicly accessible through S3
+
+3. **CloudFront Distribution**
+   - S3 serves frontend files through CloudFront CDN
+   - CloudFront provides global content delivery
+   - HTTPS enabled with SSL/TLS certificate
+   - Custom domain: **jagasewa.cloud**
+   - Route 53 DNS configured to point to CloudFront distribution
+
+### Backend Deployment Pipeline
+
+**Trigger**: Push to `main` branch
+
+1. **Build Docker Image**
+   - Creates Docker image for PHP backend
+   - Includes all dependencies and configurations
+   - Tags image with commit SHA for version tracking
+
+2. **Push to Amazon ECR**
+   - Authenticates with Amazon Elastic Container Registry
+   - Pushes Docker image to ECR repository
+   - Maintains image versioning for rollback capability
+
+3. **Deploy to EC2**
+   - EC2 instance pulls latest Docker image from ECR
+   - Stops existing container (if running)
+   - Runs new container with updated image
+   - Backend API accessible through EC2 instance
+   - Connects to RDS MySQL database
+
+### Infrastructure Components
+
+- **Frontend**: S3 + CloudFront + Route 53 (jagasewa.cloud)
+- **Backend**: EC2 + Docker + ECR
+- **Database**: AWS RDS (MySQL)
+- **Storage**: S3 for property images and documents
+- **Networking**: VPC with public/private subnets
+- **Security**: IAM roles, Security Groups, SSL/TLS certificates
+
+### Deployment Flow
+
+```
+GitHub Push (main) → GitHub Actions
+                          |
+        +-----------------+-----------------+
+        |                                   |
+    Frontend                            Backend
+        |                                   |
+    npm build                      Docker build
+        |                                   |
+    Upload to S3                   Push to ECR
+        |                                   |
+    CloudFront CDN                 EC2 pulls image
+        |                                   |
+  jagasewa.cloud                   Run container
+```
