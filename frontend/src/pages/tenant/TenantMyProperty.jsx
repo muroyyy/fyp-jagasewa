@@ -128,19 +128,19 @@ export default function TenantMyProperty() {
               <img
                 src={property.images[selectedImage]}
                 alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                className="w-full h-auto"
+                className="w-full h-auto transition-opacity duration-300"
               />
               {property.images.length > 1 && (
                 <>
                   <button
                     onClick={() => setSelectedImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={() => setSelectedImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
