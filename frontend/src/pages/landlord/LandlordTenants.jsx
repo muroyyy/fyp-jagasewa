@@ -290,10 +290,14 @@ export default function LandlordTenants() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>{tenant.move_out_date ? formatDate(tenant.move_out_date) : <span className="text-green-600 font-medium">Still residing</span>}</span>
-                        </div>
+                        {tenant.move_out_date ? (
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Calendar className="w-4 h-4" />
+                            <span>{formatDate(tenant.move_out_date)}</span>
+                          </div>
+                        ) : (
+                          <span className="text-green-600 font-medium text-sm">Still Residing</span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${

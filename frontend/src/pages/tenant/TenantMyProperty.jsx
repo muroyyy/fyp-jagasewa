@@ -207,6 +207,19 @@ export default function TenantMyProperty() {
               </div>
             </div>
 
+            {/* Move-out Date */}
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">Move-out Date</label>
+              {property.move_out_date ? (
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <p className="text-gray-900 font-medium">{formatDate(property.move_out_date)}</p>
+                </div>
+              ) : (
+                <span className="text-green-600 font-semibold">Still Residing</span>
+              )}
+            </div>
+
             {/* Property Status */}
             <div className="md:col-span-2">
               <label className="text-sm font-semibold text-gray-700 mb-2 block">Property Status</label>
