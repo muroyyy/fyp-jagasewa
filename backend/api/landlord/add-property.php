@@ -2,7 +2,6 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -10,95 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/s3_helper.php';
 
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-// Get authorization token using helper function
-$sessionToken = getBearerToken();
-
-if (empty($sessionToken)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
 // Get authorization token using helper function
 $sessionToken = getBearerToken();
 
@@ -144,14 +56,8 @@ try {
 
     $landlord_id = $session['landlord_id'];
 
-    // Handle image uploads
+    // Handle image uploads to S3
     $uploadedImages = [];
-    $uploadDir = '../../uploads/properties/';
-    
-    // Create directory if it doesn't exist
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
 
     if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
         $files = $_FILES['property_images'];
@@ -175,13 +81,12 @@ try {
                     continue;
                 }
                 
-                // Generate unique filename
-                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-                $newFileName = 'property_' . $landlord_id . '_' . time() . '_' . $i . '.' . $extension;
-                $destination = $uploadDir . $newFileName;
+                // Upload to S3
+                $s3Key = 'properties/' . uniqid() . '_' . basename($fileName);
+                $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
                 
-                if (move_uploaded_file($tmpName, $destination)) {
-                    $uploadedImages[] = 'uploads/properties/' . $newFileName;
+                if ($s3Url) {
+                    $uploadedImages[] = $s3Url;
                 }
             }
         }
