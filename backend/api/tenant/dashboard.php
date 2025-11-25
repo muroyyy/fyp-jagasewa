@@ -60,6 +60,7 @@ try {
             t.ic_number,
             t.date_of_birth,
             t.move_in_date,
+            t.move_out_date,
             t.property_id,
             u.email,
             p.property_name,
@@ -211,6 +212,7 @@ try {
             'monthly_rent' => $tenant['monthly_rent'],
             'status' => $tenant['property_status'],
             'move_in_date' => $tenant['move_in_date'],
+            'move_out_date' => $tenant['move_out_date'],
             'images' => $property_images,
             'landlord' => [
                 'name' => $tenant['landlord_name'],
