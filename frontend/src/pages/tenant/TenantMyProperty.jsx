@@ -128,7 +128,7 @@ export default function TenantMyProperty() {
               <img
                 src={property.images[selectedImage]}
                 alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                className="w-full h-96 object-cover"
+                className="w-full h-auto"
               />
             </div>
 
