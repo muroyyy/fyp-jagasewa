@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
+import { isAuthenticated, getUserRole } from '../../utils/auth';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,20 @@ export default function Login() {
     email: '',
     password: ''
   });
+
+  useEffect(() => {
+    // Check if user is already logged in
+    if (isAuthenticated()) {
+      const role = getUserRole();
+      if (role === 'landlord') {
+        navigate('/landlord-dashboard');
+      } else if (role === 'tenant') {
+        navigate('/tenant-dashboard');
+      } else if (role === 'admin') {
+        navigate('/admin/dashboard');
+      }
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({

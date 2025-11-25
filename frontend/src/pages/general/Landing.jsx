@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Home, Users, DollarSign, Wrench, FileText, Bell, BarChart3, Shield, ArrowRight, Check, Clock, TrendingUp, Zap, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
+import { isAuthenticated, getUserRole } from '../../utils/auth';
 
 export default function Landing() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    if (isAuthenticated()) {
+      const role = getUserRole();
+      if (role === 'landlord') {
+        navigate('/landlord-dashboard');
+      } else if (role === 'tenant') {
+        navigate('/tenant-dashboard');
+      } else if (role === 'admin') {
+        navigate('/admin/dashboard');
+      }
+    }
+  }, [navigate]);
 
   const testimonials = [
     { quote: "Saves me 2 hours daily", author: "Kamal Basyir", role: "15 properties in Selangor" },
