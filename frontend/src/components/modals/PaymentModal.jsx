@@ -80,6 +80,9 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       // Submit to backend
       try {
         const token = localStorage.getItem('session_token');
+        const currentDate = new Date();
+        const paymentPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/make-payment.php`, {
           method: 'POST',
           headers: {
@@ -90,7 +93,9 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
             amount: amount,
             payment_method: selectedMethod,
             payment_provider: selectedProvider?.name || 'Card',
-            transaction_id: txnId
+            transaction_id: txnId,
+            payment_type: 'full_month',
+            payment_period: paymentPeriod
           })
         });
 
