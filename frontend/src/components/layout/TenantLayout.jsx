@@ -10,7 +10,7 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 export default function TenantLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [fullName, setFullName] = useState('');
   const user = getCurrentUser();
@@ -79,10 +79,10 @@ export default function TenantLayout({ children }) {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              {/* Hamburger Menu - Mobile Only */}
+              {/* Hamburger Menu */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden cursor-pointer"
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -124,7 +124,7 @@ export default function TenantLayout({ children }) {
       </nav>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex flex-col h-full">
@@ -181,7 +181,7 @@ export default function TenantLayout({ children }) {
         </div>
       </aside>
 
-      {/* Mobile sidebar overlay with blur */}
+      {/* Sidebar overlay with blur */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
@@ -190,7 +190,9 @@ export default function TenantLayout({ children }) {
       )}
 
       {/* Main Content */}
-      <main className="lg:ml-64 pt-16">
+      <main className={`pt-16 transition-all duration-300 ease-in-out ${
+        sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
+      }`}>
         {children}
       </main>
     </div>

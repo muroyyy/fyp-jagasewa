@@ -12,7 +12,7 @@ export default function LandlordLayout({ children }) {
   const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Check authentication
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function LandlordLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Mobile Overlay */}
+      {/* Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
@@ -110,10 +110,10 @@ export default function LandlordLayout({ children }) {
       {/* Left Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
+          fixed inset-y-0 left-0 z-50
           w-64 bg-white border-r border-gray-200 flex flex-col
-          transform transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          transform transition-all duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         {/* Logo Section */}
@@ -171,15 +171,17 @@ export default function LandlordLayout({ children }) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
+      }`}>
         {/* Top Header */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side: Burger menu (mobile) */}
+            {/* Left side: Burger menu */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleSidebar}
-                className="lg:hidden text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <Menu className="w-6 h-6" />
               </button>
