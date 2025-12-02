@@ -10,7 +10,7 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 export default function TenantLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [profileImage, setProfileImage] = useState(null);
   const [fullName, setFullName] = useState('');
   const user = getCurrentUser();
@@ -20,6 +20,13 @@ export default function TenantLayout({ children }) {
       fetchProfileData();
     }
   }, [user]);
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const fetchProfileData = async () => {
     try {

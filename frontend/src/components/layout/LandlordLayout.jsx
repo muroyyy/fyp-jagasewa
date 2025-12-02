@@ -12,7 +12,7 @@ export default function LandlordLayout({ children }) {
   const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
 
   // Check authentication
   useEffect(() => {
@@ -33,9 +33,11 @@ export default function LandlordLayout({ children }) {
     }
   }, [navigate]);
 
-  // Close sidebar when route changes (mobile)
+  // Close sidebar on mobile when route changes
   useEffect(() => {
-    setIsSidebarOpen(false);
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
   }, [location.pathname]);
 
   const handleLogout = () => {
