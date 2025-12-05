@@ -43,8 +43,11 @@ try {
 
     $imageBytes = file_get_contents($_FILES['photo']['tmp_name']);
     
-    // Analyze with Rekognition
-    $result = analyzeMaintenancePhoto($imageBytes);
+    // Get description for context (optional)
+    $description = isset($_POST['description']) ? $_POST['description'] : '';
+    
+    // Analyze with Rekognition using description context
+    $result = analyzeMaintenancePhoto($imageBytes, $description);
 
     if ($result['success']) {
         http_response_code(200);

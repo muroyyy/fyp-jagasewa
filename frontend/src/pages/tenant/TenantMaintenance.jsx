@@ -317,7 +317,7 @@ function NewRequestModal({ onClose, onSuccess }) {
     { value: 'other', label: 'Other', icon: Wrench }
   ];
 
-  const handleImageSelect = async (e) => {
+  const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + selectedImages.length > 5) {
       setError('Maximum 5 images allowed');
@@ -332,26 +332,32 @@ function NewRequestModal({ onClose, onSuccess }) {
     });
     
     setSelectedImages([...selectedImages, ...files]);
-    
-    // Auto-analyze first image
-    if (files.length > 0 && !aiAnalysis) {
-      await analyzePhoto(files[0]);
-    }
+    // Don't auto-analyze - wait for user to click analyze button
   };
 
-  const analyzePhoto = async (file) => {
+  const analyzePhoto = async () => {
+    if (selectedImages.length === 0) {
+      setError('Please upload at least one image first');
+      return;
+    }
+    
     setAnalyzing(true);
     setError(null);
     
     try {
       const token = localStorage.getItem('session_token');
-      const formData = new FormData();
-      formData.append('photo', file);
+      const submitData = new FormData();
+      submitData.append('photo', selectedImages[0]);
+      
+      // Include description for better context
+      if (formData.description && formData.description.trim()) {
+        submitData.append('description', formData.description);
+      }
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/analyze-maintenance-photo.php`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+        body: submitData
       });
 
       const data = await response.json();
@@ -367,6 +373,7 @@ function NewRequestModal({ onClose, onSuccess }) {
       }
     } catch (err) {
       console.error('AI analysis failed:', err);
+      setError('AI analysis failed. Please try again.');
     } finally {
       setAnalyzing(false);
     }
@@ -376,13 +383,9 @@ function NewRequestModal({ onClose, onSuccess }) {
     const newImages = selectedImages.filter((_, i) => i !== index);
     setSelectedImages(newImages);
     
-    // Reset AI analysis if all images are removed
-    if (newImages.length === 0) {
+    // Reset AI analysis if all images are removed or first image changed
+    if (newImages.length === 0 || index === 0) {
       setAiAnalysis(null);
-    }
-    // Re-analyze first image if current first image was removed
-    else if (index === 0 && newImages.length > 0) {
-      analyzePhoto(newImages[0]);
     }
   };
 
@@ -459,6 +462,27 @@ function NewRequestModal({ onClose, onSuccess }) {
           )}
 
           <div className="space-y-4">
+            {/* AI Flow Info */}
+            {!aiAnalysis && selectedImages.length === 0 && (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Sparkle className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-1">🤖 AI-Powered Analysis Available</h4>
+                    <p className="text-sm text-purple-700 mb-2">Get smart suggestions for your maintenance request:</p>
+                    <ol className="text-xs text-purple-600 space-y-1 ml-4 list-decimal">
+                      <li>Upload photo(s) of the issue</li>
+                      <li>Add a description (helps AI understand context)</li>
+                      <li>Click "Analyze with AI" button</li>
+                      <li>Review AI suggestions and submit</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -637,7 +661,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                 <div className="mt-4 flex items-start gap-2 p-3 bg-blue-100/50 rounded-lg border border-blue-200">
                   <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-blue-800">
-                    <span className="font-semibold">Smart Suggestion:</span> We've auto-filled the category and priority based on AI analysis. You can modify these if needed.
+                    <span className="font-semibold">Smart Suggestion:</span> We've auto-filled the category and priority based on {aiAnalysis.context_used ? 'your description and image analysis' : 'image analysis'}. You can modify these if needed.
                   </p>
                 </div>
               </div>
@@ -666,28 +690,43 @@ function NewRequestModal({ onClose, onSuccess }) {
                   <p className="text-sm text-gray-600 text-center">
                     Click to upload images or drag and drop
                   </p>
-                  <p className="text-xs text-purple-600 mt-1">First image will be analyzed by AI</p>
+                  <p className="text-xs text-purple-600 mt-1">Upload images, add description, then analyze with AI</p>
                 </label>
               </div>
               
               {selectedImages.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {selectedImages.map((image, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="mt-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-3">
+                    {selectedImages.map((image, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* AI Analyze Button */}
+                  {!aiAnalysis && !analyzing && (
+                    <button
+                      type="button"
+                      onClick={analyzePhoto}
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      <Sparkle className="w-5 h-5" />
+                      Analyze with AI
+                      {formData.description && <span className="text-xs opacity-90">(with description context)</span>}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

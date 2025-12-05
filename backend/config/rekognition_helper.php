@@ -4,7 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Aws\Rekognition\RekognitionClient;
 use Aws\Exception\AwsException;
 
-function analyzeMaintenancePhoto($imageBytes) {
+function analyzeMaintenancePhoto($imageBytes, $description = '') {
     try {
         $client = new RekognitionClient([
             'region' => 'ap-southeast-1',
@@ -40,8 +40,8 @@ function analyzeMaintenancePhoto($imageBytes) {
             ];
         }
 
-        // Analyze and categorize
-        $analysis = categorizeMaintenanceIssue($labels, $moderationLabels);
+        // Analyze and categorize with description context
+        $analysis = categorizeMaintenanceIssue($labels, $moderationLabels, $description);
 
         return [
             'success' => true,
@@ -59,8 +59,9 @@ function analyzeMaintenancePhoto($imageBytes) {
     }
 }
 
-function categorizeMaintenanceIssue($labels, $moderationLabels) {
+function categorizeMaintenanceIssue($labels, $moderationLabels, $description = '') {
     $labelNames = array_map(fn($l) => strtolower($l['name']), $labels);
+    $descLower = strtolower($description);
     
     // Category detection
     $category = 'other';
@@ -75,31 +76,62 @@ function categorizeMaintenanceIssue($labels, $moderationLabels) {
         'cleaning' => ['dirt', 'stain', 'mold', 'dust']
     ];
 
+    // Check description first for better context
     foreach ($categoryKeywords as $cat => $keywords) {
         foreach ($keywords as $keyword) {
-            if (in_array($keyword, $labelNames)) {
+            if (strpos($descLower, $keyword) !== false) {
                 $category = $cat;
                 break 2;
             }
         }
     }
-
-    // Severity detection
-    $severity = 'low';
-    $damageKeywords = ['broken', 'damaged', 'crack', 'leak', 'rust', 'mold', 'fire'];
-    $urgentKeywords = ['flood', 'fire', 'electrical hazard', 'gas'];
     
-    $damageCount = 0;
-    foreach ($labelNames as $label) {
-        foreach ($damageKeywords as $keyword) {
-            if (strpos($label, $keyword) !== false) {
-                $damageCount++;
+    // If no match in description, check image labels
+    if ($category === 'other') {
+        foreach ($categoryKeywords as $cat => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (in_array($keyword, $labelNames)) {
+                    $category = $cat;
+                    break 2;
+                }
             }
         }
-        foreach ($urgentKeywords as $keyword) {
-            if (strpos($label, $keyword) !== false) {
-                $severity = 'urgent';
-                break 2;
+    }
+
+    // Severity detection with description context
+    $severity = 'low';
+    $damageKeywords = ['broken', 'damaged', 'crack', 'leak', 'rust', 'mold', 'fire', 'burst', 'flooding'];
+    $urgentKeywords = ['urgent', 'emergency', 'flood', 'fire', 'electrical hazard', 'gas', 'dangerous', 'severe'];
+    
+    // Check description for urgency keywords
+    foreach ($urgentKeywords as $keyword) {
+        if (strpos($descLower, $keyword) !== false) {
+            $severity = 'urgent';
+            break;
+        }
+    }
+    
+    // Check labels if not urgent
+    if ($severity !== 'urgent') {
+        $damageCount = 0;
+        foreach ($labelNames as $label) {
+            foreach ($damageKeywords as $keyword) {
+                if (strpos($label, $keyword) !== false) {
+                    $damageCount++;
+                }
+            }
+            foreach ($urgentKeywords as $keyword) {
+                if (strpos($label, $keyword) !== false) {
+                    $severity = 'urgent';
+                    break 2;
+                }
+            }
+        }
+        
+        // Check description for damage keywords
+        foreach ($damageKeywords as $keyword) {
+            if (strpos($descLower, $keyword) !== false) {
+                $damageCount++;
             }
         }
     }
@@ -121,7 +153,8 @@ function categorizeMaintenanceIssue($labels, $moderationLabels) {
         'suggested_priority' => $priority,
         'severity' => $severity,
         'detected_issues' => array_slice($labelNames, 0, 5),
-        'confidence' => count($labels) > 0 ? round(array_sum(array_column($labels, 'confidence')) / count($labels), 2) : 0
+        'confidence' => count($labels) > 0 ? round(array_sum(array_column($labels, 'confidence')) / count($labels), 2) : 0,
+        'context_used' => !empty($description)
     ];
 }
 ?>
