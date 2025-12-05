@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles, Sparkle, Loader } from 'lucide-react';
+import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles, Sparkle, Loader, Info, TrendingUp, Shield } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 
@@ -373,7 +373,17 @@ function NewRequestModal({ onClose, onSuccess }) {
   };
 
   const removeImage = (index) => {
-    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    setSelectedImages(newImages);
+    
+    // Reset AI analysis if all images are removed
+    if (newImages.length === 0) {
+      setAiAnalysis(null);
+    }
+    // Re-analyze first image if current first image was removed
+    else if (index === 0 && newImages.length > 0) {
+      analyzePhoto(newImages[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -533,38 +543,102 @@ function NewRequestModal({ onClose, onSuccess }) {
 
             {/* AI Analysis Badge */}
             {analyzing && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
-                <Loader className="w-5 h-5 text-blue-600 animate-spin" />
-                <div>
-                  <p className="text-sm font-semibold text-blue-900">AI Analysis in Progress...</p>
-                  <p className="text-xs text-blue-700">Analyzing damage and categorizing issue</p>
+              <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-5 shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+                    <div className="absolute inset-0 w-8 h-8 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-blue-900 mb-1">🤖 AI Analysis in Progress...</p>
+                    <p className="text-sm text-blue-700 mb-3">Our AI is examining your photo to identify the issue</p>
+                    <div className="flex items-center gap-2 text-xs text-blue-600">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                        <span>Detecting damage</span>
+                      </div>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                        <span>Categorizing issue</span>
+                      </div>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                        <span>Assessing severity</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {aiAnalysis && (
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkle className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-semibold text-purple-900">AI Analysis Results</h4>
+              <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-2 border-purple-300 rounded-2xl p-5 shadow-lg">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
+                      <Sparkle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-purple-900">AI-Powered Analysis Complete</h4>
+                      <p className="text-xs text-purple-700">Powered by AWS Rekognition</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 px-3 py-1 bg-white/60 rounded-full">
+                    <Shield className="w-4 h-4 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700">{aiAnalysis.confidence}% Confident</span>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-gray-600">Suggested Category</p>
-                    <p className="font-semibold text-gray-900 capitalize">{aiAnalysis.suggested_category.replace('_', ' ')}</p>
+
+                {/* Main Insights */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-purple-100 rounded-lg">
+                        <Info className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <p className="text-xs font-medium text-gray-600">Suggested Category</p>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900 capitalize">{aiAnalysis.suggested_category.replace('_', ' ')}</p>
+                    <p className="text-xs text-gray-500 mt-1">Based on visual analysis</p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Severity</p>
-                    <p className="font-semibold text-gray-900 capitalize">{aiAnalysis.severity}</p>
+
+                  <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-orange-100 rounded-lg">
+                        <TrendingUp className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <p className="text-xs font-medium text-gray-600">Severity Level</p>
+                    </div>
+                    <p className={`text-lg font-bold capitalize ${
+                      aiAnalysis.severity === 'urgent' ? 'text-red-600' :
+                      aiAnalysis.severity === 'high' ? 'text-orange-600' :
+                      aiAnalysis.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'
+                    }`}>{aiAnalysis.severity}</p>
+                    <p className="text-xs text-gray-500 mt-1">Priority: {aiAnalysis.suggested_priority}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Detected Issues</p>
-                    <p className="font-semibold text-gray-900">{aiAnalysis.detected_issues.slice(0, 3).join(', ')}</p>
+                </div>
+
+                {/* Detected Issues */}
+                <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                  <p className="text-xs font-medium text-gray-600 mb-2">🔍 Detected Issues</p>
+                  <div className="flex flex-wrap gap-2">
+                    {aiAnalysis.detected_issues.slice(0, 5).map((issue, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 rounded-full text-xs font-medium capitalize">
+                        {issue}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-gray-600">Confidence</p>
-                    <p className="font-semibold text-gray-900">{aiAnalysis.confidence}%</p>
-                  </div>
+                </div>
+
+                {/* Info Message */}
+                <div className="mt-4 flex items-start gap-2 p-3 bg-blue-100/50 rounded-lg border border-blue-200">
+                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-800">
+                    <span className="font-semibold">Smart Suggestion:</span> We've auto-filled the category and priority based on AI analysis. You can modify these if needed.
+                  </p>
                 </div>
               </div>
             )}
