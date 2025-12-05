@@ -91,6 +91,27 @@ resource "aws_iam_role_policy" "s3_assets_access" {
   })
 }
 
+# Custom policy for Rekognition access
+resource "aws_iam_role_policy" "rekognition_access" {
+  name = "${var.project_name}-rekognition-access"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "rekognition:DetectLabels",
+          "rekognition:DetectModerationLabels",
+          "rekognition:DetectText"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Custom policy for DynamoDB access
 resource "aws_iam_role_policy" "dynamodb_access" {
   name = "${var.project_name}-dynamodb-access"

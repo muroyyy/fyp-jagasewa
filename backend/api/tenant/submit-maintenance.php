@@ -152,6 +152,10 @@ try {
     $photosJson = json_encode($uploadedPhotos);
     error_log("Photos JSON to be saved: $photosJson");
 
+    // AI Analysis from request (if provided)
+    $aiAnalysis = isset($data['ai_analysis']) ? $data['ai_analysis'] : null;
+    $aiAnalysisJson = $aiAnalysis ? json_encode(json_decode($aiAnalysis)) : null;
+
     // Insert maintenance request
     $stmt = $conn->prepare("
         INSERT INTO maintenance_requests (
@@ -164,6 +168,7 @@ try {
             status,
             preferred_date,
             photos,
+            ai_analysis,
             created_at,
             updated_at
         ) VALUES (
@@ -176,6 +181,7 @@ try {
             'pending',
             :preferred_date,
             :photos,
+            :ai_analysis,
             NOW(),
             NOW()
         )
@@ -190,6 +196,7 @@ try {
     $preferred_date = !empty($data['preferred_date']) ? $data['preferred_date'] : null;
     $stmt->bindParam(':preferred_date', $preferred_date);
     $stmt->bindParam(':photos', $photosJson);
+    $stmt->bindParam(':ai_analysis', $aiAnalysisJson);
 
     if ($stmt->execute()) {
         $request_id = $conn->lastInsertId();

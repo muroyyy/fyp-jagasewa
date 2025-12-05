@@ -51,8 +51,12 @@ export const malaysianStates = {
     "Marang", "Jerteh", "Besut", "Setiu"
   ],
   "Kuala Lumpur": [
-    "Kuala Lumpur City Centre", "Cheras", "Kepong", "Wangsa Maju", 
-    "Setapak", "Titiwangsa", "Sentul", "Bukit Bintang", "Mont Kiara"
+    "Ampang", "Bandar Tun Razak", "Bangsar", "Bangsar South", "Batu", 
+    "Brickfields", "Bukit Bintang", "Bukit Jalil", "Cheras", "Chinatown", 
+    "Damansara Heights", "Desa Parkcity", "Golden Triangle", "Kepong", 
+    "KLCC", "Lembah Pantai", "Mont Kiara", "Segambut", "Sentul", 
+    "Seputeh", "Setapak", "Setiawangsa", "Sri Hartamas", "Sri Petaling", 
+    "Sungai Besi", "Titiwangsa", "TTDI", "Wangsa Maju"
   ],
   "Labuan": [
     "Victoria", "Rancha-Rancha", "Pohon Batu", "Layang-Layangan"

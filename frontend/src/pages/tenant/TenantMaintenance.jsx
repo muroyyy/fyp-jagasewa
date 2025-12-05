@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles } from 'lucide-react';
+import { Wrench, Plus, Search, Calendar, AlertCircle, CheckCircle, Clock, X, Image as ImageIcon, Droplets, Zap, Hammer, Wind, Paintbrush, Bug, Sparkles, Sparkle, Loader } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 
@@ -302,6 +302,8 @@ function NewRequestModal({ onClose, onSuccess }) {
     preferred_date: ''
   });
   const [selectedImages, setSelectedImages] = useState([]);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const categories = [
     { value: 'plumbing', label: 'Plumbing', icon: Droplets },
@@ -315,7 +317,7 @@ function NewRequestModal({ onClose, onSuccess }) {
     { value: 'other', label: 'Other', icon: Wrench }
   ];
 
-  const handleImageSelect = (e) => {
+  const handleImageSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length + selectedImages.length > 5) {
       setError('Maximum 5 images allowed');
@@ -330,6 +332,44 @@ function NewRequestModal({ onClose, onSuccess }) {
     });
     
     setSelectedImages([...selectedImages, ...files]);
+    
+    // Auto-analyze first image
+    if (files.length > 0 && !aiAnalysis) {
+      await analyzePhoto(files[0]);
+    }
+  };
+
+  const analyzePhoto = async (file) => {
+    setAnalyzing(true);
+    setError(null);
+    
+    try {
+      const token = localStorage.getItem('session_token');
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/analyze-maintenance-photo.php`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setAiAnalysis(data.data);
+        // Auto-fill suggestions
+        setFormData(prev => ({
+          ...prev,
+          category: prev.category || data.data.suggested_category,
+          priority: prev.priority === 'medium' ? data.data.suggested_priority : prev.priority
+        }));
+      }
+    } catch (err) {
+      console.error('AI analysis failed:', err);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const removeImage = (index) => {
@@ -357,6 +397,10 @@ function NewRequestModal({ onClose, onSuccess }) {
       selectedImages.forEach((image) => {
         submitData.append('photos[]', image);
       });
+      
+      if (aiAnalysis) {
+        submitData.append('ai_analysis', JSON.stringify(aiAnalysis));
+      }
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/submit-maintenance.php`, {
         method: 'POST',
@@ -487,10 +531,49 @@ function NewRequestModal({ onClose, onSuccess }) {
               />
             </div>
 
+            {/* AI Analysis Badge */}
+            {analyzing && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
+                <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">AI Analysis in Progress...</p>
+                  <p className="text-xs text-blue-700">Analyzing damage and categorizing issue</p>
+                </div>
+              </div>
+            )}
+
+            {aiAnalysis && (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkle className="w-5 h-5 text-purple-600" />
+                  <h4 className="font-semibold text-purple-900">AI Analysis Results</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-gray-600">Suggested Category</p>
+                    <p className="font-semibold text-gray-900 capitalize">{aiAnalysis.suggested_category.replace('_', ' ')}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Severity</p>
+                    <p className="font-semibold text-gray-900 capitalize">{aiAnalysis.severity}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Detected Issues</p>
+                    <p className="font-semibold text-gray-900">{aiAnalysis.detected_issues.slice(0, 3).join(', ')}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Confidence</p>
+                    <p className="font-semibold text-gray-900">{aiAnalysis.confidence}%</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Image Upload */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Images (Optional) - Max 5 images, 5MB each
+                <span className="ml-2 text-xs text-purple-600">✨ AI-powered analysis</span>
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-4">
                 <input
@@ -509,6 +592,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                   <p className="text-sm text-gray-600 text-center">
                     Click to upload images or drag and drop
                   </p>
+                  <p className="text-xs text-purple-600 mt-1">First image will be analyzed by AI</p>
                 </label>
               </div>
               

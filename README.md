@@ -27,6 +27,7 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 | **Backend**          | PHP (RESTful API)                      | Handles authentication, CRUD operations, and business logic |
 | **Database**         | MySQL (AWS RDS)                        | Stores user, property, and rental data                      |
 | **Infrastructure**   | AWS (EC2, S3, RDS, VPC, IAM, Route 53, CloudFront, ECR) | Cloud environment hosting the full stack                    |
+| **AI Services**      | AWS Rekognition                        | AI-powered maintenance photo analysis and categorization    |
 | **IaC Tool**         | Terraform                              | Automates provisioning of cloud resources                   |
 | **Containerization** | Docker                                 | Backend containerization with Docker images                 |
 | **CI/CD**            | GitHub Actions                         | Automated build and deployment pipeline                     |
@@ -47,6 +48,13 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 - Browse and apply for properties
 - View rental history and payments
 - Provide ratings and comments
+- AI-powered maintenance request analysis
+
+🤖 AI Features (AWS Rekognition)
+- Automatic damage detection from photos
+- Smart categorization of maintenance issues
+- Severity assessment (low/medium/high/urgent)
+- Priority recommendations for landlords
 
 
 
