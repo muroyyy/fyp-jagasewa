@@ -720,7 +720,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                     <button
                       type="button"
                       onClick={analyzePhoto}
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Sparkle className="w-5 h-5" />
                       Analyze with AI
