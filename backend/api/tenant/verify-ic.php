@@ -1,10 +1,15 @@
 <?php
 require_once '../../config/cors.php';
-setC orsHeaders();
+setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/textract_helper.php';
 require_once '../../config/s3_helper.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 header('Content-Type: application/json');
 
