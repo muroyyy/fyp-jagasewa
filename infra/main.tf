@@ -140,6 +140,16 @@ module "s3_assets" {
   }
 }
 
+module "s3_ic_verification" {
+  source      = "./modules/s3-ic-verification"
+  bucket_name = "${var.project_name}-ic-verification"
+  tags = {
+    Name        = "${var.project_name}-ic-verification"
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
 module "dynamodb" {
   source       = "./modules/dynamodb"
   project_name = var.project_name

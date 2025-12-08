@@ -84,7 +84,8 @@ resource "aws_iam_role_policy" "s3_assets_access" {
           "s3:GetObject"
         ]
         Resource = [
-          "arn:aws:s3:::${var.project_name}-assets-${var.environment}/*"
+          "arn:aws:s3:::${var.project_name}-assets-${var.environment}/*",
+          "arn:aws:s3:::${var.project_name}-ic-verification/*"
         ]
       }
     ]
@@ -105,6 +106,26 @@ resource "aws_iam_role_policy" "rekognition_access" {
           "rekognition:DetectLabels",
           "rekognition:DetectModerationLabels",
           "rekognition:DetectText"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Custom policy for Textract access
+resource "aws_iam_role_policy" "textract_access" {
+  name = "${var.project_name}-textract-access"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "textract:DetectDocumentText",
+          "textract:AnalyzeDocument"
         ]
         Resource = "*"
       }
