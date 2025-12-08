@@ -38,19 +38,19 @@ FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
-# Install only runtime dependencies (no build tools)
+# Install build dependencies for PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpng16-16 \
-    libjpeg62-turbo \
-    libfreetype6 \
-    libzip4t64 \
-    curl \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip \
+    && apt-get purge -y libpng-dev libjpeg-dev libfreetype6-dev libzip-dev \
+    && apt-get autoremove -y \
+    && apt-get install -y curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/man
-
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip
 
 # Configure PHP settings
 RUN echo "extension=pdo_mysql.so" > /usr/local/etc/php/conf.d/pdo_mysql.ini \
