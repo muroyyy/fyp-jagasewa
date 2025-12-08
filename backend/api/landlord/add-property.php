@@ -56,9 +56,24 @@ try {
 
     $landlord_id = $session['landlord_id'];
 
-    // Handle image uploads to S3
-    $uploadedImages = [];
+    // Handle main image upload
+    $mainImageUrl = null;
+    if (isset($_FILES['main_image']) && $_FILES['main_image']['error'] === UPLOAD_ERR_OK) {
+        $tmpName = $_FILES['main_image']['tmp_name'];
+        $fileName = $_FILES['main_image']['name'];
+        $fileSize = $_FILES['main_image']['size'];
+        $fileType = $_FILES['main_image']['type'];
+        
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (in_array($fileType, $allowedTypes) && $fileSize <= 5 * 1024 * 1024) {
+            $s3Key = 'properties/main/' . uniqid() . '_' . basename($fileName);
+            $mainImageUrl = uploadToS3($tmpName, $s3Key, $fileType);
+        }
+    }
 
+    // Handle additional images upload
+    $uploadedImages = [];
     if (isset($_FILES['property_images']) && !empty($_FILES['property_images']['name'][0])) {
         $files = $_FILES['property_images'];
         $fileCount = count($files['name']);
@@ -111,9 +126,10 @@ try {
             monthly_rent,
             status,
             images,
+            main_image,
             created_at,
             updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ");
 
     $result = $stmt->execute([
@@ -129,7 +145,8 @@ try {
         isset($data['description']) ? trim($data['description']) : null,
         floatval($data['monthly_rent']),
         isset($data['status']) ? trim($data['status']) : 'Active',
-        $imagesJson
+        $imagesJson,
+        $mainImageUrl
     ]);
 
     if ($result) {

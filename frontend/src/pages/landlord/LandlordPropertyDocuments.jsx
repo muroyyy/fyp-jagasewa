@@ -263,7 +263,7 @@ export default function LandlordPropertyDocuments() {
           <div className="flex items-center space-x-4 mb-4">
             <button
               onClick={() => navigate('/landlord/documents')}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Documents</span>

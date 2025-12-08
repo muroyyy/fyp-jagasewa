@@ -217,8 +217,18 @@ export default function LandlordDocuments() {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-3 rounded-lg">
-                          <Building2 className="w-6 h-6 text-blue-600" />
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                          {property.main_image ? (
+                            <img
+                              src={property.main_image}
+                              alt={property.property_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                              <Building2 className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">

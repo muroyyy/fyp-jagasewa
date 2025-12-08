@@ -16,6 +16,8 @@ export default function LandlordProperties() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState('');
+  const [mainImage, setMainImage] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [availableCities, setAvailableCities] = useState([]);
@@ -153,6 +155,25 @@ export default function LandlordProperties() {
     }
   };
 
+  const handleMainImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Only image files are allowed');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Image must be less than 10MB');
+        return;
+      }
+      
+      setMainImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setMainImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     
@@ -189,6 +210,13 @@ export default function LandlordProperties() {
     setSelectedImages(prev => [...prev, ...validFiles]);
   };
 
+  const removeMainImage = () => {
+    setMainImage(null);
+    setMainImagePreview(null);
+    const fileInput = document.querySelector('input[name="main_image"]');
+    if (fileInput) fileInput.value = '';
+  };
+
   const removeImage = (index) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
@@ -211,7 +239,12 @@ export default function LandlordProperties() {
         formDataToSend.append(key, formData[key]);
       });
       
-      // Append images
+      // Append main image
+      if (mainImage) {
+        formDataToSend.append('main_image', mainImage);
+      }
+      
+      // Append additional images
       selectedImages.forEach((image, index) => {
         formDataToSend.append('property_images[]', image);
       });
@@ -245,6 +278,8 @@ export default function LandlordProperties() {
           monthly_rent: '',
           status: 'Active'
         });
+        setMainImage(null);
+        setMainImagePreview(null);
         setSelectedImages([]);
         setImagePreviews([]);
         
@@ -436,10 +471,60 @@ export default function LandlordProperties() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                {/* Property Images */}
+                {/* Main Property Image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Property Images
+                    Main Property Image <span className="text-red-500">*</span>
+                  </label>
+                  
+                  {!mainImagePreview ? (
+                    <div className="mb-4">
+                      <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-blue-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                        <div className="text-center">
+                          <ImageIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                          <p className="text-sm text-blue-600 font-medium">
+                            Upload Main Image
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            This will be the primary image shown for your property
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          name="main_image"
+                          accept="image/*"
+                          onChange={handleMainImageChange}
+                          disabled={isSaving}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="mb-4 relative">
+                      <img
+                        src={mainImagePreview}
+                        alt="Main property image"
+                        className="w-full h-48 object-cover rounded-lg border-2 border-blue-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeMainImage}
+                        disabled={isSaving}
+                        className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                        Main Image
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Property Images */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Additional Images (Optional)
                   </label>
                   
                   {/* Upload Button */}
@@ -448,7 +533,7 @@ export default function LandlordProperties() {
                       <div className="text-center">
                         <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                         <p className="text-sm text-gray-600">
-                          Click to upload images or drag and drop
+                          Add more images (optional)
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           PNG, JPG, GIF up to 10MB each
@@ -465,7 +550,7 @@ export default function LandlordProperties() {
                     </label>
                   </div>
 
-                  {/* Image Previews */}
+                  {/* Additional Image Previews */}
                   {imagePreviews.length > 0 && (
                     <div className="grid grid-cols-3 gap-4">
                       {imagePreviews.map((preview, index) => (
@@ -479,7 +564,7 @@ export default function LandlordProperties() {
                             type="button"
                             onClick={() => removeImage(index)}
                             disabled={isSaving}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </button>
