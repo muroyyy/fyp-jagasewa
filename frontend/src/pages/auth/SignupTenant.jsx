@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Phone, Calendar, IdCard, ArrowRight, AlertCircle, Check, X, Upload, Loader, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
-// API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function SignupTenant() {
@@ -12,7 +11,18 @@ export default function SignupTenant() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [passwordMatch, setPasswordMatch] = useState(null); // null, true, or false
+  const [passwordMatch, setPasswordMatch] = useState(null);
+  
+  // IC Verification states
+  const [icFrontFile, setIcFrontFile] = useState(null);
+  const [icBackFile, setIcBackFile] = useState(null);
+  const [icFrontPreview, setIcFrontPreview] = useState(null);
+  const [icBackPreview, setIcBackPreview] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState(null); // null, 'success', 'error'
+  const [extractedData, setExtractedData] = useState(null);
+  const [icUrls, setIcUrls] = useState({ front: null, back: null });
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -27,58 +37,30 @@ export default function SignupTenant() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // Auto-format Phone Number with spaces
     if (name === 'phone') {
-      // Always ensure it starts with +601
-      if (!value.startsWith('+601')) {
-        return; // Don't update if trying to delete the prefix
-      }
-      
-      // Remove all non-digit characters except the + at the start
-      const digitsOnly = value.slice(4).replace(/\D/g, ''); // Remove +601 prefix, get digits only
-      
-      // Limit to 9 digits after +601
+      if (!value.startsWith('+601')) return;
+      const digitsOnly = value.slice(4).replace(/\D/g, '');
       const limitedDigits = digitsOnly.slice(0, 9);
-      
-      // Format based on length
       let formatted = '+601';
       if (limitedDigits.length > 0) {
-        // First digit after +601
         formatted += limitedDigits[0];
-        
         if (limitedDigits.length > 1) {
-          // Determine if second section is 3 or 4 digits based on total length
-          // If total is 9 digits and we want format +601x xxx xxxx (1+3+4)
-          // Or if total is 10 digits: +601x xxxx xxxx (1+4+4)
-          
           if (limitedDigits.length <= 4) {
-            // Show: +601x xxx
             formatted += ' ' + limitedDigits.slice(1);
           } else if (limitedDigits.length <= 7) {
-            // Show: +601x xxx xxxx (assuming 3+4 format)
             formatted += ' ' + limitedDigits.slice(1, 4) + ' ' + limitedDigits.slice(4);
           } else {
-            // Show: +601x xxx xxxx (3+4 format for 9 digits)
             formatted += ' ' + limitedDigits.slice(1, 4) + ' ' + limitedDigits.slice(4, 8);
           }
         }
       }
-      
-      setFormData({
-        ...formData,
-        [name]: formatted
-      });
-      
+      setFormData({ ...formData, [name]: formatted });
       if (error) setError('');
       return;
     }
 
-    // Auto-format IC Number with dashes
     if (name === 'icNumber') {
-      // Remove all non-digit characters
       const digitsOnly = value.replace(/\D/g, '');
-      
-      // Format based on length
       let formatted = digitsOnly;
       if (digitsOnly.length > 6) {
         formatted = digitsOnly.slice(0, 6) + '-' + digitsOnly.slice(6);
@@ -86,48 +68,97 @@ export default function SignupTenant() {
       if (digitsOnly.length > 8) {
         formatted = digitsOnly.slice(0, 6) + '-' + digitsOnly.slice(6, 8) + '-' + digitsOnly.slice(8, 12);
       }
-      
-      setFormData({
-        ...formData,
-        [name]: formatted
-      });
-      
+      setFormData({ ...formData, [name]: formatted });
       if (error) setError('');
       return;
     }
     
-    // Handle password match checking
     if (name === 'confirmPassword') {
-      const newConfirmPassword = value;
-      if (newConfirmPassword === '') {
-        setPasswordMatch(null);
-      } else if (formData.password === newConfirmPassword) {
-        setPasswordMatch(true);
-      } else {
-        setPasswordMatch(false);
-      }
+      setPasswordMatch(value === '' ? null : formData.password === value);
     }
     
     if (name === 'password') {
-      const newPassword = value;
-      if (formData.confirmPassword === '') {
-        setPasswordMatch(null);
-      } else if (newPassword === formData.confirmPassword) {
-        setPasswordMatch(true);
-      } else {
-        setPasswordMatch(false);
-      }
+      setPasswordMatch(formData.confirmPassword === '' ? null : value === formData.confirmPassword);
     }
     
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-    // Clear error when user starts typing
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
     if (error) setError('');
   };
 
-  // End of handleChange
+  const handleICUpload = (e, side) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must not exceed 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (side === 'front') {
+        setIcFrontFile(file);
+        setIcFrontPreview(reader.result);
+      } else {
+        setIcBackFile(file);
+        setIcBackPreview(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const verifyIC = async () => {
+    if (!icFrontFile || !icBackFile) {
+      setError('Please upload both IC front and back images');
+      return;
+    }
+
+    setIsVerifying(true);
+    setVerificationStatus(null);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('ic_front', icFrontFile);
+      formData.append('ic_back', icBackFile);
+
+      const response = await fetch(`${API_BASE_URL}/api/tenant/verify-ic.php`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setVerificationStatus('success');
+        setExtractedData(result.extracted_data);
+        
+        // Auto-fill form fields
+        setFormData(prev => ({
+          ...prev,
+          fullName: result.extracted_data.name || prev.fullName,
+          icNumber: result.extracted_data.ic_number || prev.icNumber,
+          dateOfBirth: result.extracted_data.date_of_birth || prev.dateOfBirth
+        }));
+      } else {
+        setVerificationStatus('error');
+        setError(result.message || 'IC verification failed');
+      }
+    } catch (error) {
+      console.error('IC verification error:', error);
+      setVerificationStatus('error');
+      setError('Network error during IC verification');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -145,13 +176,10 @@ export default function SignupTenant() {
 
     setIsLoading(true);
 
-    // Check for duplicate email, phone, IC number
     try {
       const duplicateCheckResponse = await fetch(`${API_BASE_URL}/api/auth/check-duplicates.php`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
           phone: formData.phone.replace(/\s/g, ''),
@@ -169,19 +197,13 @@ export default function SignupTenant() {
       }
     } catch (error) {
       console.error('Duplicate check error:', error);
-      // Continue with registration if duplicate check fails
     }
 
     try {
-      // First check if this email exists as a pending tenant
       const checkResponse = await fetch(`${API_BASE_URL}/api/auth/check-tenant-status.php`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
       });
 
       const checkResult = await checkResponse.json();
@@ -194,32 +216,28 @@ export default function SignupTenant() {
         full_name: formData.fullName,
         phone: formData.phone,
         ic_number: formData.icNumber,
-        date_of_birth: formData.dateOfBirth
+        date_of_birth: formData.dateOfBirth,
+        ic_verified: verificationStatus === 'success' ? 1 : 0,
+        ic_verification_data: extractedData
       };
 
-      // If tenant exists as pending, use complete registration endpoint
       if (checkResult.exists && checkResult.status === 'pending') {
         endpoint = '/api/auth/complete-tenant-registration.php';
-        // Verify the details match what landlord entered
         requestBody.verify_details = true;
       }
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       });
 
       const result = await response.json();
 
       if (result.success) {
-        if (checkResult.exists && checkResult.status === 'pending') {
-          alert('✅ Account activated successfully! You can now login.');
-        } else {
-          alert('✅ Tenant account created successfully!');
-        }
+        alert(checkResult.exists && checkResult.status === 'pending' 
+          ? '✅ Account activated successfully! You can now login.'
+          : '✅ Tenant account created successfully!');
         navigate('/login');
       } else {
         setError(result.message || 'Registration failed. Please try again.');
@@ -232,19 +250,12 @@ export default function SignupTenant() {
     }
   };
 
-  // End of handleSubmit
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Logo and Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center mb-6">
-            <img 
-              src={jagasewaLogo} 
-              alt="JagaSewa" 
-              className="h-16 w-auto"
-            />
+            <img src={jagasewaLogo} alt="JagaSewa" className="h-16 w-auto" />
           </Link>
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
@@ -252,15 +263,10 @@ export default function SignupTenant() {
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Tenant Registration</h2>
           </div>
-          <p className="text-gray-600">Create your tenant account to manage your rental</p>
-          <div className="mt-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p><strong>Already added by your landlord?</strong> Use the same email to complete your registration.</p>
-          </div>
+          <p className="text-gray-600">Create your tenant account with AI-powered IC verification</p>
         </div>
 
-        {/* Registration Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          {/* Error Alert */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
               <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
@@ -271,11 +277,116 @@ export default function SignupTenant() {
             </div>
           )}
 
+          {/* IC Verification Section */}
+          <div className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
+            <div className="flex items-center mb-4">
+              <IdCard className="w-6 h-6 text-blue-600 mr-2" />
+              <h3 className="text-lg font-bold text-gray-900">Malaysian IC Verification (Optional)</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">Upload your IC for instant verification using AWS AI</p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              {/* IC Front */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">IC Front</label>
+                <div className="relative">
+                  {icFrontPreview ? (
+                    <div className="relative">
+                      <img src={icFrontPreview} alt="IC Front" className="w-full h-40 object-cover rounded-lg border-2 border-green-300" />
+                      <button
+                        type="button"
+                        onClick={() => { setIcFrontFile(null); setIcFrontPreview(null); }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all">
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-500">Upload IC Front</span>
+                      <input type="file" accept="image/*" onChange={(e) => handleICUpload(e, 'front')} className="hidden" />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              {/* IC Back */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">IC Back</label>
+                <div className="relative">
+                  {icBackPreview ? (
+                    <div className="relative">
+                      <img src={icBackPreview} alt="IC Back" className="w-full h-40 object-cover rounded-lg border-2 border-green-300" />
+                      <button
+                        type="button"
+                        onClick={() => { setIcBackFile(null); setIcBackPreview(null); }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all">
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-500">Upload IC Back</span>
+                      <input type="file" accept="image/*" onChange={(e) => handleICUpload(e, 'back')} className="hidden" />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {icFrontFile && icBackFile && !verificationStatus && (
+              <button
+                type="button"
+                onClick={verifyIC}
+                disabled={isVerifying}
+                className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center"
+              >
+                {isVerifying ? (
+                  <>
+                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                    Verifying with AWS Textract...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Verify IC with AI
+                  </>
+                )}
+              </button>
+            )}
+
+            {verificationStatus === 'success' && extractedData && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-300 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                  <span className="font-semibold text-green-800">IC Verified Successfully!</span>
+                </div>
+                <div className="text-sm text-gray-700 space-y-1">
+                  <p>✓ Confidence: {extractedData.confidence}%</p>
+                  <p>✓ Fields extracted: {extractedData.fields_extracted}/{extractedData.total_fields}</p>
+                </div>
+              </div>
+            )}
+
+            {verificationStatus === 'error' && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-300 rounded-lg">
+                <div className="flex items-center">
+                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+                  <span className="font-semibold text-red-800">Verification Failed</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
               <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
                 Full Name <span className="text-red-500">*</span>
+                {extractedData?.name && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -287,13 +398,13 @@ export default function SignupTenant() {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   placeholder="Jane Smith"
                 />
               </div>
             </div>
 
-            {/* Email and Phone - Side by Side */}
+            {/* Email and Phone */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -309,7 +420,7 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="jane@example.com"
                   />
                 </div>
@@ -330,20 +441,19 @@ export default function SignupTenant() {
                     required
                     disabled={isLoading}
                     maxLength="17"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="+601x xxx xxxx"
-                    pattern="\+601[0-9] [0-9]{3,4} [0-9]{4}"
-                    title="Please enter a valid Malaysian phone number"
                   />
                 </div>
               </div>
             </div>
 
-            {/* IC Number and Date of Birth - Side by Side */}
+            {/* IC Number and DOB */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="icNumber" className="block text-sm font-semibold text-gray-700 mb-2">
                   IC Number <span className="text-red-500">*</span>
+                  {extractedData?.ic_number && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
                 </label>
                 <div className="relative">
                   <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -356,10 +466,8 @@ export default function SignupTenant() {
                     required
                     disabled={isLoading}
                     maxLength="14"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="XXXXXX-XX-XXXX"
-                    pattern="[0-9]{6}-[0-9]{2}-[0-9]{4}"
-                    title="Please enter a valid IC number in the format XXXXXX-XX-XXXX"
                   />
                 </div>
               </div>
@@ -367,6 +475,7 @@ export default function SignupTenant() {
               <div>
                 <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 mb-2">
                   Date of Birth <span className="text-red-500">*</span>
+                  {extractedData?.date_of_birth && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -378,13 +487,13 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Password and Confirm Password - Side by Side */}
+            {/* Password Fields */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -401,14 +510,14 @@ export default function SignupTenant() {
                     required
                     minLength="8"
                     disabled={isLoading}
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -430,7 +539,7 @@ export default function SignupTenant() {
                     required
                     minLength="8"
                     disabled={isLoading}
-                    className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                    className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 ${
                       passwordMatch === null ? 'border-gray-300 focus:ring-green-500' :
                       passwordMatch ? 'border-green-500 focus:ring-green-500' :
                       'border-red-500 focus:ring-red-500'
@@ -441,24 +550,16 @@ export default function SignupTenant() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
-                  
-                  {/* Password Match Indicator */}
                   {passwordMatch !== null && formData.confirmPassword !== '' && (
                     <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-                      {passwordMatch ? (
-                        <Check className="w-5 h-5 text-green-500" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-500" />
-                      )}
+                      {passwordMatch ? <Check className="w-5 h-5 text-green-500" /> : <X className="w-5 h-5 text-red-500" />}
                     </div>
                   )}
                 </div>
-                
-                {/* Password Match Text */}
                 {passwordMatch !== null && formData.confirmPassword !== '' && (
                   <p className={`text-xs mt-1 ${passwordMatch ? 'text-green-600' : 'text-red-600'}`}>
                     {passwordMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
@@ -467,14 +568,7 @@ export default function SignupTenant() {
               </div>
             </div>
 
-            {/* Password Requirements */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs text-gray-600">
-                Password must be at least 8 characters long
-              </p>
-            </div>
-
-            {/* Terms and Conditions */}
+            {/* Terms */}
             <div className="flex items-start">
               <input
                 type="checkbox"
@@ -484,28 +578,22 @@ export default function SignupTenant() {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-1 disabled:cursor-not-allowed"
+                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-1"
               />
               <label htmlFor="agreeToTerms" className="ml-2 text-sm text-gray-600">
                 I agree to the{' '}
-                <Link to="/terms" className="text-green-600 hover:text-green-700 font-medium">
-                  Terms and Conditions
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-green-600 hover:text-green-700 font-medium">
-                  Privacy Policy
-                </Link>
+                <Link to="/terms" className="text-green-600 hover:text-green-700 font-medium">Terms and Conditions</Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-green-600 hover:text-green-700 font-medium">Privacy Policy</Link>
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-green-600 to-teal-600 cursor-pointer'
+                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-teal-600'
               }`}
             >
               {isLoading ? (
@@ -522,26 +610,18 @@ export default function SignupTenant() {
             </button>
           </form>
 
-          {/* Sign In Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link
-                to="/login"
-                className="font-semibold text-green-600 hover:text-green-700 transition-colors"
-              >
+              <Link to="/login" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
                 Sign in here
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Back to Role Selection */}
         <div className="text-center mt-6">
-          <Link
-            to="/signup"
-            className="text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center"
-          >
+          <Link to="/signup" className="text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center">
             <ArrowRight className="w-4 h-4 mr-1 rotate-180" />
             Back to role selection
           </Link>

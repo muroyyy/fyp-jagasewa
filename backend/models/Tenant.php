@@ -18,6 +18,8 @@ class Tenant {
     public $ic_number;
     public $date_of_birth;
     public $profile_image;
+    public $ic_verified;
+    public $ic_verification_data;
     public $created_at;
     public $updated_at;
 
@@ -39,7 +41,9 @@ class Tenant {
                     full_name = :full_name,
                     phone = :phone,
                     ic_number = :ic_number,
-                    date_of_birth = :date_of_birth";
+                    date_of_birth = :date_of_birth,
+                    ic_verified = :ic_verified,
+                    ic_verification_data = :ic_verification_data";
 
         $stmt = $this->conn->prepare($query);
 
@@ -56,6 +60,8 @@ class Tenant {
         $stmt->bindParam(":phone", $this->phone);
         $stmt->bindParam(":ic_number", $this->ic_number);
         $stmt->bindParam(":date_of_birth", $this->date_of_birth);
+        $stmt->bindParam(":ic_verified", $this->ic_verified);
+        $stmt->bindParam(":ic_verification_data", $this->ic_verification_data);
 
         if($stmt->execute()) {
             $this->tenant_id = $this->conn->lastInsertId();

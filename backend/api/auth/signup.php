@@ -17,8 +17,14 @@ $db = $database->getConnection();
 
 $user = new User($db);
 
-// Get posted data
-$data = json_decode(file_get_contents("php://input"));
+// Get posted data (handle both JSON and multipart/form-data)
+$data = null;
+if ($_SERVER['CONTENT_TYPE'] && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+    $data = json_decode(file_get_contents("php://input"));
+} else {
+    // Handle form data
+    $data = (object) $_POST;
+}
 
 // Validate required fields
 if (
@@ -93,6 +99,16 @@ if (
                 $tenant->phone = $data->phone;
                 $tenant->ic_number = $data->ic_number;
                 $tenant->date_of_birth = $data->date_of_birth;
+                
+                // Handle IC verification data (images not stored for privacy)
+                if (isset($data->ic_verified)) {
+                    $tenant->ic_verified = $data->ic_verified;
+                }
+                if (isset($data->ic_verification_data)) {
+                    $tenant->ic_verification_data = is_string($data->ic_verification_data) 
+                        ? $data->ic_verification_data 
+                        : json_encode($data->ic_verification_data);
+                }
                 
                 // Check if IC number already exists
                 if ($tenant->icNumberExists()) {
