@@ -149,17 +149,17 @@ export default function TenantLayout({ children }) {
 
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Sidebar Toggle Button - positioned on the right edge */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden lg:flex absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-12 bg-white border border-gray-200 rounded-r-lg items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-sm z-10 cursor-pointer"
+          className="hidden lg:flex absolute -right-4 top-1/2 transform -translate-y-1/2 w-8 h-16 bg-white border border-gray-200 rounded-r-xl items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-md z-10 cursor-pointer"
         >
           {sidebarOpen ? (
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           ) : (
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           )}
         </button>
         <div className="flex flex-col h-full">
