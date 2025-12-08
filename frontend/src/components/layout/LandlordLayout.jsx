@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle } from 'lucide-react';
+import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
@@ -12,7 +12,7 @@ export default function LandlordLayout({ children }) {
   const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Check authentication
   useEffect(() => {
@@ -32,6 +32,21 @@ export default function LandlordLayout({ children }) {
       }
     }
   }, [navigate]);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -115,9 +130,20 @@ export default function LandlordLayout({ children }) {
           fixed inset-y-0 left-0 z-50
           w-64 bg-white border-r border-gray-200 flex flex-col
           transform transition-all duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
+        {/* Sidebar Toggle Button - positioned on the right edge */}
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-12 bg-white border border-gray-200 rounded-r-lg items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-sm z-10 cursor-pointer"
+        >
+          {isSidebarOpen ? (
+            <ChevronLeft className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <Link to="/landlord-dashboard" className="flex items-center">
@@ -179,14 +205,16 @@ export default function LandlordLayout({ children }) {
         {/* Top Header */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side: Burger menu */}
+            {/* Left side: Burger menu (only show when sidebar is closed) */}
             <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleSidebar}
-                className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
+              {!isSidebarOpen && (
+                <button
+                  onClick={toggleSidebar}
+                  className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+              )}
               
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {/* This will be filled by the page content */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell, MessageCircle } from 'lucide-react';
+import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCurrentUser, logout } from '../../utils/auth';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
@@ -10,7 +10,7 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 export default function TenantLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [fullName, setFullName] = useState('');
   const user = getCurrentUser();
@@ -20,6 +20,21 @@ export default function TenantLayout({ children }) {
       fetchProfileData();
     }
   }, [user]);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -86,13 +101,15 @@ export default function TenantLayout({ children }) {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              {/* Hamburger Menu */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
+              {/* Hamburger Menu (only show when sidebar is closed) */}
+              {!sidebarOpen && (
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              )}
               
               {/* JagaSewa Logo - Desktop Only */}
               <div className="hidden lg:flex items-center">
@@ -132,8 +149,19 @@ export default function TenantLayout({ children }) {
 
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
+        {/* Sidebar Toggle Button - positioned on the right edge */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="hidden lg:flex absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-12 bg-white border border-gray-200 rounded-r-lg items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-sm z-10 cursor-pointer"
+        >
+          {sidebarOpen ? (
+            <ChevronLeft className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
         <div className="flex flex-col h-full">
           {/* Sidebar Header with Logo */}
           <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
