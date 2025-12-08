@@ -33,7 +33,9 @@ resource "aws_vpc_endpoint_policy" "s3" {
         ]
         Resource = [
           "arn:aws:s3:::${var.project_name}-assets-prod",
-          "arn:aws:s3:::${var.project_name}-assets-prod/*"
+          "arn:aws:s3:::${var.project_name}-assets-prod/*",
+          "arn:aws:s3:::${var.project_name}-ic-verification",
+          "arn:aws:s3:::${var.project_name}-ic-verification/*"
         ]
       },
       {

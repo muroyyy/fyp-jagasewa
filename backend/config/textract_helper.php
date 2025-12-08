@@ -1,24 +1,24 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Aws\Textract\TextractClient;
+use Aws\Rekognition\RekognitionClient;
 use Aws\Exception\AwsException;
 
 function extractICData($imageBytes) {
     try {
-        $client = new TextractClient([
+        $client = new RekognitionClient([
             'region' => 'ap-southeast-1',
             'version' => 'latest'
         ]);
 
-        $result = $client->detectDocumentText([
-            'Document' => ['Bytes' => $imageBytes]
+        $result = $client->detectText([
+            'Image' => ['Bytes' => $imageBytes]
         ]);
 
         $extractedText = [];
-        foreach ($result['Blocks'] as $block) {
-            if ($block['BlockType'] === 'LINE') {
-                $extractedText[] = $block['Text'];
+        foreach ($result['TextDetections'] as $detection) {
+            if ($detection['Type'] === 'LINE') {
+                $extractedText[] = $detection['DetectedText'];
             }
         }
 
@@ -29,7 +29,7 @@ function extractICData($imageBytes) {
         ];
 
     } catch (AwsException $e) {
-        error_log("Textract error: " . $e->getMessage());
+        error_log("Rekognition error: " . $e->getMessage());
         return [
             'success' => false,
             'error' => 'Text extraction failed'
