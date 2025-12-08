@@ -174,6 +174,11 @@ export default function SignupTenant() {
       return;
     }
 
+    if (!extractedData) {
+      setError('Please verify your IC first');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -215,9 +220,9 @@ export default function SignupTenant() {
         user_role: 'tenant',
         full_name: formData.fullName,
         phone: formData.phone,
-        ic_number: formData.icNumber,
-        date_of_birth: formData.dateOfBirth,
-        ic_verified: verificationStatus === 'success' ? 1 : 0,
+        ic_number: extractedData.ic_number,
+        date_of_birth: extractedData.date_of_birth,
+        ic_verified: 1,
         ic_verification_data: extractedData
       };
 
@@ -448,50 +453,44 @@ export default function SignupTenant() {
               </div>
             </div>
 
-            {/* IC Number and DOB */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="icNumber" className="block text-sm font-semibold text-gray-700 mb-2">
-                  IC Number <span className="text-red-500">*</span>
-                  {extractedData?.ic_number && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
-                </label>
-                <div className="relative">
-                  <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="icNumber"
-                    name="icNumber"
-                    value={formData.icNumber}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                    maxLength="14"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
-                    placeholder="XXXXXX-XX-XXXX"
-                  />
+            {/* IC Number and DOB - Auto-filled from verification */}
+            {extractedData && (
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="icNumber" className="block text-sm font-semibold text-gray-700 mb-2">
+                    IC Number (AI Verified) <Check className="inline w-4 h-4 text-green-600 ml-2" />
+                  </label>
+                  <div className="relative">
+                    <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      id="icNumber"
+                      name="icNumber"
+                      value={formData.icNumber}
+                      readOnly
+                      className="w-full pl-11 pr-4 py-3 border border-green-300 bg-green-50 rounded-xl cursor-not-allowed"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Date of Birth <span className="text-red-500">*</span>
-                  {extractedData?.date_of_birth && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="date"
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
-                  />
+                <div>
+                  <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Date of Birth (AI Verified) <Check className="inline w-4 h-4 text-green-600 ml-2" />
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="date"
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      readOnly
+                      className="w-full pl-11 pr-4 py-3 border border-green-300 bg-green-50 rounded-xl cursor-not-allowed"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Password Fields */}
             <div className="grid md:grid-cols-2 gap-4">
