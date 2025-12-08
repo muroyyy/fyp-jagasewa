@@ -48,6 +48,9 @@ RUN mkdir -p uploads/profiles uploads/maintenance uploads/documents \
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Set ServerName to suppress warning
+RUN echo "ServerName api.jagasewa.cloud" >> /etc/apache2/apache2.conf
+
 # Expose port 80
 EXPOSE 80
 
