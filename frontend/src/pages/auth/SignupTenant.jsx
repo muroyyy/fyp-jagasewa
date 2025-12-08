@@ -22,6 +22,7 @@ export default function SignupTenant() {
   const [verificationStatus, setVerificationStatus] = useState(null); // null, 'success', 'error'
   const [extractedData, setExtractedData] = useState(null);
   const [icUrls, setIcUrls] = useState({ front: null, back: null });
+  const [useManualEntry, setUseManualEntry] = useState(false);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -174,10 +175,7 @@ export default function SignupTenant() {
       return;
     }
 
-    if (!extractedData) {
-      setError('Please verify your IC first');
-      return;
-    }
+
 
     setIsLoading(true);
 
@@ -220,10 +218,10 @@ export default function SignupTenant() {
         user_role: 'tenant',
         full_name: formData.fullName,
         phone: formData.phone,
-        ic_number: extractedData.ic_number,
-        date_of_birth: extractedData.date_of_birth,
-        ic_verified: 1,
-        ic_verification_data: extractedData
+        ic_number: formData.icNumber,
+        date_of_birth: formData.dateOfBirth,
+        ic_verified: extractedData ? 1 : 0,
+        ic_verification_data: extractedData || null
       };
 
       if (checkResult.exists && checkResult.status === 'pending') {
@@ -283,6 +281,7 @@ export default function SignupTenant() {
           )}
 
           {/* IC Verification Section */}
+          {!useManualEntry && (
           <div className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
             <div className="flex items-center mb-4">
               <IdCard className="w-6 h-6 text-blue-600 mr-2" />
@@ -384,7 +383,19 @@ export default function SignupTenant() {
                 </div>
               </div>
             )}
+
+            {/* Manual Entry Option */}
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setUseManualEntry(true)}
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                Or enter details manually
+              </button>
+            </div>
           </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
@@ -453,12 +464,13 @@ export default function SignupTenant() {
               </div>
             </div>
 
-            {/* IC Number and DOB - Auto-filled from verification */}
-            {extractedData && (
+            {/* IC Number and DOB - Manual or Auto-filled */}
+            {(extractedData || useManualEntry) && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="icNumber" className="block text-sm font-semibold text-gray-700 mb-2">
-                    IC Number (AI Verified) <Check className="inline w-4 h-4 text-green-600 ml-2" />
+                    IC Number {extractedData && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -467,15 +479,23 @@ export default function SignupTenant() {
                       id="icNumber"
                       name="icNumber"
                       value={formData.icNumber}
-                      readOnly
-                      className="w-full pl-11 pr-4 py-3 border border-green-300 bg-green-50 rounded-xl cursor-not-allowed"
+                      onChange={handleChange}
+                      readOnly={extractedData !== null}
+                      required
+                      disabled={isLoading}
+                      maxLength="14"
+                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                        extractedData ? 'border-green-300 bg-green-50 cursor-not-allowed' : 'border-gray-300 bg-white'
+                      } disabled:bg-gray-100`}
+                      placeholder="XXXXXX-XX-XXXX"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Date of Birth (AI Verified) <Check className="inline w-4 h-4 text-green-600 ml-2" />
+                    Date of Birth {extractedData && <Check className="inline w-4 h-4 text-green-600 ml-2" />}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -484,8 +504,13 @@ export default function SignupTenant() {
                       id="dateOfBirth"
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
-                      readOnly
-                      className="w-full pl-11 pr-4 py-3 border border-green-300 bg-green-50 rounded-xl cursor-not-allowed"
+                      onChange={handleChange}
+                      readOnly={extractedData !== null}
+                      required
+                      disabled={isLoading}
+                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                        extractedData ? 'border-green-300 bg-green-50 cursor-not-allowed' : 'border-gray-300 bg-white'
+                      } disabled:bg-gray-100`}
                     />
                   </div>
                 </div>
