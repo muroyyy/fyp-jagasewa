@@ -233,14 +233,14 @@ export default function LandlordPropertyTenants() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => { setSelectedTenantId(tenant.tenant_id); setShowViewModal(true); }}
-                            className="flex items-center space-x-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors"
+                            className="flex items-center space-x-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
                           >
                             <Eye className="w-4 h-4" />
                             <span>View</span>
                           </button>
                           <button
                             onClick={() => navigate(`/landlord/tenants/edit/${tenant.tenant_id}`)}
-                            className="flex items-center space-x-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors"
+                            className="flex items-center space-x-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors cursor-pointer"
                           >
                             <Edit className="w-4 h-4" />
                             <span>Edit</span>
@@ -248,7 +248,7 @@ export default function LandlordPropertyTenants() {
                           {tenant.account_status === 'pending' && (
                             <button
                               onClick={() => handleCopyInviteLink(tenant)}
-                              className="flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 text-sm font-medium transition-colors"
+                              className="flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 text-sm font-medium transition-colors cursor-pointer"
                             >
                               <Copy className="w-4 h-4" />
                               <span>Invite</span>
@@ -256,7 +256,7 @@ export default function LandlordPropertyTenants() {
                           )}
                           <button
                             onClick={() => handleRemoveTenant(tenant)}
-                            className="flex items-center space-x-1 px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-sm font-medium transition-colors"
+                            className="flex items-center space-x-1 px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-sm font-medium transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                             <span>Remove</span>

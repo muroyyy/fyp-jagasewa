@@ -262,19 +262,16 @@ export default function LandlordMaintenance() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading maintenance requests...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <LandlordLayout>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading maintenance requests...</p>
+          </div>
+        </div>
+      ) : (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
         <div className="mb-8">
@@ -537,6 +534,7 @@ export default function LandlordMaintenance() {
           </div>
         )}
       </div>
+      )}
 
       {/* Detail Modal */}
       {showDetailModal && selectedRequest && (

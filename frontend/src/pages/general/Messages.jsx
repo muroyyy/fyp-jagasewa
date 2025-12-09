@@ -74,16 +74,7 @@ const Messages = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading messages...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   const refreshConversations = () => {
     loadConversations();
@@ -91,6 +82,14 @@ const Messages = () => {
 
   const MessagesContent = () => (
     <div className="p-6">
+      {loading ? (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading messages...</p>
+          </div>
+        </div>
+      ) : (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="flex h-[600px]">
           <div className="w-1/3 border-r border-gray-200">
@@ -232,6 +231,7 @@ const Messages = () => {
           />
         )}
       </div>
+      )}
     </div>
   );
 

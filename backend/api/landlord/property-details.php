@@ -92,12 +92,24 @@ try {
     $tenant_stmt->execute();
     $recent_tenants = $tenant_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Decode images JSON if present
-    if (!empty($property['images'])) {
-        $property['images'] = json_decode($property['images'], true);
-    } else {
-        $property['images'] = [];
+    // Decode images JSON and prepare image array
+    $imageArray = [];
+    
+    // Add main image first if it exists
+    if (!empty($property['main_image'])) {
+        $imageArray[] = $property['main_image'];
     }
+    
+    // Add additional images
+    if (!empty($property['images'])) {
+        $additionalImages = json_decode($property['images'], true);
+        if (is_array($additionalImages)) {
+            $imageArray = array_merge($imageArray, $additionalImages);
+        }
+    }
+    
+    // Set the images array (main image + additional images)
+    $property['images'] = $imageArray;
     
     echo json_encode([
         'success' => true,
