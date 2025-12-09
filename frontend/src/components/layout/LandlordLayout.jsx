@@ -74,10 +74,10 @@ export default function LandlordLayout({ children }) {
     { path: '/landlord-dashboard', icon: Home, label: 'Dashboard' },
     { path: '/landlord/properties', icon: Building2, label: 'Properties' },
     { path: '/landlord/tenants', icon: Users, label: 'Tenants' },
+    { path: '/landlord/documents', icon: FileText, label: 'Documents' },
     { path: '/messages', icon: MessageCircle, label: 'Messages' },
     { path: '/landlord/payments', icon: DollarSign, label: 'Payments' },
     { path: '/landlord/maintenance', icon: Wrench, label: 'Maintenance' },
-    { path: '/landlord/documents', icon: FileText, label: 'Documents' }, 
     { path: '/landlord/settings', icon: Settings, label: 'Settings' },
   ];
 
