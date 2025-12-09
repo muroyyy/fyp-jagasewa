@@ -35,10 +35,7 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
         }
       });
 
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
-      
-      const data = JSON.parse(responseText);
+      const data = await response.json();
       if (data.success) {
         setNotifications(data.data.notifications || []);
         setUnreadCount(data.data.unread_count || 0);

@@ -107,9 +107,7 @@ export default function LandlordTenants() {
         })
       });
 
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (data.success) {
         alert('✅ Tenant removed successfully!');
@@ -245,7 +243,6 @@ export default function LandlordTenants() {
               <tbody className="divide-y divide-gray-200">
                 {filteredTenants.length > 0 ? (
                   filteredTenants.map((tenant) => {
-                    console.log('Tenant data:', tenant); // Debug log
                     return (
                     <tr key={tenant.tenant_id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">

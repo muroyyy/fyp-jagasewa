@@ -113,9 +113,7 @@ export default function TenantInvitation() {
         body: JSON.stringify(submitData)
       });
 
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (data.success) {
         alert('Registration completed! Please login with your credentials.');

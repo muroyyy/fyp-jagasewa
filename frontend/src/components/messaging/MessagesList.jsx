@@ -31,7 +31,6 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
       });
       
       const responseText = await response.text();
-      console.log('API Response:', responseText);
       
       if (!response.ok) {
         console.error('API Error:', response.status, responseText);
@@ -131,7 +130,6 @@ const MessagesList = ({ propertyId, currentUser, otherUser, onNewMessage }) => {
       });
       
       const result = await response.json();
-      console.log('Message response:', result);
       
       if (result.success) {
         setNewMessage('');

@@ -49,7 +49,6 @@ const NewMessageModal = ({ onClose, onMessageSent }) => {
       });
       
       const result = await response.json();
-      console.log('Message response:', result);
       
       if (result.success) {
         onMessageSent({

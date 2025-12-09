@@ -55,7 +55,6 @@ export default function TenantLayout({ children }) {
       });
 
       const result = await response.json();
-      console.log('Profile API response:', result); // Debug log
       
       if (result.success && result.data.profile) {
         if (result.data.profile.profile_image) {

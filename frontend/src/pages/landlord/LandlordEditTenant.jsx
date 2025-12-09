@@ -47,7 +47,6 @@ export default function LandlordEditTenant() {
       
       if (data.success) {
         const tenant = data.data.tenant;
-        console.log('Tenant data received:', tenant); // Debug log
         setFormData({
           full_name: tenant.full_name || '',
           email: tenant.email || '',
