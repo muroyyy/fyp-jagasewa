@@ -17,7 +17,8 @@ import TenantInvitation from './pages/auth/TenantInvitation';
 import LandlordDashboard from './pages/landlord/LandlordDashboard';
 import LandlordProperties from './pages/landlord/LandlordProperties';
 import LandlordEditProperty from './pages/landlord/LandlordEditProperty';
-import LandlordTenants from './pages/landlord/LandlordTenants';
+import LandlordTenantsProperties from './pages/landlord/LandlordTenantsProperties';
+import LandlordPropertyTenants from './pages/landlord/LandlordPropertyTenants';
 import LandlordAddTenant from './pages/landlord/LandlordAddTenant';
 import LandlordEditTenant from './pages/landlord/LandlordEditTenant'; 
 import LandlordPayments from './pages/landlord/LandlordPayments';
@@ -65,7 +66,8 @@ function App() {
       <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
       <Route path="/landlord/properties" element={<LandlordProperties />} />
       <Route path="/landlord/properties/edit/:id" element={<LandlordEditProperty />} />
-      <Route path="/landlord/tenants" element={<LandlordTenants />} />
+      <Route path="/landlord/tenants" element={<LandlordTenantsProperties />} />
+      <Route path="/landlord/tenants/property/:propertyId" element={<LandlordPropertyTenants />} />
       <Route path="/landlord/add-tenant" element={<LandlordAddTenant />} />
       <Route path="/landlord/tenants/edit/:id" element={<LandlordEditTenant />} /> 
       <Route path="/landlord/payments" element={<LandlordPayments />} />
