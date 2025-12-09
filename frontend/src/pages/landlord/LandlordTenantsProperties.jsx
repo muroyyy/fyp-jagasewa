@@ -87,16 +87,14 @@ export default function LandlordTenantsProperties() {
               className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all cursor-pointer group"
             >
               <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 relative overflow-hidden">
-                {property.image_url ? (
+                {property.main_image ? (
                   <img
-                    src={property.image_url.startsWith('https://') ? property.image_url : `${import.meta.env.VITE_API_URL}/../${property.image_url}`}
+                    src={property.main_image}
                     alt={property.property_name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="w-20 h-20 text-white opacity-50" />
-                  </div>
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600"></div>
                 )}
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">
                   {property.property_type}

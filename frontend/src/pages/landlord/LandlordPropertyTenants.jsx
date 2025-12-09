@@ -109,7 +109,7 @@ export default function LandlordPropertyTenants() {
         <div className="mb-8">
           <button
             onClick={() => navigate('/landlord/tenants')}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4 cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Properties</span>
