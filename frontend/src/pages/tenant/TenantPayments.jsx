@@ -11,12 +11,14 @@ export default function TenantPayments() {
   const [user, setUser] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [nextPayment, setNextPayment] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
       fetchPayments();
+      fetchPaymentStatus();
     } else {
       window.location.href = '/login';
     }
@@ -51,9 +53,30 @@ export default function TenantPayments() {
     }
   };
 
+  const fetchPaymentStatus = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/check-payment-status.php`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setPaymentStatus(data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching payment status:', err);
+    }
+  };
+
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
-    fetchPayments(); // Refresh payment history
+    fetchPayments();
+    fetchPaymentStatus();
   };
 
   const formatDate = (dateString) => {
@@ -142,15 +165,23 @@ export default function TenantPayments() {
         </div>
 
         {/* Make Payment Button */}
-        {nextPayment && (
+        {paymentStatus && paymentStatus.payment_options.length > 0 && (
           <div className="mb-8">
             <button
               onClick={() => setShowPaymentModal(true)}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
             >
               <CreditCard className="w-5 h-5" />
-              <span>Make Payment - {formatAmount(nextPayment.amount)}</span>
+              <span>Make Payment - {formatAmount(paymentStatus.payment_options[0].amount)}</span>
             </button>
+          </div>
+        )}
+
+        {/* Payment Status Info */}
+        {paymentStatus && paymentStatus.payment_status.full_month_paid && (
+          <div className="mb-8 bg-green-50 border border-green-200 rounded-xl p-4">
+            <p className="text-green-800 font-semibold">✓ Current month rent is paid</p>
+            <p className="text-green-600 text-sm mt-1">Period: {paymentStatus.current_period}</p>
           </div>
         )}
 
@@ -230,9 +261,9 @@ export default function TenantPayments() {
       </div>
 
       {/* Payment Modal */}
-      {showPaymentModal && nextPayment && (
+      {showPaymentModal && (
         <PaymentModal
-          amount={nextPayment.amount}
+          amount={paymentStatus?.payment_options[0]?.amount || nextPayment?.amount || 0}
           onClose={() => setShowPaymentModal(false)}
           onSuccess={handlePaymentSuccess}
         />

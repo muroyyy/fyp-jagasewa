@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { X, CreditCard, Smartphone, Building, CheckCircle, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CreditCard, Smartphone, Building, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function PaymentModal({ amount, onClose, onSuccess }) {
-  const [step, setStep] = useState(1); // 1: Method, 2: Details, 3: Confirm, 4: Processing, 5: Success
+  const [step, setStep] = useState(0); // 0: Loading, 1: Method, 2: Details, 3: Confirm, 4: Processing, 5: Success
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [transactionId, setTransactionId] = useState('');
   const [receiptUrl, setReceiptUrl] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
+  const [error, setError] = useState(null);
 
   const paymentMethods = {
     ewallet: {
@@ -49,6 +52,42 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
     cvv: ''
   });
 
+  useEffect(() => {
+    checkPaymentStatus();
+  }, []);
+
+  const checkPaymentStatus = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/check-payment-status.php`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setPaymentStatus(data.data);
+        
+        if (data.data.payment_options.length === 0) {
+          setError('No payment options available. Current month is already paid.');
+        } else {
+          // Auto-select first available option
+          setSelectedPaymentOption(data.data.payment_options[0]);
+          setStep(1);
+        }
+      } else {
+        setError(data.message || 'Failed to check payment status');
+      }
+    } catch (err) {
+      console.error('Error checking payment status:', err);
+      setError('Failed to load payment options');
+    }
+  };
+
   const handleMethodSelect = (method) => {
     setSelectedMethod(method);
     setStep(2);
@@ -80,8 +119,6 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
       // Submit to backend
       try {
         const token = localStorage.getItem('session_token');
-        const currentDate = new Date();
-        const paymentPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/make-payment.php`, {
           method: 'POST',
@@ -90,12 +127,12 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            amount: amount,
+            amount: selectedPaymentOption.amount,
             payment_method: selectedMethod,
             payment_provider: selectedProvider?.name || 'Card',
             transaction_id: txnId,
-            payment_type: 'full_month',
-            payment_period: paymentPeriod
+            payment_type: selectedPaymentOption.type,
+            payment_period: selectedPaymentOption.period
           })
         });
 
@@ -144,6 +181,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
               </button>
             )}
             <h2 className="text-2xl font-bold text-gray-900">
+              {step === 0 && 'Checking Payment Status...'}
               {step === 1 && 'Select Payment Method'}
               {step === 2 && 'Payment Details'}
               {step === 3 && 'Confirm Payment'}
@@ -161,13 +199,61 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
 
         {/* Content */}
         <div className="p-6">
+          {/* Step 0: Loading */}
+          {step === 0 && !error && (
+            <div className="py-12 text-center">
+              <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Checking payment status...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="py-8 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Payment Not Available</h3>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <button
+                onClick={onClose}
+                className="px-6 py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          )}
+
           {/* Step 1: Payment Method Selection */}
-          {step === 1 && (
+          {step === 1 && !error && selectedPaymentOption && (
             <div className="space-y-4">
               <div className="bg-gradient-to-r from-green-50 to-teal-50 p-4 rounded-xl border border-green-200">
-                <p className="text-sm text-gray-600 mb-1">Amount to Pay</p>
-                <p className="text-3xl font-bold text-gray-900">{formatAmount(amount)}</p>
+                <p className="text-sm text-gray-600 mb-1">{selectedPaymentOption.label}</p>
+                <p className="text-3xl font-bold text-gray-900">{formatAmount(selectedPaymentOption.amount)}</p>
+                <p className="text-xs text-gray-500 mt-1">Period: {selectedPaymentOption.period}</p>
               </div>
+
+              {paymentStatus && paymentStatus.payment_options.length > 1 && (
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <p className="text-sm font-semibold text-blue-900 mb-2">Other Payment Options:</p>
+                  <div className="space-y-2">
+                    {paymentStatus.payment_options.map((option, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedPaymentOption(option)}
+                        className={`w-full p-3 text-left rounded-lg border-2 transition-all cursor-pointer ${
+                          selectedPaymentOption.type === option.type
+                            ? 'border-blue-500 bg-blue-100'
+                            : 'border-blue-200 hover:border-blue-300 bg-white'
+                        }`}
+                      >
+                        <p className="font-medium text-gray-900">{option.label}</p>
+                        <p className="text-sm text-gray-600">{formatAmount(option.amount)}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {Object.entries(paymentMethods).map(([key, method]) => {
@@ -194,11 +280,11 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
           )}
 
           {/* Step 2: Payment Details */}
-          {step === 2 && selectedMethod && (
+          {step === 2 && selectedMethod && selectedPaymentOption && (
             <div className="space-y-6">
               <div className="bg-gray-50 p-4 rounded-xl">
-                <p className="text-sm text-gray-600 mb-1">Payment Amount</p>
-                <p className="text-2xl font-bold text-gray-900">{formatAmount(amount)}</p>
+                <p className="text-sm text-gray-600 mb-1">{selectedPaymentOption.label}</p>
+                <p className="text-2xl font-bold text-gray-900">{formatAmount(selectedPaymentOption.amount)}</p>
               </div>
 
               {/* E-Wallet / FPX - Provider Selection */}
@@ -314,12 +400,26 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
           )}
 
           {/* Step 3: Confirmation */}
-          {step === 3 && (
+          {step === 3 && selectedPaymentOption && (
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl border border-green-200">
                 <h3 className="font-semibold text-gray-900 mb-4">Payment Summary</h3>
                 
                 <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Type</span>
+                    <span className="font-semibold text-gray-900">
+                      {selectedPaymentOption.label}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Period</span>
+                    <span className="font-semibold text-gray-900">
+                      {selectedPaymentOption.period}
+                    </span>
+                  </div>
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Method</span>
                     <span className="font-semibold text-gray-900">
@@ -346,7 +446,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
                   <div className="border-t border-green-300 pt-3 mt-3">
                     <div className="flex justify-between">
                       <span className="text-gray-900 font-semibold">Total Amount</span>
-                      <span className="text-2xl font-bold text-gray-900">{formatAmount(amount)}</span>
+                      <span className="text-2xl font-bold text-gray-900">{formatAmount(selectedPaymentOption.amount)}</span>
                     </div>
                   </div>
                 </div>
@@ -368,7 +468,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
                 onClick={handlePayment}
                 className="w-full py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer"
               >
-                Confirm Payment - {formatAmount(amount)}
+                Confirm Payment - {formatAmount(selectedPaymentOption.amount)}
               </button>
             </div>
           )}
@@ -402,7 +502,11 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Amount Paid</span>
-                    <span className="font-semibold text-gray-900">{formatAmount(amount)}</span>
+                    <span className="font-semibold text-gray-900">{formatAmount(selectedPaymentOption?.amount || amount)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Type</span>
+                    <span className="font-semibold text-gray-900">{selectedPaymentOption?.label || 'Full Month'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Method</span>
