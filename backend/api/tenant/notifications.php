@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/tenant_cache.php';
 
 $sessionToken = getBearerToken();
 
@@ -46,166 +47,123 @@ try {
     $tenantId = $session['tenant_id'];
     $propertyId = $session['property_id'];
 
-    // Fetch real notifications from database
-    $notifications = [];
+    // Check cache first
+    $cachedNotifications = TenantCache::get($tenantId, 'notifications');
     
-    // 1. Get upcoming rent payments (next 7 days)
-    $stmt = $conn->prepare("
-        SELECT 
-            p.property_name,
-            p.monthly_rent,
-            t.move_in_date
-        FROM properties p
-        JOIN tenants t ON p.property_id = t.property_id
-        WHERE t.tenant_id = ?
-    ");
-    $stmt->execute([$tenantId]);
-    $property = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($property) {
-        // Calculate next payment date (assuming monthly on move-in date)
-        $moveInDay = date('d', strtotime($property['move_in_date']));
-        $currentMonth = date('Y-m');
-        $nextPaymentDate = $currentMonth . '-' . str_pad($moveInDay, 2, '0', STR_PAD_LEFT);
+    if ($cachedNotifications !== null) {
+        $notifications = $cachedNotifications['notifications'];
+        $unreadCount = $cachedNotifications['unread_count'];
+    } else {
+        // Consolidated query: Get all notification data using UNION
+        $notificationsQuery = "
+            (SELECT 
+                CONCAT('maintenance_update_', mr.request_id) as id,
+                'maintenance_update' as type,
+                'Maintenance Request Update' as title,
+                CONCAT('Your request "', mr.title, '" has been updated') as message,
+                p.property_name,
+                mr.updated_at as created_at,
+                'medium' as priority,
+                CONCAT('/tenant/maintenance?request_id=', mr.request_id) as link_url,
+                mr.request_id as reference_id
+            FROM maintenance_requests mr
+            JOIN properties p ON mr.property_id = p.property_id
+            WHERE mr.tenant_id = ?
+            AND mr.updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            AND mr.landlord_response IS NOT NULL
+            ORDER BY mr.updated_at DESC
+            LIMIT 5)
+            
+            UNION ALL
+            
+            (SELECT 
+                CONCAT('document_', d.document_id) as id,
+                'document_shared' as type,
+                'New Document Shared' as title,
+                CONCAT('Your landlord shared: ', d.file_name) as message,
+                p.property_name,
+                d.uploaded_at as created_at,
+                'low' as priority,
+                CONCAT('/tenant/documents?document_id=', d.document_id) as link_url,
+                d.document_id as reference_id
+            FROM documents d
+            JOIN properties p ON d.property_id = p.property_id
+            WHERE (d.tenant_id = ? OR d.tenant_id IS NULL)
+            AND d.property_id = ?
+            AND d.uploaded_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            ORDER BY d.uploaded_at DESC
+            LIMIT 5)
+            
+            ORDER BY created_at DESC
+            LIMIT 10
+        ";
         
-        // If payment date has passed this month, set to next month
-        if (strtotime($nextPaymentDate) < time()) {
-            $nextPaymentDate = date('Y-m-d', strtotime($nextPaymentDate . ' +1 month'));
-        }
+        $stmt = $conn->prepare($notificationsQuery);
+        $stmt->execute([$tenantId, $tenantId, $propertyId]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $daysUntilPayment = ceil((strtotime($nextPaymentDate) - time()) / (60 * 60 * 24));
-        
-        if ($daysUntilPayment <= 7 && $daysUntilPayment >= 0) {
+        $notifications = [];
+        foreach ($results as $row) {
             $notifications[] = [
-                'id' => 'rent_due_' . $tenantId,
-                'type' => 'rent_due',
-                'title' => 'Rent Payment Due Soon',
-                'message' => 'Your rent of RM' . number_format($property['monthly_rent'], 2) . ' is due in ' . $daysUntilPayment . ' days',
-                'property_name' => $property['property_name'],
-                'created_at' => date('Y-m-d H:i:s'),
+                'id' => $row['id'],
+                'type' => $row['type'],
+                'title' => $row['title'],
+                'message' => $row['message'],
+                'property_name' => $row['property_name'],
+                'created_at' => $row['created_at'],
                 'is_read' => false,
-                'priority' => $daysUntilPayment <= 3 ? 'high' : 'medium',
-                'link_url' => '/tenant/payments',
-                'reference_id' => $tenantId
+                'priority' => $row['priority'],
+                'link_url' => $row['link_url'],
+                'reference_id' => $row['reference_id']
             ];
         }
+        
+        // Add rent due notification if applicable
+        $stmt = $conn->prepare("
+            SELECT p.property_name, p.monthly_rent, t.move_in_date
+            FROM properties p
+            JOIN tenants t ON p.property_id = t.property_id
+            WHERE t.tenant_id = ?
+        ");
+        $stmt->execute([$tenantId]);
+        $property = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($property) {
+            $moveInDay = date('d', strtotime($property['move_in_date']));
+            $currentMonth = date('Y-m');
+            $nextPaymentDate = $currentMonth . '-' . str_pad($moveInDay, 2, '0', STR_PAD_LEFT);
+            
+            if (strtotime($nextPaymentDate) < time()) {
+                $nextPaymentDate = date('Y-m-d', strtotime($nextPaymentDate . ' +1 month'));
+            }
+            
+            $daysUntilPayment = ceil((strtotime($nextPaymentDate) - time()) / (60 * 60 * 24));
+            
+            if ($daysUntilPayment <= 7 && $daysUntilPayment >= 0) {
+                array_unshift($notifications, [
+                    'id' => 'rent_due_' . $tenantId,
+                    'type' => 'rent_due',
+                    'title' => 'Rent Payment Due Soon',
+                    'message' => 'Your rent of RM' . number_format($property['monthly_rent'], 2) . ' is due in ' . $daysUntilPayment . ' days',
+                    'property_name' => $property['property_name'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'is_read' => false,
+                    'priority' => $daysUntilPayment <= 3 ? 'high' : 'medium',
+                    'link_url' => '/tenant/payments',
+                    'reference_id' => $tenantId
+                ]);
+            }
+        }
+        
+        $notifications = array_slice($notifications, 0, 10);
+        $unreadCount = count($notifications);
+        
+        // Cache the results
+        TenantCache::set($tenantId, 'notifications', [
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount
+        ]);
     }
-    
-    // 2. Get maintenance request updates (last 30 days)
-    $maintenanceQuery = "
-        SELECT 
-            mr.request_id,
-            mr.title,
-            mr.status,
-            mr.landlord_response,
-            mr.updated_at,
-            p.property_name
-        FROM maintenance_requests mr
-        JOIN properties p ON mr.property_id = p.property_id
-        WHERE mr.tenant_id = ?
-        AND mr.updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-        AND mr.landlord_response IS NOT NULL
-        ORDER BY mr.updated_at DESC
-        LIMIT 5
-    ";
-    
-    $stmt = $conn->prepare($maintenanceQuery);
-    $stmt->execute([$tenantId]);
-    $maintenanceUpdates = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    foreach ($maintenanceUpdates as $update) {
-        $notifications[] = [
-            'id' => 'maintenance_update_' . $update['request_id'],
-            'type' => 'maintenance_update',
-            'title' => 'Maintenance Request Update',
-            'message' => 'Your request "' . $update['title'] . '" has been updated',
-            'property_name' => $update['property_name'],
-            'created_at' => $update['updated_at'],
-            'is_read' => false,
-            'priority' => 'medium',
-            'link_url' => '/tenant/maintenance?request_id=' . $update['request_id'],
-            'reference_id' => $update['request_id']
-        ];
-    }
-    
-    // 3. Get new documents shared (last 30 days)
-    $documentsQuery = "
-        SELECT 
-            d.document_id,
-            d.file_name,
-            d.category,
-            d.uploaded_at,
-            p.property_name
-        FROM documents d
-        JOIN properties p ON d.property_id = p.property_id
-        WHERE (d.tenant_id = ? OR d.tenant_id IS NULL)
-        AND d.property_id = ?
-        AND d.uploaded_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-        ORDER BY d.uploaded_at DESC
-        LIMIT 5
-    ";
-    
-    $stmt = $conn->prepare($documentsQuery);
-    $stmt->execute([$tenantId, $propertyId]);
-    $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    foreach ($documents as $doc) {
-        $notifications[] = [
-            'id' => 'document_' . $doc['document_id'],
-            'type' => 'document_shared',
-            'title' => 'New Document Shared',
-            'message' => 'Your landlord shared: ' . $doc['file_name'],
-            'property_name' => $doc['property_name'],
-            'created_at' => $doc['uploaded_at'],
-            'is_read' => false,
-            'priority' => 'low',
-            'link_url' => '/tenant/documents?document_id=' . $doc['document_id'],
-            'reference_id' => $doc['document_id']
-        ];
-    }
-    
-    // 4. Check for overdue payments
-    $stmt = $conn->prepare("
-        SELECT 
-            COUNT(*) as overdue_count,
-            SUM(p.monthly_rent) as total_overdue
-        FROM tenants t
-        JOIN properties p ON t.property_id = p.property_id
-        LEFT JOIN payments pay ON t.tenant_id = pay.tenant_id 
-            AND pay.payment_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-            AND pay.status = 'completed'
-        WHERE t.tenant_id = ?
-        AND t.move_in_date <= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-        AND pay.payment_id IS NULL
-    ");
-    $stmt->execute([$tenantId]);
-    $overdueInfo = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($overdueInfo['overdue_count'] > 0) {
-        $notifications[] = [
-            'id' => 'overdue_payment_' . $tenantId,
-            'type' => 'payment_overdue',
-            'title' => 'Overdue Payment',
-            'message' => 'You have overdue rent of RM' . number_format($overdueInfo['total_overdue'], 2),
-            'property_name' => $property['property_name'],
-            'created_at' => date('Y-m-d H:i:s'),
-            'is_read' => false,
-            'priority' => 'high',
-            'link_url' => '/tenant/payments',
-            'reference_id' => $tenantId
-        ];
-    }
-    
-    // Sort all notifications by created_at desc
-    usort($notifications, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
-    
-    // Limit to 10 most recent
-    $notifications = array_slice($notifications, 0, 10);
-    
-    // Count unread notifications (all for now)
-    $unreadCount = count($notifications);
 
     echo json_encode([
         'success' => true,

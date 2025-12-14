@@ -4,6 +4,7 @@ setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/tenant_cache.php';
 
 try {
     // Create database connection
@@ -57,47 +58,57 @@ try {
     $tenantId = $tenant['tenant_id'];
     $propertyId = $tenant['property_id'];
     
-    // Get payment history
-    $paymentsQuery = "SELECT 
-                        payment_id,
-                        amount,
-                        payment_method,
-                        payment_provider,
-                        transaction_id,
-                        status,
-                        payment_date,
-                        receipt_url,
-                        created_at
-                      FROM payments
-                      WHERE tenant_id = :tenant_id
-                      ORDER BY payment_date DESC";
+    // Check cache first
+    $cachedPayments = TenantCache::get($tenantId, 'payments');
     
-    $paymentsStmt = $db->prepare($paymentsQuery);
-    $paymentsStmt->bindParam(':tenant_id', $tenantId);
-    $paymentsStmt->execute();
-    
-    $payments = $paymentsStmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get next payment info (mock data for now - you can implement proper logic later)
-    // This would typically come from a rental_agreements or invoices table
-    $nextPayment = null;
-    
-    // Get property monthly rent
-    if ($propertyId) {
-        $rentQuery = "SELECT monthly_rent FROM properties WHERE property_id = :property_id";
-        $rentStmt = $db->prepare($rentQuery);
-        $rentStmt->bindParam(':property_id', $propertyId);
-        $rentStmt->execute();
-        $property = $rentStmt->fetch(PDO::FETCH_ASSOC);
+    if ($cachedPayments !== null) {
+        $payments = $cachedPayments['payments'];
+        $nextPayment = $cachedPayments['next_payment'];
+    } else {
+        // Get payment history
+        $paymentsQuery = "SELECT 
+                            payment_id,
+                            amount,
+                            payment_method,
+                            payment_provider,
+                            transaction_id,
+                            status,
+                            payment_date,
+                            receipt_url,
+                            created_at
+                          FROM payments
+                          WHERE tenant_id = :tenant_id
+                          ORDER BY payment_date DESC";
         
-        if ($property) {
-            // Calculate next payment due date (1st of next month)
-            $nextMonth = new DateTime('first day of next month');
-            $nextPayment = [
-                'amount' => $property['monthly_rent'],
-                'due_date' => $nextMonth->format('Y-m-d')
-            ];
+        $paymentsStmt = $db->prepare($paymentsQuery);
+        $paymentsStmt->bindParam(':tenant_id', $tenantId);
+        $paymentsStmt->execute();
+        
+        $payments = $paymentsStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $nextPayment = null;
+        
+        if ($propertyId) {
+            $rentQuery = "SELECT monthly_rent FROM properties WHERE property_id = :property_id";
+            $rentStmt = $db->prepare($rentQuery);
+            $rentStmt->bindParam(':property_id', $propertyId);
+            $rentStmt->execute();
+            $property = $rentStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($property) {
+                $nextMonth = new DateTime('first day of next month');
+                $nextPayment = [
+                    'amount' => $property['monthly_rent'],
+                    'due_date' => $nextMonth->format('Y-m-d')
+                ];
+            }
         }
+        
+        // Cache the results
+        TenantCache::set($tenantId, 'payments', [
+            'payments' => $payments,
+            'next_payment' => $nextPayment
+        ]);
     }
     
     // Return successful response
