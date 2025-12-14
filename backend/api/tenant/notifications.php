@@ -175,6 +175,7 @@ try {
     ]);
 
 } catch (Exception $e) {
+    error_log("Tenant Notifications Error: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,
