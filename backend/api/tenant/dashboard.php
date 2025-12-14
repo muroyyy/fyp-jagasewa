@@ -61,7 +61,7 @@ try {
         $next_payment = $cachedDashboard['next_payment'];
         $maintenance_stats = $cachedDashboard['maintenance_stats'];
     } else {
-        // Consolidated query: Get tenant profile, property, and stats in one query
+        // Get tenant profile with property information
         $stmt = $conn->prepare("
             SELECT 
                 t.tenant_id,
@@ -84,7 +84,22 @@ try {
                 p.images as property_images,
                 l.full_name as landlord_name,
                 l.phone as landlord_phone,
-                lu.email as landlord_email,
+                lu.email as landlord_email
+            FROM tenants t
+            JOIN users u ON t.user_id = u.user_id
+            LEFT JOIN properties p ON t.property_id = p.property_id
+            LEFT JOIN landlords l ON p.landlord_id = l.landlord_id
+            LEFT JOIN users lu ON l.user_id = lu.user_id
+            WHERE t.tenant_id = :tenant_id
+        ");
+        $stmt->bindParam(':tenant_id', $tenant_id);
+        $stmt->execute();
+
+        $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Get payment and maintenance stats in one query
+        $stmt = $conn->prepare("
+            SELECT 
                 COUNT(DISTINCT pay.payment_id) as total_payments,
                 COALESCE(SUM(CASE WHEN pay.status = 'completed' THEN pay.amount ELSE 0 END), 0) as total_paid,
                 MAX(pay.payment_date) as last_payment_date,
@@ -93,19 +108,13 @@ try {
                 SUM(CASE WHEN mr.status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_requests,
                 SUM(CASE WHEN mr.status = 'completed' THEN 1 ELSE 0 END) as completed_requests
             FROM tenants t
-            JOIN users u ON t.user_id = u.user_id
-            LEFT JOIN properties p ON t.property_id = p.property_id
-            LEFT JOIN landlords l ON p.landlord_id = l.landlord_id
-            LEFT JOIN users lu ON l.user_id = lu.user_id
             LEFT JOIN payments pay ON t.tenant_id = pay.tenant_id
             LEFT JOIN maintenance_requests mr ON t.tenant_id = mr.tenant_id
             WHERE t.tenant_id = :tenant_id
-            GROUP BY t.tenant_id
         ");
         $stmt->bindParam(':tenant_id', $tenant_id);
         $stmt->execute();
-
-        $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$tenant) {
             http_response_code(404);
@@ -117,16 +126,16 @@ try {
         }
 
         $payment_stats = [
-            'total_payments' => (int)$tenant['total_payments'],
-            'total_paid' => (float)$tenant['total_paid'],
-            'last_payment_date' => $tenant['last_payment_date']
+            'total_payments' => (int)$stats['total_payments'],
+            'total_paid' => (float)$stats['total_paid'],
+            'last_payment_date' => $stats['last_payment_date']
         ];
 
         $maintenance_stats = [
-            'total_requests' => (int)$tenant['total_requests'],
-            'pending_requests' => (int)$tenant['pending_requests'],
-            'in_progress_requests' => (int)$tenant['in_progress_requests'],
-            'completed_requests' => (int)$tenant['completed_requests']
+            'total_requests' => (int)$stats['total_requests'],
+            'pending_requests' => (int)$stats['pending_requests'],
+            'in_progress_requests' => (int)$stats['in_progress_requests'],
+            'completed_requests' => (int)$stats['completed_requests']
         ];
 
         // Calculate next payment
