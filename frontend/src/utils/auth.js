@@ -79,3 +79,12 @@ export const isLandlord = () => {
 export const isTenant = () => {
   return hasRole('tenant');
 };
+
+// Handle API response and auto-logout on 401
+export const handleApiResponse = async (response) => {
+  if (response.status === 401) {
+    logout();
+    return null;
+  }
+  return response;
+};

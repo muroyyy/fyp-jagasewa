@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, DollarSign, Wrench, FileText, MapPin, User as UserIcon, Phone, Mail } from 'lucide-react';
-import { getCurrentUser } from '../../utils/auth';
+import { getCurrentUser, handleApiResponse } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 
 export default function TenantDashboard() {
@@ -36,6 +36,10 @@ export default function TenantDashboard() {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      // Handle 401 responses (auto-logout)
+      const validResponse = await handleApiResponse(response);
+      if (!validResponse) return; // User was logged out
 
       const data = await response.json();
 

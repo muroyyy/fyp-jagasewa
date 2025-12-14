@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, DollarSign, Wrench, Bell, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../utils/auth';
+import { getCurrentUser, handleApiResponse } from '../../utils/auth';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 export default function LandlordDashboard() {
@@ -35,6 +35,10 @@ export default function LandlordDashboard() {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      // Handle 401 responses (auto-logout)
+      const validResponse = await handleApiResponse(response);
+      if (!validResponse) return; // User was logged out
 
       const data = await response.json();
 
