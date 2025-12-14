@@ -149,16 +149,20 @@ try {
                 $next_due = date('Y-m-d', strtotime($move_in_date . ' +1 month'));
             }
             
+            $next_year = date('Y', strtotime($next_due));
+            $next_month = date('m', strtotime($next_due));
+            
             $stmt = $conn->prepare("
                 SELECT COUNT(*) as count
                 FROM payments
                 WHERE tenant_id = :tenant_id
-                AND YEAR(payment_date) = YEAR(:next_due)
-                AND MONTH(payment_date) = MONTH(:next_due)
+                AND YEAR(payment_date) = :next_year
+                AND MONTH(payment_date) = :next_month
                 AND status = 'completed'
             ");
             $stmt->bindParam(':tenant_id', $tenant_id);
-            $stmt->bindParam(':next_due', $next_due);
+            $stmt->bindParam(':next_year', $next_year);
+            $stmt->bindParam(':next_month', $next_month);
             $stmt->execute();
             $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
             
