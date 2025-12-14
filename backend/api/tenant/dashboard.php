@@ -243,12 +243,14 @@ try {
     ]);
 
 } catch (PDOException $e) {
+    error_log("Tenant Dashboard PDO Error: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Database error: ' . $e->getMessage()
     ]);
 } catch (Exception $e) {
+    error_log("Tenant Dashboard Exception: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,
