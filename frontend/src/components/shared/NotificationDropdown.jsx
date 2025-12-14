@@ -29,11 +29,22 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
       setLoading(true);
       const token = localStorage.getItem('session_token');
       
+      if (!token) {
+        console.log('No session token found, skipping notifications fetch');
+        return;
+      }
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/${userType}/notifications.php`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
+
+      if (!response.ok) {
+        console.log(`Notifications API returned ${response.status}`);
+        return;
+      }
 
       const data = await response.json();
       if (data.success) {
