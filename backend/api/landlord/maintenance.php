@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/landlord_cache.php';
 
 // Get authorization token using helper function
 $sessionToken = getBearerToken();
@@ -43,52 +44,62 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Fetch all maintenance requests for this landlord's properties
-    $stmt = $conn->prepare("
-        SELECT 
-            m.request_id,
-            m.title,
-            m.description,
-            m.category,
-            m.priority,
-            m.status,
-            m.preferred_date,
-            m.estimated_completion,
-            m.landlord_response,
-            m.response_date,
-            m.photos,
-            m.created_at,
-            m.updated_at,
-            t.full_name as tenant_name,
-            t.tenant_id,
-            t.phone as tenant_phone,
-            p.property_name,
-            p.property_id
-        FROM maintenance_requests m
-        JOIN tenants t ON m.tenant_id = t.tenant_id
-        JOIN properties p ON m.property_id = p.property_id
-        WHERE p.landlord_id = ?
-        ORDER BY 
-            CASE m.priority
-                WHEN 'urgent' THEN 1
-                WHEN 'high' THEN 2
-                WHEN 'medium' THEN 3
-                WHEN 'low' THEN 4
-            END,
-            CASE m.status
-                WHEN 'pending' THEN 1
-                WHEN 'in_progress' THEN 2
-                WHEN 'completed' THEN 3
-                WHEN 'cancelled' THEN 4
-            END,
-            m.created_at DESC
-    ");
-    $stmt->execute([$landlordId]);
-    $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Check cache first
+    $cachedRequests = LandlordCache::get($landlordId, 'maintenance');
+    
+    if ($cachedRequests !== null) {
+        $requests = $cachedRequests;
+    } else {
+        // Fetch all maintenance requests for this landlord's properties
+        $stmt = $conn->prepare("
+            SELECT 
+                m.request_id,
+                m.title,
+                m.description,
+                m.category,
+                m.priority,
+                m.status,
+                m.preferred_date,
+                m.estimated_completion,
+                m.landlord_response,
+                m.response_date,
+                m.photos,
+                m.created_at,
+                m.updated_at,
+                t.full_name as tenant_name,
+                t.tenant_id,
+                t.phone as tenant_phone,
+                p.property_name,
+                p.property_id
+            FROM maintenance_requests m
+            JOIN tenants t ON m.tenant_id = t.tenant_id
+            JOIN properties p ON m.property_id = p.property_id
+            WHERE p.landlord_id = ?
+            ORDER BY 
+                CASE m.priority
+                    WHEN 'urgent' THEN 1
+                    WHEN 'high' THEN 2
+                    WHEN 'medium' THEN 3
+                    WHEN 'low' THEN 4
+                END,
+                CASE m.status
+                    WHEN 'pending' THEN 1
+                    WHEN 'in_progress' THEN 2
+                    WHEN 'completed' THEN 3
+                    WHEN 'cancelled' THEN 4
+                END,
+                m.created_at DESC
+        ");
+        $stmt->execute([$landlordId]);
+        $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Parse photos JSON for each request
-    foreach ($requests as &$request) {
-        $request['photos'] = $request['photos'] ? json_decode($request['photos'], true) : [];
+        // Parse photos JSON for each request
+        foreach ($requests as &$request) {
+            $request['photos'] = $request['photos'] ? json_decode($request['photos'], true) : [];
+        }
+        
+        // Cache the results
+        LandlordCache::set($landlordId, 'maintenance', $requests);
     }
 
     echo json_encode([

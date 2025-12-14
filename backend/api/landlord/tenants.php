@@ -4,6 +4,7 @@ setCorsHeaders();
 
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
+require_once '../../config/landlord_cache.php';
 
 try {
     // Create database connection
@@ -54,33 +55,43 @@ try {
     
     $landlordId = $landlord['landlord_id'];
     
-    // Get all tenants associated with this landlord's properties
-    $tenantsQuery = "SELECT DISTINCT
-                        t.tenant_id,
-                        t.user_id,
-                        t.full_name,
-                        u.email,
-                        t.phone,
-                        t.move_in_date,
-                        t.move_out_date,
-                        t.account_status,
-                        p.property_name,
-                        p.property_id,
-                        CASE 
-                            WHEN u.is_active = 1 THEN 'Active'
-                            ELSE 'Inactive'
-                        END as status
-                     FROM tenants t
-                     INNER JOIN users u ON t.user_id = u.user_id
-                     INNER JOIN properties p ON t.property_id = p.property_id
-                     WHERE p.landlord_id = :landlord_id
-                     ORDER BY t.move_in_date DESC";
+    // Check cache first
+    $cachedTenants = LandlordCache::get($landlordId, 'tenants');
     
-    $tenantsStmt = $db->prepare($tenantsQuery);
-    $tenantsStmt->bindParam(':landlord_id', $landlordId);
-    $tenantsStmt->execute();
-    
-    $tenants = $tenantsStmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($cachedTenants !== null) {
+        $tenants = $cachedTenants;
+    } else {
+        // Get all tenants associated with this landlord's properties
+        $tenantsQuery = "SELECT DISTINCT
+                            t.tenant_id,
+                            t.user_id,
+                            t.full_name,
+                            u.email,
+                            t.phone,
+                            t.move_in_date,
+                            t.move_out_date,
+                            t.account_status,
+                            p.property_name,
+                            p.property_id,
+                            CASE 
+                                WHEN u.is_active = 1 THEN 'Active'
+                                ELSE 'Inactive'
+                            END as status
+                         FROM tenants t
+                         INNER JOIN users u ON t.user_id = u.user_id
+                         INNER JOIN properties p ON t.property_id = p.property_id
+                         WHERE p.landlord_id = :landlord_id
+                         ORDER BY t.move_in_date DESC";
+        
+        $tenantsStmt = $db->prepare($tenantsQuery);
+        $tenantsStmt->bindParam(':landlord_id', $landlordId);
+        $tenantsStmt->execute();
+        
+        $tenants = $tenantsStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Cache the results
+        LandlordCache::set($landlordId, 'tenants', $tenants);
+    }
     
     // Return successful response with tenants data
     http_response_code(200);

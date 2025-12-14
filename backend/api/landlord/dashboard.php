@@ -5,6 +5,7 @@ setCorsHeaders();
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 require_once '../../models/Landlord.php';
+require_once '../../config/landlord_cache.php';
 
 try {
     // Create database connection
@@ -51,62 +52,59 @@ try {
     
     $landlordId = $landlordProfile['landlord_id'];
     
-    // Get dashboard statistics
-    // Total Properties (only active ones)
-    $propertiesQuery = "SELECT COUNT(*) as total FROM properties WHERE landlord_id = ? AND status = 'Active'";
-    $propertiesStmt = $db->prepare($propertiesQuery);
-    $propertiesStmt->execute([$landlordId]);
-    $totalProperties = $propertiesStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    // Check cache first
+    $cachedStats = LandlordCache::get($landlordId, 'dashboard_stats');
     
-    // Total Tenants (count tenants in active properties)
-    $tenantsQuery = "SELECT COUNT(DISTINCT t.tenant_id) as total FROM tenants t 
-                     JOIN properties p ON t.property_id = p.property_id 
-                     WHERE p.landlord_id = ? AND p.status = 'Active' AND t.property_id IS NOT NULL";
-    $tenantsStmt = $db->prepare($tenantsQuery);
-    $tenantsStmt->execute([$landlordId]);
-    $totalTenants = $tenantsStmt->fetch(PDO::FETCH_ASSOC)['total'];
-    
-    // Monthly Revenue (sum of monthly rent from active properties with tenants)
-    $revenueQuery = "SELECT COALESCE(SUM(p.monthly_rent), 0) as total FROM tenants t 
-                     JOIN properties p ON t.property_id = p.property_id 
-                     WHERE p.landlord_id = ? AND p.status = 'Active' AND t.property_id IS NOT NULL";
-    $revenueStmt = $db->prepare($revenueQuery);
-    $revenueStmt->execute([$landlordId]);
-    $monthlyRevenue = $revenueStmt->fetch(PDO::FETCH_ASSOC)['total'];
-    
-    // Pending Maintenance Requests
-    $maintenanceQuery = "SELECT COUNT(*) as total FROM maintenance_requests mr 
-                         JOIN properties p ON mr.property_id = p.property_id 
-                         WHERE p.landlord_id = ? AND mr.status = 'Pending'";
-    $maintenanceStmt = $db->prepare($maintenanceQuery);
-    $maintenanceStmt->execute([$landlordId]);
-    $pendingRequests = $maintenanceStmt->fetch(PDO::FETCH_ASSOC)['total'];
-    
-    // Total Expenses (sum of maintenance expenses)
-    $expensesQuery = "SELECT COALESCE(SUM(mr.expense_amount), 0) as total FROM maintenance_requests mr 
-                      JOIN properties p ON mr.property_id = p.property_id 
-                      WHERE p.landlord_id = ?";
-    $expensesStmt = $db->prepare($expensesQuery);
-    $expensesStmt->execute([$landlordId]);
-    $totalExpenses = $expensesStmt->fetch(PDO::FETCH_ASSOC)['total'];
-    
-    // Property Status Distribution
-    $statusQuery = "SELECT status, COUNT(*) as count FROM properties WHERE landlord_id = ? GROUP BY status";
-    $statusStmt = $db->prepare($statusQuery);
-    $statusStmt->execute([$landlordId]);
-    $statusResults = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    $propertyStatus = [
-        'occupied' => 0,
-        'vacant' => 0,
-        'maintenance' => 0
-    ];
-    
-    foreach ($statusResults as $row) {
-        $status = strtolower($row['status']);
-        if (isset($propertyStatus[$status])) {
-            $propertyStatus[$status] = (int)$row['count'];
-        }
+    if ($cachedStats !== null) {
+        $totalProperties = $cachedStats['total_properties'];
+        $totalTenants = $cachedStats['total_tenants'];
+        $monthlyRevenue = $cachedStats['monthly_revenue'];
+        $pendingRequests = $cachedStats['pending_requests'];
+        $totalExpenses = $cachedStats['total_expenses'];
+        $propertyStatus = $cachedStats['property_status'];
+    } else {
+        // Consolidated query: Get all stats in one query
+        $statsQuery = "
+            SELECT 
+                COUNT(DISTINCT CASE WHEN p.status = 'Active' THEN p.property_id END) as total_properties,
+                COUNT(DISTINCT CASE WHEN p.status = 'Active' AND t.property_id IS NOT NULL THEN t.tenant_id END) as total_tenants,
+                COALESCE(SUM(CASE WHEN p.status = 'Active' AND t.property_id IS NOT NULL THEN p.monthly_rent END), 0) as monthly_revenue,
+                COUNT(DISTINCT CASE WHEN mr.status = 'Pending' THEN mr.request_id END) as pending_requests,
+                COALESCE(SUM(mr.expense_amount), 0) as total_expenses,
+                SUM(CASE WHEN p.status = 'occupied' THEN 1 ELSE 0 END) as status_occupied,
+                SUM(CASE WHEN p.status = 'vacant' THEN 1 ELSE 0 END) as status_vacant,
+                SUM(CASE WHEN p.status = 'maintenance' THEN 1 ELSE 0 END) as status_maintenance
+            FROM properties p
+            LEFT JOIN tenants t ON t.property_id = p.property_id
+            LEFT JOIN maintenance_requests mr ON mr.property_id = p.property_id
+            WHERE p.landlord_id = ?
+        ";
+        
+        $statsStmt = $db->prepare($statsQuery);
+        $statsStmt->execute([$landlordId]);
+        $stats = $statsStmt->fetch(PDO::FETCH_ASSOC);
+        
+        $totalProperties = (int)$stats['total_properties'];
+        $totalTenants = (int)$stats['total_tenants'];
+        $monthlyRevenue = (float)$stats['monthly_revenue'];
+        $pendingRequests = (int)$stats['pending_requests'];
+        $totalExpenses = (float)$stats['total_expenses'];
+        
+        $propertyStatus = [
+            'occupied' => (int)$stats['status_occupied'],
+            'vacant' => (int)$stats['status_vacant'],
+            'maintenance' => (int)$stats['status_maintenance']
+        ];
+        
+        // Cache the results
+        LandlordCache::set($landlordId, 'dashboard_stats', [
+            'total_properties' => $totalProperties,
+            'total_tenants' => $totalTenants,
+            'monthly_revenue' => $monthlyRevenue,
+            'pending_requests' => $pendingRequests,
+            'total_expenses' => $totalExpenses,
+            'property_status' => $propertyStatus
+        ]);
     }
     
     // Return successful response with profile data and statistics
