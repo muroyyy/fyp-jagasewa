@@ -202,7 +202,7 @@ export default function SignupLandlord() {
           user_role: 'landlord',
           full_name: formData.fullName,
           phone: formData.phone.replace(/\s/g, ''), // Remove spaces before sending
-          company_name: formData.companyName || null,
+          company_name: formData.companyName,
           ssm_number: formData.ssmNumber,
           address: formData.address
         })
@@ -328,7 +328,7 @@ export default function SignupLandlord() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Company Name <span className="text-gray-400 text-xs">(Optional)</span>
+                  Company Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -338,6 +338,7 @@ export default function SignupLandlord() {
                     name="companyName"
                     value={formData.companyName}
                     onChange={handleChange}
+                    required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="Your Property Management Company"
@@ -358,6 +359,12 @@ export default function SignupLandlord() {
                     onChange={handleChange}
                     required
                     maxLength="12"
+                    pattern="[0-9]{12}"
+                    inputMode="numeric"
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                      handleChange(e);
+                    }}
                     disabled={isLoading || ssmVerified}
                     className={`w-full pl-4 pr-20 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       ssmVerified ? 'border-green-500 bg-green-50' : 'border-gray-300 focus:ring-blue-500'

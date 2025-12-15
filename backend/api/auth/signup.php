@@ -32,7 +32,8 @@ if (
     !empty($data->password) &&
     !empty($data->user_role) &&
     !empty($data->full_name) &&
-    !empty($data->phone)
+    !empty($data->phone) &&
+    ($data->user_role !== 'landlord' || !empty($data->company_name))
 ) {
     
     // Block admin registration
@@ -204,7 +205,7 @@ if (
             "user_role",
             "full_name",
             "phone",
-            "Additional fields for landlord: address, ssm_number",
+            "Additional fields for landlord: address, ssm_number, company_name",
             "Additional fields for tenant: ic_number, date_of_birth"
         ]
     ]);
