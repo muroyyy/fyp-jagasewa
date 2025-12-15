@@ -376,7 +376,7 @@ export default function SignupLandlord() {
                       type="button"
                       onClick={handleSsmVerification}
                       disabled={isLoading || isVerifying || formData.ssmNumber.length !== 12}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                     >
                       {isVerifying ? 'Verifying...' : 'Verify'}
                     </button>
