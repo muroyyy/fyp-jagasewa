@@ -17,6 +17,7 @@ export default function LandlordSettings() {
     email: '',
     phone: '',
     company_name: '',
+    ssm_number: '',
     address: '',
     profile_image: ''
   });
@@ -362,7 +363,7 @@ export default function LandlordSettings() {
                   <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
 
-                {/* Phone and Company Name */}
+                {/* Phone, Company Name, and SSM Number */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -400,6 +401,23 @@ export default function LandlordSettings() {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* SSM Number (Read-only) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SSM Number (Business Registration)
+                  </label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={profileData.ssm_number || 'Not provided'}
+                      disabled
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">SSM number cannot be changed after registration</p>
                 </div>
 
                 {/* Address */}

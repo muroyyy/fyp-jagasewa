@@ -33,6 +33,7 @@ try {
             l.full_name,
             l.phone,
             l.company_name,
+            l.ssm_number,
             l.address,
             l.profile_image
         FROM sessions s

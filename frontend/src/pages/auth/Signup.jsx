@@ -9,7 +9,7 @@ export default function Signup() {
   const handleRoleSelection = (role) => {
     if (role === 'landlord') {
       navigate('/signup/landlord');
-    } else {
+    } else if (role === 'tenant') {
       navigate('/signup/tenant');
     }
   };

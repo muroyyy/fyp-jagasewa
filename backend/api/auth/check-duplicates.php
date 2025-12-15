@@ -14,6 +14,7 @@ try {
     $email = $input['email'] ?? '';
     $phone = $input['phone'] ?? '';
     $ic_number = $input['ic_number'] ?? '';
+    $ssm_number = $input['ssm_number'] ?? '';
     $user_role = $input['user_role'] ?? '';
 
     if (empty($email)) {
@@ -66,6 +67,21 @@ try {
             echo json_encode([
                 'success' => false,
                 'message' => 'IC number is already registered. Please check your IC number or contact support.'
+            ]);
+            exit;
+        }
+    }
+
+    // Check for duplicate SSM number (only for landlords)
+    if ($user_role === 'landlord' && !empty($ssm_number)) {
+        $ssmQuery = "SELECT landlord_id FROM landlords WHERE ssm_number = ? LIMIT 1";
+        $ssmStmt = $db->prepare($ssmQuery);
+        $ssmStmt->execute([$ssm_number]);
+        
+        if ($ssmStmt->rowCount() > 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'SSM number is already registered. Please check your SSM number or contact support.'
             ]);
             exit;
         }

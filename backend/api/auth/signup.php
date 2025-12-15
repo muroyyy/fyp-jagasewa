@@ -35,6 +35,16 @@ if (
     !empty($data->phone)
 ) {
     
+    // Block admin registration
+    if ($data->user_role === 'admin') {
+        http_response_code(403);
+        echo json_encode([
+            "success" => false,
+            "message" => "Admin registration is not allowed."
+        ]);
+        exit();
+    }
+    
     // Set user properties
     $user->email = $data->email;
     $user->password_hash = $data->password;
@@ -66,7 +76,19 @@ if (
                 $landlord->full_name = $data->full_name;
                 $landlord->phone = $data->phone;
                 $landlord->company_name = isset($data->company_name) ? $data->company_name : null;
+                $landlord->ssm_number = $data->ssm_number;
                 $landlord->address = $data->address;
+                
+                // Check if SSM number already exists
+                if ($landlord->ssmNumberExists()) {
+                    $db->rollBack();
+                    http_response_code(400);
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "SSM number already registered."
+                    ]);
+                    exit();
+                }
                 
                 if ($landlord->create()) {
                     $db->commit();
@@ -182,7 +204,7 @@ if (
             "user_role",
             "full_name",
             "phone",
-            "Additional fields for landlord: address",
+            "Additional fields for landlord: address, ssm_number",
             "Additional fields for tenant: ic_number, date_of_birth"
         ]
     ]);

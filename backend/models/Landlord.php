@@ -14,6 +14,7 @@ class Landlord {
     public $full_name;
     public $phone;
     public $company_name;
+    public $ssm_number;
     public $address;
     public $profile_image;
     public $created_at;
@@ -35,6 +36,7 @@ class Landlord {
                     full_name = :full_name,
                     phone = :phone,
                     company_name = :company_name,
+                    ssm_number = :ssm_number,
                     address = :address";
 
         $stmt = $this->conn->prepare($query);
@@ -43,6 +45,7 @@ class Landlord {
         $this->full_name = htmlspecialchars(strip_tags($this->full_name));
         $this->phone = htmlspecialchars(strip_tags($this->phone));
         $this->company_name = htmlspecialchars(strip_tags($this->company_name));
+        $this->ssm_number = htmlspecialchars(strip_tags($this->ssm_number));
         $this->address = htmlspecialchars(strip_tags($this->address));
 
         // Bind values
@@ -50,6 +53,7 @@ class Landlord {
         $stmt->bindParam(":full_name", $this->full_name);
         $stmt->bindParam(":phone", $this->phone);
         $stmt->bindParam(":company_name", $this->company_name);
+        $stmt->bindParam(":ssm_number", $this->ssm_number);
         $stmt->bindParam(":address", $this->address);
 
         if($stmt->execute()) {
@@ -209,5 +213,20 @@ class Landlord {
     
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
+    /**
+     * Check if SSM number already exists
+     */
+    public function ssmNumberExists() {
+        $query = "SELECT landlord_id FROM " . $this->table_name . "
+                WHERE ssm_number = :ssm_number
+                LIMIT 1";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":ssm_number", $this->ssm_number);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
 }
 ?>

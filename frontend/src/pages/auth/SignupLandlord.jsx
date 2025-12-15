@@ -20,9 +20,13 @@ export default function SignupLandlord() {
     password: '',
     confirmPassword: '',
     companyName: '',
+    ssmNumber: '',
     address: '',
     agreeToTerms: false
   });
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [ssmVerified, setSsmVerified] = useState(false);
+  const [showVerificationNote, setShowVerificationNote] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -92,6 +96,45 @@ export default function SignupLandlord() {
     if (error) setError('');
   };
 
+  const handleSsmVerification = async () => {
+    if (!formData.ssmNumber || formData.ssmNumber.length !== 12) {
+      setError('Please enter a valid 12-digit SSM number');
+      return;
+    }
+    
+    setIsVerifying(true);
+    setError('');
+    setShowVerificationNote(true);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-ssm.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ssm_number: formData.ssmNumber
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setSsmVerified(true);
+        setShowVerificationNote(false);
+      } else {
+        setError(result.message);
+        setShowVerificationNote(false);
+      }
+    } catch (error) {
+      console.error('SSM verification error:', error);
+      setError('Network error during SSM verification. Please try again.');
+      setShowVerificationNote(false);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -103,6 +146,11 @@ export default function SignupLandlord() {
 
     if (!formData.agreeToTerms) {
       setError('Please agree to the terms and conditions');
+      return;
+    }
+    
+    if (!ssmVerified) {
+      setError('Please verify your SSM number first');
       return;
     }
     
@@ -125,6 +173,7 @@ export default function SignupLandlord() {
         body: JSON.stringify({
           email: formData.email,
           phone: formData.phone.replace(/\s/g, ''),
+          ssm_number: formData.ssmNumber,
           user_role: 'landlord'
         })
       });
@@ -154,6 +203,7 @@ export default function SignupLandlord() {
           full_name: formData.fullName,
           phone: formData.phone.replace(/\s/g, ''), // Remove spaces before sending
           company_name: formData.companyName || null,
+          ssm_number: formData.ssmNumber,
           address: formData.address
         })
       });
@@ -274,25 +324,80 @@ export default function SignupLandlord() {
               </div>
             </div>
 
-            {/* Company Name (Optional) */}
-            <div>
-              <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 mb-2">
-                Company Name <span className="text-gray-400 text-xs">(Optional)</span>
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  id="companyName"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="Your Property Management Company"
-                />
+            {/* Company Name and SSM Number - Side by Side */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Company Name <span className="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    id="companyName"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Your Property Management Company"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="ssmNumber" className="block text-sm font-semibold text-gray-700 mb-2">
+                  SSM Number <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="ssmNumber"
+                    name="ssmNumber"
+                    value={formData.ssmNumber}
+                    onChange={handleChange}
+                    required
+                    maxLength="12"
+                    disabled={isLoading || ssmVerified}
+                    className={`w-full pl-4 pr-20 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      ssmVerified ? 'border-green-500 bg-green-50' : 'border-gray-300 focus:ring-blue-500'
+                    }`}
+                    placeholder="123456789012"
+                  />
+                  {!ssmVerified && (
+                    <button
+                      type="button"
+                      onClick={handleSsmVerification}
+                      disabled={isLoading || isVerifying || formData.ssmNumber.length !== 12}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isVerifying ? 'Verifying...' : 'Verify'}
+                    </button>
+                  )}
+                  {ssmVerified && (
+                    <Check className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {ssmVerified ? '✓ SSM number verified' : 'Enter 12-digit Malaysian business registration number'}
+                </p>
               </div>
             </div>
+
+            {/* SSM Verification Note */}
+            {showVerificationNote && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-3 mt-0.5"></div>
+                  <div>
+                    <p className="text-sm text-blue-800 font-medium">Verifying SSM Number...</p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Note: In a production system, this would verify against the actual Companies Commission of Malaysia (SSM) API.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Address */}
             <div>
