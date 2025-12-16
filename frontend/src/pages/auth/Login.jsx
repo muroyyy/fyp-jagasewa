@@ -9,6 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userRole, setUserRole] = useState('landlord'); // 'landlord', 'tenant', or 'admin'
+  const [showAdminOption, setShowAdminOption] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -26,6 +27,22 @@ export default function Login() {
         navigate('/admin/dashboard');
       }
     }
+    
+    // Check for admin access via URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+      setShowAdminOption(true);
+    }
+    
+    // Keyboard shortcut: Ctrl+Shift+A to show admin option
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        setShowAdminOption(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -98,7 +115,7 @@ export default function Login() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           {/* Role Selection */}
-          <div className="grid grid-cols-2 gap-2 mb-8">
+          <div className={`grid gap-2 mb-8 ${showAdminOption ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <button
               type="button"
               onClick={() => setUserRole('landlord')}
@@ -123,6 +140,20 @@ export default function Login() {
             >
               Tenant
             </button>
+            {showAdminOption && (
+              <button
+                type="button"
+                onClick={() => setUserRole('admin')}
+                disabled={isLoading}
+                className={`cursor-pointer py-3 px-3 rounded-xl font-semibold transition-all text-sm ${
+                  userRole === 'admin'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Admin
+              </button>
+            )}
           </div>
 
           {/* Login Form */}
@@ -204,7 +235,9 @@ export default function Login() {
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                 userRole === 'landlord'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
-                  : 'bg-gradient-to-r from-green-600 to-teal-600'
+                  : userRole === 'tenant'
+                  ? 'bg-gradient-to-r from-green-600 to-teal-600'
+                  : 'bg-gradient-to-r from-purple-600 to-indigo-600'
               } ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isLoading ? (
