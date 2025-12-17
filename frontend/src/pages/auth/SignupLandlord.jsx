@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, Phone, Building2, MapPin, ArrowRight, AlertCircle, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
+import TermsModal from '../../components/modals/TermsModal';
 
 // API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -27,6 +28,8 @@ export default function SignupLandlord() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [ssmVerified, setSsmVerified] = useState(false);
   const [showVerificationNote, setShowVerificationNote] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -531,13 +534,21 @@ export default function SignupLandlord() {
               />
               <label htmlFor="agreeToTerms" className="ml-2 text-sm text-gray-600">
                 I agree to the{' '}
-                <Link to="/terms" className="text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(true)}
+                  className="text-blue-600 hover:text-blue-700 font-medium underline cursor-pointer"
+                >
                   Terms and Conditions
-                </Link>{' '}
+                </button>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  type="button"
+                  onClick={() => setShowPrivacyModal(true)}
+                  className="text-blue-600 hover:text-blue-700 font-medium underline cursor-pointer"
+                >
                   Privacy Policy
-                </Link>
+                </button>
               </label>
             </div>
 
@@ -590,6 +601,10 @@ export default function SignupLandlord() {
           </Link>
         </div>
       </div>
+
+      {/* Modals */}
+      <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} type="terms" />
+      <TermsModal isOpen={showPrivacyModal} onClose={() => setShowPrivacyModal(false)} type="privacy" />
     </div>
   );
 }
