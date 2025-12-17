@@ -37,8 +37,8 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           
           {/* Brand Section */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
+          <div className="text-center md:text-left">
+            <div className="flex items-center space-x-2 mb-4 justify-center md:justify-start">
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Home className="w-5 h-5 text-white" />
               </div>
@@ -48,11 +48,11 @@ export default function Footer() {
               Saving Malaysian landlords 5+ hours every week through smart property management automation.
             </p>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center text-slate-400">
+              <div className="flex items-center text-slate-400 justify-center md:justify-start">
                 <MapPin className="w-4 h-4 mr-2" />
                 <span>Kuala Lumpur, Malaysia</span>
               </div>
-              <div className="flex items-center text-slate-400">
+              <div className="flex items-center text-slate-400 justify-center md:justify-start">
                 <Mail className="w-4 h-4 mr-2" />
                 <a href="mailto:support@jagasewa.com" className="hover:text-blue-600 transition-colors">
                   support@jagasewa.com
@@ -62,7 +62,7 @@ export default function Footer() {
           </div>
 
           {/* Product Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-white font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -101,7 +101,7 @@ export default function Footer() {
           </div>
 
           {/* Company Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-white font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -132,7 +132,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-white font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li>

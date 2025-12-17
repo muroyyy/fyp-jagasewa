@@ -240,8 +240,8 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorks.map((step, idx) => (
               <div key={idx} className="relative">
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-slate-200">
-                  <div className="text-6xl mb-4">{step.icon}</div>
+                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-slate-200 text-center md:text-left">
+                  <div className="text-6xl mb-4 flex justify-center md:justify-start">{step.icon}</div>
                   <div className="inline-block px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-bold mb-4">
                     Step {step.step}
                   </div>
@@ -286,7 +286,7 @@ export default function Landing() {
             <div key={idx} className={`grid md:grid-cols-2 gap-12 items-center mb-24 ${idx % 2 !== 0 ? 'md:grid-flow-dense' : ''}`}>
               
               {/* Content Side */}
-              <div className={idx % 2 !== 0 ? 'md:col-start-2' : ''}>
+              <div className={`text-center md:text-left ${idx % 2 !== 0 ? 'md:col-start-2' : ''}`}>
                 {/* Problem */}
                 <div className="mb-8">
                   <div className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold mb-4">
@@ -306,7 +306,7 @@ export default function Landing() {
                   <h4 className="text-2xl font-bold text-slate-800 mb-4">{item.solution}</h4>
                   <ul className="space-y-3">
                     {item.benefits.map((benefit, bidx) => (
-                      <li key={bidx} className="flex items-start">
+                      <li key={bidx} className="flex items-start text-left">
                         <Check className="w-5 h-5 text-green-500 mr-3 mt-1 flex-shrink-0" />
                         <span className="text-slate-700">{benefit}</span>
                       </li>
@@ -351,13 +351,13 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-            <table className="w-full">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-x-auto border border-slate-200">
+            <table className="w-full min-w-[600px]">
               <thead className="bg-slate-100 border-b-2 border-slate-200">
                 <tr>
-                  <th className="p-6 text-left text-slate-700 font-bold text-lg">Task</th>
-                  <th className="p-6 text-center text-slate-700 font-bold text-lg">Manual Method</th>
-                  <th className="p-6 text-center bg-blue-600 text-white font-bold text-lg border-l-2 border-blue-700">
+                  <th className="p-4 md:p-6 text-left text-slate-700 font-bold text-sm md:text-lg">Task</th>
+                  <th className="p-4 md:p-6 text-center text-slate-700 font-bold text-sm md:text-lg">Manual Method</th>
+                  <th className="p-4 md:p-6 text-center bg-blue-600 text-white font-bold text-sm md:text-lg border-l-2 border-blue-700">
                     With JagaSewa
                   </th>
                 </tr>
@@ -365,9 +365,9 @@ export default function Landing() {
               <tbody>
                 {comparisonData.map((row, idx) => (
                   <tr key={idx} className={`border-t border-slate-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
-                    <td className="p-6 font-semibold text-slate-800">{row.task}</td>
-                    <td className="p-6 text-center text-slate-500">{row.manual}</td>
-                    <td className="p-6 text-center bg-blue-50 text-blue-600 font-bold border-l-2 border-blue-200">
+                    <td className="p-4 md:p-6 font-semibold text-slate-800 text-sm md:text-base">{row.task}</td>
+                    <td className="p-4 md:p-6 text-center text-slate-500 text-sm md:text-base">{row.manual}</td>
+                    <td className="p-4 md:p-6 text-center bg-blue-50 text-blue-600 font-bold border-l-2 border-blue-200 text-sm md:text-base">
                       {row.jagasewa}
                     </td>
                   </tr>
