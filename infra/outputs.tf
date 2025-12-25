@@ -37,14 +37,9 @@ output "app_config_secret_name" {
   value       = module.secrets.app_config_secret_name
 }
 
-output "asg_name" {
-  description = "Auto Scaling Group name"
-  value       = module.asg.asg_name
-}
-
-output "alb_target_group_arn" {
-  description = "ALB target group ARN"
-  value       = module.alb.target_group_arn
+output "instance_id" {
+  description = "Backend EC2 instance ID"
+  value       = module.ec2.instance_id
 }
 
 output "ecr_repository_url" {

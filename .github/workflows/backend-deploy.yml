@@ -37,50 +37,20 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-    - name: Deploy to Auto Scaling Group
+    - name: Deploy to EC2 via SSM
       env:
-        ASG_NAME: ${{ secrets.ASG_NAME }}
+        INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
       run: |
-        if [ -z "$ASG_NAME" ]; then
-          echo "No ASG name found"
-          exit 1
-        fi
-        
-        echo "Starting instance refresh for ASG: $ASG_NAME"
-        
-        REFRESH_ID=$(aws autoscaling start-instance-refresh \
-          --auto-scaling-group-name $ASG_NAME \
-          --preferences MinHealthyPercentage=50 \
-          --query 'InstanceRefreshId' \
-          --output text)
-        
-        echo "Instance Refresh ID: $REFRESH_ID"
-        
-        for i in {1..60}; do
-          STATUS=$(aws autoscaling describe-instance-refreshes \
-            --auto-scaling-group-name $ASG_NAME \
-            --instance-refresh-ids $REFRESH_ID \
-            --query 'InstanceRefreshes[0].Status' \
-            --output text)
-          
-          PERCENTAGE=$(aws autoscaling describe-instance-refreshes \
-            --auto-scaling-group-name $ASG_NAME \
-            --instance-refresh-ids $REFRESH_ID \
-            --query 'InstanceRefreshes[0].PercentageComplete' \
-            --output text)
-          
-          echo "Status: $STATUS ($PERCENTAGE% complete)"
-          
-          if [ "$STATUS" = "Successful" ]; then
-            echo "Deployment completed successfully"
-            exit 0
-          elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ]; then
-            echo "Deployment failed with status: $STATUS"
-            exit 1
-          fi
-          
-          sleep 30
-        done
-        
-        echo "Deployment timeout"
-        exit 1
+        aws ssm send-command \
+          --instance-ids $INSTANCE_ID \
+          --document-name "AWS-RunShellScript" \
+          --parameters 'commands=[
+            "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin '"$ECR_REGISTRY"'",
+            "docker pull '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest",
+            "docker stop jagasewa-backend || true",
+            "docker rm jagasewa-backend || true",
+            "docker run -d --name jagasewa-backend -p 80:80 -e DB_SECRET_NAME=jagasewa-db-credentials-prod '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest"
+          ]' \
+          --output text
