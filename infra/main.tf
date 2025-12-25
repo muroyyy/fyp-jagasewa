@@ -165,6 +165,10 @@ module "dynamodb" {
   environment  = var.environment
 }
 
+module "iam" {
+  source = "./modules/iam"
+}
+
 # Update S3 bucket policy with specific CloudFront distribution ID
 resource "aws_s3_bucket_policy" "frontend_policy_specific" {
   bucket     = module.s3.frontend_bucket_name
