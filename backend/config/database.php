@@ -10,7 +10,7 @@ class Database {
 
     public function __construct() {
         try {
-            // Try to get credentials from AWS Secrets Manager firstt
+            // Try to get credentials from AWS Secrets Manager first
             $secretName = getenv('DB_SECRET_NAME') ?: 'jagasewa-db-credentials-prod';
             $secretsManager = new SecretsManager($secretName);
             $credentials = $secretsManager->getSecret();
