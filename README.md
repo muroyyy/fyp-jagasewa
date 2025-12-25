@@ -1,6 +1,6 @@
-# 🏠 JagaSewa – Cloud-Based Rental Management System
+# JagaSewa – Cloud-Based Rental Management System
 
-## 👨‍💻 Developer: Amirul Faiz bin Mohd Redzuan
+## Developer: Amirul Faiz bin Mohd Redzuan
 
 - Institution: Asia Pacific University of Technology & Innovation (APU)
 - Programme: BSc (Hons) in Information Technology with a Specialism in Cloud Engineering
@@ -8,7 +8,7 @@
 
 ---
 
-## 📋 Project Overview
+## Project Overview
 
 JagaSewa is a full-stack web platform that simplifies property management for landlords and tenants.
 The system enables:
@@ -19,7 +19,7 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 
 ---
 
-## ⚙️ Technology Stack
+## Technology Stack
 
 | Layer                | Technology                             | Description                                                 |
 | -------------------- | -------------------------------------- | ----------------------------------------------------------- |
@@ -35,22 +35,22 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 
 ---
 
-## 🚀 Features
+## Features
 
-🏠 For Landlords
+For Landlords
 - Property listing management
 - Rental application tracking
 - Tenant communication and feedback
 - Automated rent tracking and reports
 
-👤 For Tenants
+For Tenants
 - Account registration and login
 - Browse and apply for properties
 - View rental history and payments
 - Provide ratings and comments
 - AI-powered maintenance request analysis
 
-🤖 AI Features (AWS Rekognition)
+AI Features (AWS Rekognition)
 - Automatic damage detection from photos
 - Smart categorization of maintenance issues
 - Severity assessment (low/medium/high/urgent)
@@ -58,7 +58,7 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 
 
 
-## 🔒 Security Highlights
+## Security Highlights
 
 - AWS IAM roles with least-privilege access
 - Private subnets for RDS and backend EC2
@@ -69,7 +69,7 @@ The system is containerized with Docker, deployed on AWS Cloud, and provisioned 
 
 ---
 
-## 🧩 CI/CD Workflow
+## CI/CD Workflow
 
 The project implements an automated CI/CD pipeline using **GitHub Actions** that triggers on every push to the `main` branch, deploying both frontend and backend to AWS infrastructure.
 
