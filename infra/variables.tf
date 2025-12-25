@@ -32,6 +32,18 @@ variable "availability_zones" {
   default     = ["ap-southeast-1a", "ap-southeast-1b"]
 }
 
+variable "ami_id" {
+  description = "AMI ID for EC2 instances"
+  type        = string
+  default     = "ami-0c1907b6d738188e5" # Ubuntu 22.04 LTS Singapore
+}
+
+variable "instance_type" {
+  description = "EC2 instance type for ASG"
+  type        = string
+  default     = "t3.small"
+}
+
 variable "ec2_instance_type" {
   description = "EC2 instance type for backend container"
   type        = string

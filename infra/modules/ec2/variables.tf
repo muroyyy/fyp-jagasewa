@@ -1,5 +1,5 @@
 ##########################################################
-# EC2 Module Variables
+# EC2 Module Variables (IAM Resources Only)
 ##########################################################
 
 variable "project_name" {
@@ -12,32 +12,3 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
-
-variable "ami_id" {
-  description = "Ubuntu 22.04 LTS AMI ID (x86_64)"
-  type        = string
-  default     = "ami-0c1907b6d738188e5" # Singapore (ap-southeast-1)
-}
-
-variable "instance_type" {
-  description = "Instance type for backend EC2"
-  type        = string
-  default     = "t3.small"
-}
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDs for Auto Scaling Group"
-  type        = list(string)
-}
-
-variable "ec2_sg_id" {
-  description = "Security Group ID for EC2 backend"
-  type        = string
-}
-
-variable "target_group_arn" {
-  description = "ALB target group ARN for auto-registration"
-  type        = string
-}
-
-

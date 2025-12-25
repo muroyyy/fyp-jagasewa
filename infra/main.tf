@@ -95,12 +95,21 @@ module "alb" {
 }
 
 module "ec2" {
-  source            = "./modules/ec2"
-  project_name      = var.project_name
-  environment       = var.environment
-  public_subnet_ids = module.vpc.public_subnet_ids
-  ec2_sg_id         = module.security.ec2_sg_id
-  target_group_arn  = module.alb.target_group_arn
+  source       = "./modules/ec2"
+  project_name = var.project_name
+  environment  = var.environment
+}
+
+module "asg" {
+  source                    = "./modules/asg"
+  project_name              = var.project_name
+  environment               = var.environment
+  ami_id                    = var.ami_id
+  instance_type             = var.instance_type
+  public_subnet_ids         = module.vpc.public_subnet_ids
+  ec2_sg_id                 = module.security.ec2_sg_id
+  target_group_arn          = module.alb.target_group_arn
+  iam_instance_profile_name = module.ec2.iam_instance_profile_name
 }
 
 module "secrets" {

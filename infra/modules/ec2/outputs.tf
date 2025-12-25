@@ -2,19 +2,14 @@
 # EC2 Module Outputs
 ##########################################################
 
-output "instance_id" {
-  description = "ID of the EC2 instance"
-  value       = aws_instance.backend.id
+output "iam_instance_profile_name" {
+  description = "IAM instance profile name"
+  value       = aws_iam_instance_profile.ec2_instance_profile.name
 }
 
-output "instance_public_ip" {
-  description = "Public IP of the EC2 instance"
-  value       = aws_instance.backend.public_ip
-}
-
-output "instance_private_ip" {
-  description = "Private IP of the EC2 instance"
-  value       = aws_instance.backend.private_ip
+output "iam_role_arn" {
+  description = "IAM role ARN"
+  value       = aws_iam_role.ec2_role.arn
 }
 
 output "iam_role_name" {
