@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
+import ScrollReveal from 'scrollreveal';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -20,6 +21,40 @@ export default function Landing() {
         navigate('/admin/dashboard');
       }
     }
+
+    // Initialize ScrollReveal animations
+    const sr = ScrollReveal({
+      origin: 'bottom',
+      distance: '60px',
+      duration: 1000,
+      delay: 100,
+      reset: false
+    });
+
+    // Hero section animations
+    sr.reveal('.hero-badge', { delay: 200 });
+    sr.reveal('.hero-title', { delay: 400 });
+    sr.reveal('.hero-subtitle', { delay: 600 });
+    sr.reveal('.hero-benefits', { delay: 800 });
+    sr.reveal('.hero-cta', { delay: 1000 });
+    sr.reveal('.hero-dashboard', { delay: 600, origin: 'right' });
+
+    // Section animations
+    sr.reveal('.testimonials-section', { delay: 200 });
+    sr.reveal('.how-it-works-title', { delay: 200 });
+    sr.reveal('.how-it-works-step', { delay: 200, interval: 200 });
+    sr.reveal('.pain-point-content', { delay: 200, interval: 300 });
+    sr.reveal('.comparison-table', { delay: 200 });
+    sr.reveal('.features-card', { delay: 200, interval: 200 });
+    sr.reveal('.final-cta', { delay: 200 });
+    sr.reveal('.about-card', { delay: 200, interval: 200 });
+
+    // Cleanup function
+    return () => {
+      if (sr) {
+        sr.destroy();
+      }
+    };
   }, [navigate]);
 
   const testimonials = [
@@ -115,13 +150,13 @@ export default function Landing() {
             {/* LEFT: Value Proposition */}
             <div className="space-y-6">
               {/* Target Audience Badge */}
-              <div className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 border border-blue-600 rounded-full text-sm font-semibold shadow-sm">
+              <div className="hero-badge inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 border border-blue-600 rounded-full text-sm font-semibold shadow-sm">
                 <Home className="w-4 h-4 mr-2" />
                 For Independent Landlords Managing 10-50 Properties
               </div>
               
               {/* Main Headline - Outcome Focused */}
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1 className="hero-title text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Stop Chasing Rent.
                 <span className="block text-blue-600 mt-2">
                   Start Growing Your Business.
@@ -129,12 +164,12 @@ export default function Landing() {
               </h1>
               
               {/* Benefit-Focused Subheadline */}
-              <p className="text-xl text-slate-500 leading-relaxed">
+              <p className="hero-subtitle text-xl text-slate-500 leading-relaxed">
                 JagaSewa saves you <span className="font-bold text-blue-600">5+ hours every week</span> by automating rent tracking, tenant communication, and maintenance requests.
               </p>
 
               {/* Quick Benefits Pills */}
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="hero-benefits flex flex-wrap gap-4 pt-2">
                 {quickBenefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-center px-4 py-2 bg-white border border-slate-200 rounded-lg">
                     <benefit.icon className="w-5 h-5 text-blue-600 mr-2" />
@@ -144,7 +179,7 @@ export default function Landing() {
               </div>
               
               {/* Single Primary CTA */}
-              <div className="space-y-3 pt-4">
+              <div className="hero-cta space-y-3 pt-4">
                 <button 
                   onClick={() => navigate('/signup')}
                   className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-800 hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center group cursor-pointer"
@@ -170,7 +205,7 @@ export default function Landing() {
             </div>
             
             {/* RIGHT: Dashboard Mockup - SIMPLIFIED */}
-            <div className="relative">
+            <div className="hero-dashboard relative">
               <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
                 {/* Key Metric - Rent Collection */}
                 <div className="mb-6">
@@ -212,7 +247,7 @@ export default function Landing() {
       </section>
 
       {/* ===== TRUST SECTION - Mock Testimonials ===== */}
-      <section className="py-12 bg-white border-y border-slate-200">
+      <section className="testimonials-section py-12 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-slate-500 text-sm mb-8 font-medium">
             Trusted by landlords managing 500+ properties across Malaysia
@@ -233,13 +268,13 @@ export default function Landing() {
       <section id="how-it-works" className="py-20 bg-slate-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">Get Started in 3 Simple Steps</h2>
+            <h2 className="how-it-works-title text-4xl font-bold text-slate-800 mb-4">Get Started in 3 Simple Steps</h2>
             <p className="text-xl text-slate-500">From signup to automation in under 10 minutes</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorks.map((step, idx) => (
-              <div key={idx} className="relative">
+              <div key={idx} className="how-it-works-step relative">
                 <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-slate-200 text-center md:text-left">
                   <div className="text-6xl mb-4 flex justify-center md:justify-start">{step.icon}</div>
                   <div className="inline-block px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-bold mb-4">
@@ -283,7 +318,7 @@ export default function Landing() {
           </div>
 
           {painPoints.map((item, idx) => (
-            <div key={idx} className={`grid md:grid-cols-2 gap-12 items-center mb-24 ${idx % 2 !== 0 ? 'md:grid-flow-dense' : ''}`}>
+            <div key={idx} className={`pain-point-content grid md:grid-cols-2 gap-12 items-center mb-24 ${idx % 2 !== 0 ? 'md:grid-flow-dense' : ''}`}>
               
               {/* Content Side */}
               <div className={`text-center md:text-left ${idx % 2 !== 0 ? 'md:col-start-2' : ''}`}>
@@ -351,7 +386,7 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="bg-white rounded-2xl shadow-2xl overflow-x-auto border border-slate-200">
+          <div className="comparison-table bg-white rounded-2xl shadow-2xl overflow-x-auto border border-slate-200">
             <table className="w-full min-w-[600px]">
               <thead className="bg-slate-100 border-b-2 border-slate-200">
                 <tr>
@@ -403,7 +438,7 @@ export default function Landing() {
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Landlord Features */}
-            <div className="bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
+            <div className="features-card bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
                   <Home className="w-6 h-6 text-white" />
@@ -429,7 +464,7 @@ export default function Landing() {
             </div>
 
             {/* Tenant Features */}
-            <div className="bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
+            <div className="features-card bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
                   <Users className="w-6 h-6 text-white" />
@@ -456,7 +491,7 @@ export default function Landing() {
       </section>
 
       {/* ===== FINAL CTA SECTION ===== */}
-      <section className="py-20 bg-blue-600 px-4 sm:px-6 lg:px-8">
+      <section className="final-cta py-20 bg-blue-600 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Ready to Reclaim Your Time?
@@ -508,7 +543,7 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="about-card text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🎯</span>
               </div>
@@ -518,7 +553,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="about-card text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">💡</span>
               </div>
@@ -528,7 +563,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="about-card text-center p-8 bg-slate-100 rounded-2xl border border-slate-200">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">⚡</span>
               </div>

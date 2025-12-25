@@ -559,7 +559,7 @@ export default function SignupLandlord() {
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                 isLoading 
                   ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 cursor-pointer'
+                  : 'bg-blue-600 hover:bg-blue-800 cursor-pointer'
               }`}
             >
               {isLoading ? (

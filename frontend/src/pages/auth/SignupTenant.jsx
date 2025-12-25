@@ -264,7 +264,7 @@ export default function SignupTenant() {
             <img src={jagasewaLogo} alt="JagaSewa" className="h-16 w-auto" />
           </Link>
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
               <User className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Tenant Registration</h2>
@@ -417,7 +417,7 @@ export default function SignupTenant() {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   placeholder="Jane Smith"
                 />
               </div>
@@ -439,7 +439,7 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="jane@example.com"
                   />
                 </div>
@@ -460,7 +460,7 @@ export default function SignupTenant() {
                     required
                     disabled={isLoading}
                     maxLength="17"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="+601x xxx xxxx"
                   />
                 </div>
@@ -487,7 +487,7 @@ export default function SignupTenant() {
                       required
                       disabled={isLoading}
                       maxLength="14"
-                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                         extractedData ? 'border-green-300 bg-green-50 cursor-not-allowed' : 'border-gray-300 bg-white'
                       } disabled:bg-gray-100`}
                       placeholder="XXXXXX-XX-XXXX"
@@ -511,7 +511,7 @@ export default function SignupTenant() {
                       readOnly={extractedData !== null}
                       required
                       disabled={isLoading}
-                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
+                      className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                         extractedData ? 'border-green-300 bg-green-50 cursor-not-allowed' : 'border-gray-300 bg-white'
                       } disabled:bg-gray-100`}
                     />
@@ -537,7 +537,7 @@ export default function SignupTenant() {
                     required
                     minLength="8"
                     disabled={isLoading}
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="••••••••"
                   />
                   <button
@@ -567,7 +567,7 @@ export default function SignupTenant() {
                     minLength="8"
                     disabled={isLoading}
                     className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 ${
-                      passwordMatch === null ? 'border-gray-300 focus:ring-green-500' :
+                      passwordMatch === null ? 'border-gray-300 focus:ring-blue-500' :
                       passwordMatch ? 'border-green-500 focus:ring-green-500' :
                       'border-red-500 focus:ring-red-500'
                     }`}
@@ -605,14 +605,14 @@ export default function SignupTenant() {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-1"
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
               />
               <label htmlFor="agreeToTerms" className="ml-2 text-sm text-gray-600">
                 I agree to the{' '}
                 <button
                   type="button"
                   onClick={() => setShowTermsModal(true)}
-                  className="text-green-600 hover:text-green-700 font-medium underline cursor-pointer"
+                  className="text-blue-600 hover:text-blue-700 font-medium underline cursor-pointer"
                 >
                   Terms and Conditions
                 </button>
@@ -620,7 +620,7 @@ export default function SignupTenant() {
                 <button
                   type="button"
                   onClick={() => setShowPrivacyModal(true)}
-                  className="text-green-600 hover:text-green-700 font-medium underline cursor-pointer"
+                  className="text-blue-600 hover:text-blue-700 font-medium underline cursor-pointer"
                 >
                   Privacy Policy
                 </button>
@@ -632,7 +632,7 @@ export default function SignupTenant() {
               type="submit"
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
-                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-teal-600'
+                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-800 cursor-pointer'
               }`}
             >
               {isLoading ? (
@@ -652,7 +652,7 @@ export default function SignupTenant() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
+              <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
                 Sign in here
               </Link>
             </p>
