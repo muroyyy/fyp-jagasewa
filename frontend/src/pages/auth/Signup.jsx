@@ -101,7 +101,7 @@ export default function Signup() {
                 ))}
               </div>
 
-              <button className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1 cursor-pointer">
+              <button className="w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center group-hover:translate-x-1 cursor-pointer">
                 Sign up as Tenant
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
