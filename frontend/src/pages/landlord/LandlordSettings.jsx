@@ -300,7 +300,7 @@ export default function LandlordSettings() {
                         className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                       />
                     ) : (
-                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-gray-200">
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br bg-blue-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-gray-200">
                         {profileData.full_name ? profileData.full_name[0].toUpperCase() : 'L'}
                       </div>
                     )}
@@ -441,7 +441,7 @@ export default function LandlordSettings() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
                   >
                     {isSaving ? (
                       <>
@@ -545,7 +545,7 @@ export default function LandlordSettings() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
                   >
                     {isSaving ? (
                       <>

@@ -247,7 +247,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
       {/* Profile Image */}
       <div className="flex flex-col items-center space-y-4">
         <div className="relative">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br bg-green-600 flex items-center justify-center">
             {imagePreview ? (
               <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
             ) : (
@@ -382,7 +382,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
         className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
           saving
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gradient-to-r from-green-600 to-teal-600 hover:shadow-lg cursor-pointer'
+            : 'bg-gradient-to-r bg-green-700 hover:shadow-lg cursor-pointer'
         }`}
       >
         {saving ? (
@@ -567,7 +567,7 @@ function SecurityTab({ setError, setSuccess }) {
         className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
           saving
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gradient-to-r from-green-600 to-teal-600 hover:shadow-lg cursor-pointer'
+            : 'bg-gradient-to-r bg-green-700 hover:shadow-lg cursor-pointer'
         }`}
       >
         {saving ? (

@@ -242,7 +242,7 @@ export default function LandlordAddTenant() {
               className={`flex-1 flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
                 loading || properties.length === 0
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg cursor-pointer'
+                  : 'bg-blue-600 hover:shadow-lg cursor-pointer'
               }`}
             >
               {loading ? (

@@ -303,7 +303,7 @@ export default function LandlordPayments() {
               {/* Export Button */}
               <button
                 onClick={exportToCSV}
-                className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all cursor-pointer"
+                className="flex items-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all cursor-pointer"
               >
                 <Download className="w-5 h-5" />
                 <span className="font-medium">Export</span>

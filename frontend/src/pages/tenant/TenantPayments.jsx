@@ -169,7 +169,7 @@ export default function TenantPayments() {
           <div className="mb-8">
             <button
               onClick={() => setShowPaymentModal(true)}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r bg-green-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
             >
               <CreditCard className="w-5 h-5" />
               <span>Make Payment - {formatAmount(paymentStatus.payment_options[0].amount)}</span>

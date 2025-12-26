@@ -516,7 +516,7 @@ export default function LandlordMaintenance() {
                   </button>
                   <button
                     onClick={() => handleRespond(request)}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all cursor-pointer"
+                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:shadow-lg transition-all cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span className="font-medium">Respond</span>
@@ -673,7 +673,7 @@ export default function LandlordMaintenance() {
                   setShowDetailModal(false);
                   handleRespond(selectedRequest);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold cursor-pointer"
+                className="w-full py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold cursor-pointer"
               >
                 Respond to Request
               </button>
@@ -789,7 +789,7 @@ export default function LandlordMaintenance() {
               <button
                 onClick={handleSubmitResponse}
                 disabled={isSubmitting || !responseText.trim()}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

@@ -273,7 +273,7 @@ export default function LandlordPropertyDocuments() {
             
             <button
               onClick={() => setShowUploadModal(true)}
-              className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md cursor-pointer"
+              className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md cursor-pointer"
             >
               <Upload className="w-5 h-5" />
               <span>Upload Document</span>
@@ -623,7 +623,7 @@ export default function LandlordPropertyDocuments() {
                   <button
                     type="submit"
                     disabled={uploading || !uploadForm.file}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {uploading ? 'Uploading...' : 'Upload Document'}
                   </button>

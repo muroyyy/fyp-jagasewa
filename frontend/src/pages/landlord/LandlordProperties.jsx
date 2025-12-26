@@ -353,7 +353,7 @@ export default function LandlordProperties() {
             </div>
             <button 
               onClick={() => setShowAddModal(true)}
-              className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+              className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
             >
               <Plus className="w-5 h-5" />
               <span>Add Property</span>
@@ -440,7 +440,7 @@ export default function LandlordProperties() {
               </p>
               <button 
                 onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Property</span>
@@ -776,7 +776,7 @@ export default function LandlordProperties() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                   >
                     {isSaving ? (
                       <>
