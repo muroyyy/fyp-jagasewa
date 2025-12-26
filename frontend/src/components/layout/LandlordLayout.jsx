@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Building2, Users, DollarSign, Wrench, FileText, Settings, LogOut, Bell, Menu, X, MessageCircle, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { isAuthenticated, getUserRole } from '../../utils/auth';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
@@ -13,6 +13,7 @@ export default function LandlordLayout({ children }) {
   const [userData, setUserData] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -228,17 +229,22 @@ export default function LandlordLayout({ children }) {
 
               {/* User Info */}
               <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 border-l border-gray-200">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-lg border-2 border-white"
-                  />
-                ) : (
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base">
-                    {getUserInitials()}
-                  </div>
-                )}
+                <div 
+                  onClick={() => setShowProfileModal(true)}
+                  className="cursor-pointer"
+                >
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-lg border-2 border-white hover:shadow-xl transition-shadow"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base hover:shadow-xl transition-shadow">
+                      {getUserInitials()}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -249,6 +255,63 @@ export default function LandlordLayout({ children }) {
           {children}
         </main>
       </div>
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4" onClick={() => setShowProfileModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center">
+              <div className="mb-4">
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover mx-auto shadow-lg border-4 border-white"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-lg">
+                    {getUserInitials()}
+                  </div>
+                )}
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                {userData?.full_name || 'Landlord'}
+              </h3>
+              <p className="text-gray-500 mb-4">Landlord Account</p>
+              
+              <div className="space-y-2">
+                <Link
+                  to="/landlord/settings"
+                  onClick={() => setShowProfileModal(false)}
+                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span>View Profile</span>
+                </Link>
+                
+                <button
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

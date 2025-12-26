@@ -190,7 +190,7 @@ export default function LandlordDashboard() {
 
             {/* Net Profit Summary */}
             <div className="pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between p-5 bg-blue-50 rounded-xl hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-100 rounded-lg">
                     <DollarSign className="text-blue-600" size={22} />

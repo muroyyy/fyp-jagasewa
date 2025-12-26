@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell, MessageCircle, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { getCurrentUser, logout } from '../../utils/auth';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
@@ -13,6 +13,7 @@ export default function TenantLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [fullName, setFullName] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const user = getCurrentUser();
 
   useEffect(() => {
@@ -123,19 +124,24 @@ export default function TenantLayout({ children }) {
             <div className="flex items-center space-x-4">
               <NotificationDropdown userType="tenant" />
               <div className="flex items-center space-x-3">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover shadow-lg border-2 border-white"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
-                      {fullName?.charAt(0) || 'T'}
-                    </span>
-                  </div>
-                )}
+                <div 
+                  onClick={() => setShowProfileModal(true)}
+                  className="cursor-pointer"
+                >
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover shadow-lg border-2 border-white hover:shadow-xl transition-shadow"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center hover:shadow-xl transition-shadow">
+                      <span className="text-white font-semibold text-sm">
+                        {fullName?.charAt(0) || 'T'}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -225,6 +231,65 @@ export default function TenantLayout({ children }) {
       }`}>
         {children}
       </main>
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4" onClick={() => setShowProfileModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center">
+              <div className="mb-4">
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover mx-auto shadow-lg border-4 border-white"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-lg">
+                    {fullName?.charAt(0) || 'T'}
+                  </div>
+                )}
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                {fullName || 'Tenant'}
+              </h3>
+              <p className="text-gray-500 mb-4">Tenant Account</p>
+              
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    navigate('/tenant/settings');
+                  }}
+                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  <span>View Profile</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
