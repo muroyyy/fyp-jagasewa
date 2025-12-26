@@ -90,7 +90,7 @@ export default function TenantMaintenance() {
 
   const getCategoryIcon = (category) => {
     const iconMap = {
-      plumbing: <Droplets className="w-6 h-6 text-blue-600" />,
+      plumbing: <Droplets className="w-6 h-6 text-green-600" />,
       electrical: <Zap className="w-6 h-6 text-yellow-600" />,
       appliances: <Wrench className="w-6 h-6 text-gray-600" />,
       hvac: <Wind className="w-6 h-6 text-cyan-600" />,
@@ -570,15 +570,15 @@ function NewRequestModal({ onClose, onSuccess }) {
               <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-5 shadow-lg">
                 <div className="flex items-start gap-4">
                   <div className="relative">
-                    <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+                    <Loader className="w-8 h-8 text-green-600 animate-spin" />
                     <div className="absolute inset-0 w-8 h-8 bg-blue-400 rounded-full animate-ping opacity-20"></div>
                   </div>
                   <div className="flex-1">
                     <p className="text-base font-bold text-blue-900 mb-1">🤖 AI Analysis in Progress...</p>
                     <p className="text-sm text-blue-700 mb-3">Our AI is examining your photo to identify the issue</p>
-                    <div className="flex items-center gap-2 text-xs text-blue-600">
+                    <div className="flex items-center gap-2 text-xs text-green-600">
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
                         <span>Detecting damage</span>
                       </div>
                       <span>•</span>
@@ -659,7 +659,7 @@ function NewRequestModal({ onClose, onSuccess }) {
 
                 {/* Info Message */}
                 <div className="mt-4 flex items-start gap-2 p-3 bg-blue-100/50 rounded-lg border border-blue-200">
-                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Info className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-blue-800">
                     <span className="font-semibold">Smart Suggestion:</span> We've auto-filled the category and priority based on {aiAnalysis.context_used ? 'your description and image analysis' : 'image analysis'}. You can modify these if needed.
                   </p>
@@ -720,7 +720,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                     <button
                       type="button"
                       onClick={analyzePhoto}
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Sparkle className="w-5 h-5" />
                       Analyze with AI
@@ -890,7 +890,7 @@ function RequestDetailsModal({ request, onClose }) {
               </h4>
               <p className="text-blue-800">{request.landlord_response}</p>
               {request.response_date && (
-                <p className="text-sm text-blue-600 mt-2">Responded on {formatDate(request.response_date)}</p>
+                <p className="text-sm text-green-600 mt-2">Responded on {formatDate(request.response_date)}</p>
               )}
             </div>
           )}

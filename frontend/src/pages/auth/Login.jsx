@@ -134,7 +134,7 @@ export default function Login() {
               disabled={isLoading}
               className={`cursor-pointer py-3 px-3 rounded-xl font-semibold transition-all text-sm ${
                 userRole === 'tenant'
-                  ? 'bg-blue-600 text-white shadow-lg'
+                  ? 'bg-green-600 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -234,10 +234,10 @@ export default function Login() {
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                 userRole === 'landlord'
-                  ? 'bg-blue-600 hover:bg-blue-800'
+                  ? 'bg-blue-600 hover:bg-blue-700'
                   : userRole === 'tenant'
-                  ? 'bg-blue-600 hover:bg-blue-800'
-                  : 'bg-blue-600 hover:bg-blue-800'
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
               } ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isLoading ? (

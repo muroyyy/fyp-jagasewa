@@ -161,7 +161,7 @@ export default function TenantDocuments() {
             <div key={idx} className="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
               <div className="flex items-center justify-between mb-2">
                 <stat.icon className={`w-8 h-8 ${
-                  stat.color === 'blue' ? 'text-blue-600' :
+                  stat.color === 'blue' ? 'text-green-600' :
                   stat.color === 'indigo' ? 'text-indigo-600' :
                   stat.color === 'green' ? 'text-green-600' :
                   'text-purple-600'

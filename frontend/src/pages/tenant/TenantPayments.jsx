@@ -144,7 +144,7 @@ export default function TenantPayments() {
                 <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Receipt className="w-6 h-6 text-blue-600" />
+                <Receipt className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function TenantPayments() {
                             const token = localStorage.getItem('session_token');
                             window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-receipt.php?payment_id=${payment.payment_id}&token=${token}`, '_blank');
                           }}
-                          className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
+                          className="px-3 py-1 bg-blue-50 text-green-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
                         >
                           View Receipt
                         </button>

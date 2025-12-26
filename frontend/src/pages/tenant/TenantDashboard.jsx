@@ -137,7 +137,7 @@ export default function TenantDashboard() {
                   <stat.icon className={`w-6 h-6 ${
                     stat.color === 'green' ? 'text-green-600' :
                     stat.color === 'orange' ? 'text-orange-600' :
-                    'text-blue-600'
+                    'text-green-600'
                   }`} />
                 </div>
               </div>
