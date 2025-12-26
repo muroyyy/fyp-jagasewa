@@ -228,12 +228,6 @@ export default function LandlordLayout({ children }) {
 
               {/* User Info */}
               <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 border-l border-gray-200">
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {userData?.full_name || 'Landlord'}
-                  </p>
-                  <p className="text-xs text-gray-500">Landlord Account</p>
-                </div>
                 {profileImage ? (
                   <img
                     src={profileImage}

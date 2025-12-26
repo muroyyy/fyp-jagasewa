@@ -123,10 +123,6 @@ export default function TenantLayout({ children }) {
             <div className="flex items-center space-x-4">
               <NotificationDropdown userType="tenant" />
               <div className="flex items-center space-x-3">
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-semibold text-gray-900">{fullName || 'Tenant'}</p>
-                  <p className="text-xs text-gray-500">Tenant Account</p>
-                </div>
                 {profileImage ? (
                   <img
                     src={profileImage}
