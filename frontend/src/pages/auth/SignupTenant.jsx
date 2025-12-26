@@ -309,7 +309,7 @@ export default function SignupTenant() {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all">
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all">
                       <Upload className="w-8 h-8 text-gray-400 mb-2" />
                       <span className="text-sm text-gray-500">Upload IC Front</span>
                       <input type="file" accept="image/*" onChange={(e) => handleICUpload(e, 'front')} className="hidden" />
@@ -334,7 +334,7 @@ export default function SignupTenant() {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all">
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all">
                       <Upload className="w-8 h-8 text-gray-400 mb-2" />
                       <span className="text-sm text-gray-500">Upload IC Back</span>
                       <input type="file" accept="image/*" onChange={(e) => handleICUpload(e, 'back')} className="hidden" />
@@ -652,7 +652,7 @@ export default function SignupTenant() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
+              <Link to="/login" className="font-semibold text-green-600 hover:underline hover:text-green-700 transition-colors">
                 Sign in here
               </Link>
             </p>

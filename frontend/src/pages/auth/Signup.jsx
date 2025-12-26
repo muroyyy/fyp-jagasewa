@@ -52,7 +52,7 @@ export default function Signup() {
             className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-100 hover:border-blue-500 transition-all cursor-pointer transform hover:-translate-y-2 hover:shadow-2xl group"
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 <Building2 className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">I'm a Landlord</h3>
@@ -83,7 +83,7 @@ export default function Signup() {
             className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-100 hover:border-green-500 transition-all cursor-pointer transform hover:-translate-y-2 hover:shadow-2xl group"
           >
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
                 <User className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">I'm a Tenant</h3>

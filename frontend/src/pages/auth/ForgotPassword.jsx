@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Home, Mail, ArrowRight, ArrowLeft, CheckCircle, Copy, AlertCircle } from 'lucide-react';
+import { Home, Mail, ArrowRight, ArrowLeft, CheckCircle, Copy, AlertCircle, X, Phone, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
 // API Base URL
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -13,6 +14,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [resetData, setResetData] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,13 +62,8 @@ export default function ForgotPassword() {
       <div className="max-w-md w-full">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Home className="w-8 h-8 text-white" />
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              JagaSewa
-            </span>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <img src={jagasewaLogo} alt="JagaSewa" className="h-16 w-auto" />
           </Link>
 
           {!isSubmitted ? (
@@ -134,7 +131,7 @@ export default function ForgotPassword() {
                   className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center group ${
                     isLoading
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 cursor-pointer'
+                      : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
                   }`}
                 >
                   {isLoading ? (
@@ -216,7 +213,7 @@ export default function ForgotPassword() {
                   {resetData && (
                     <button
                       onClick={() => navigate(`/reset-password?token=${resetData.token}`)}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all cursor-pointer"
+                      className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all cursor-pointer"
                     >
                       Go to Reset Password
                     </button>
@@ -244,9 +241,12 @@ export default function ForgotPassword() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Need help?{' '}
-              <Link to="/contact" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors hover:underline cursor-pointer">
+              <button 
+                onClick={() => setShowSupportModal(true)}
+                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors hover:underline cursor-pointer"
+              >
                 Contact Support
-              </Link>
+              </button>
             </p>
           </div>
         )}
@@ -262,6 +262,64 @@ export default function ForgotPassword() {
           </Link>
         </div>
       </div>
+
+      {/* Support Modal */}
+      {showSupportModal && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-lg flex items-center justify-center z-50 p-4" onClick={() => setShowSupportModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowSupportModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Contact Support</h3>
+            <p className="text-gray-600 mb-6">Need assistance? Reach out to us through any of these channels:</p>
+
+            <div className="space-y-4">
+              <div className="flex items-start p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <Mail className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Email</p>
+                  <a href="mailto:support@jagasewa.cloud" className="text-sm text-blue-600 hover:underline">
+                    support@jagasewa.cloud
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start p-4 bg-green-50 rounded-xl border border-green-200">
+                <Phone className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Phone</p>
+                  <a href="tel:+60123456789" className="text-sm text-green-600 hover:underline">
+                    +60 12-345 6789
+                  </a>
+                  <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9AM-6PM MYT</p>
+                </div>
+              </div>
+
+              <div className="flex items-start p-4 bg-purple-50 rounded-xl border border-purple-200">
+                <MessageCircle className="w-5 h-5 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Live Chat</p>
+                  <p className="text-sm text-gray-600">Available on our website</p>
+                  <a href="https://jagasewa.cloud" target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 hover:underline">
+                    jagasewa.cloud
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowSupportModal(false)}
+              className="mt-6 w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -582,7 +582,7 @@ export default function SignupLandlord() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer hover:underline"
               >
                 Sign in here
               </Link>
