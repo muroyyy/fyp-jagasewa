@@ -26,7 +26,7 @@ resource "aws_ecr_lifecycle_policy" "backend_policy" {
         rulePriority = 1
         description  = "Keep last 10 tagged images"
         selection = {
-          tagStatus   = "tagged"
+          tagStatus   = "any"
           countType   = "imageCountMoreThan"
           countNumber = 10
         }
