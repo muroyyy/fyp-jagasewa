@@ -78,12 +78,46 @@ try {
         exit();
     }
 
-    // Check if email already registered
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+    // Check if email already registered and if tenant is available for assignment
+    $stmt = $conn->prepare("
+        SELECT u.user_id, u.user_role, t.tenant_id, t.property_id 
+        FROM users u 
+        LEFT JOIN tenants t ON u.user_id = t.user_id 
+        WHERE u.email = ?
+    ");
     $stmt->execute([$data['email']]);
-    if ($stmt->fetch()) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Email already registered']);
+    $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($existingUser) {
+        // If user exists but is not a tenant, block registration
+        if ($existingUser['user_role'] !== 'tenant') {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Email already registered with different role']);
+            exit();
+        }
+        
+        // If tenant exists and is already assigned to a property, block assignment
+        if ($existingUser['property_id'] !== null) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Tenant already assigned to another property']);
+            exit();
+        }
+        
+        // If tenant exists but has no property assigned, allow reassignment
+        // Update the existing tenant record with new property
+        $stmt = $conn->prepare("
+            UPDATE tenants 
+            SET property_id = ?, move_in_date = CURDATE(), updated_at = NOW() 
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$data['property_id'], $existingUser['user_id']]);
+        
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Existing tenant successfully assigned to property',
+            'tenant_reassigned' => true
+        ]);
         exit();
     }
     
