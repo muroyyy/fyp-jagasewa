@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, MapPin, DollarSign, User as UserIcon, Phone, Mail, Calendar, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, MapPin, DollarSign, User as UserIcon, Phone, Mail, Calendar, ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 
@@ -10,6 +10,7 @@ export default function TenantMyProperty() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -94,203 +95,248 @@ export default function TenantMyProperty() {
   }
 
   return (
-    <TenantLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
+    <>
+      <TenantLayout>
+        <div className="p-4 sm:p-6 lg:p-8">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/tenant-dashboard')}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 cursor-pointer"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Dashboard</span>
+          </button>
+
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Property</h1>
+            <p className="text-gray-600">View your rental property details</p>
           </div>
-        )}
 
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/tenant-dashboard')}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 cursor-pointer"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Dashboard</span>
-        </button>
+          {/* Property Images Gallery */}
+          {property.images && property.images.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Property Images</h2>
+              
+              {/* Main Image */}
+              <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 relative group" style={{ height: '400px' }}>
+                <img
+                  src={property.images[selectedImage]}
+                  alt={`${property.property_name} - Image ${selectedImage + 1}`}
+                  className="w-full h-full object-cover transition-all duration-500 ease-in-out cursor-pointer"
+                  style={{ objectPosition: 'center' }}
+                  onClick={() => setShowImageModal(true)}
+                />
+                {property.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={() => setSelectedImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm transition-opacity duration-300">
+                      {selectedImage + 1} / {property.images.length}
+                    </div>
+                  </>
+                )}
+              </div>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Property</h1>
-          <p className="text-gray-600">View your rental property details</p>
-        </div>
+              {/* Thumbnail Gallery */}
+              {property.images.length > 1 && (
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                  {property.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                        selectedImage === index
+                          ? 'border-green-600 ring-2 ring-green-200'
+                          : 'border-gray-200 hover:border-green-400'
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-16 object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Property Images Gallery */}
-        {property.images && property.images.length > 0 && (
+          {/* Property Details */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Property Images</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Property Details</h2>
             
-            {/* Main Image */}
-            <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 relative group" style={{ height: '400px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Property Name */}
+              <div className="md:col-span-2">
+                <div className="flex items-start space-x-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Home className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">{property.property_name}</h3>
+                    <p className="text-gray-600 mt-1">{property.property_type}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="md:col-span-2">
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Address</label>
+                <div className="flex items-start space-x-2">
+                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-gray-900">
+                    <p>{property.address}</p>
+                    <p>{property.city}, {property.state} {property.postal_code}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Rent */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Monthly Rent</label>
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-5 h-5 text-green-600" />
+                  <p className="text-2xl font-bold text-gray-900">
+                    {formatAmount(property.monthly_rent)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Move-in Date */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Move-in Date</label>
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <p className="text-gray-900 font-medium">{formatDate(property.move_in_date)}</p>
+                </div>
+              </div>
+
+              {/* Move-out Date */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Move-out Date</label>
+                {property.move_out_date ? (
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <p className="text-gray-900 font-medium">{formatDate(property.move_out_date)}</p>
+                  </div>
+                ) : (
+                  <span className="text-green-600 font-semibold">Still Residing</span>
+                )}
+              </div>
+
+              {/* Property Status */}
+              <div className="md:col-span-2">
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Property Status</label>
+                <span className={`inline-flex px-4 py-2 rounded-full text-sm font-semibold ${
+                  property.status === 'Active' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {property.status}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Landlord Contact */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Landlord Contact</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Name</label>
+                <div className="flex items-center space-x-2">
+                  <UserIcon className="w-5 h-5 text-gray-400" />
+                  <p className="text-gray-900 font-medium">{property.landlord.name}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Email</label>
+                <a 
+                  href={`mailto:${property.landlord.email}`}
+                  className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span>{property.landlord.email}</span>
+                </a>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">Phone</label>
+                <a 
+                  href={`tel:${property.landlord.phone}`}
+                  className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>{property.landlord.phone}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TenantLayout>
+
+      {/* Image Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+          <div className="relative max-w-4xl max-h-[90vh] w-full">
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors cursor-pointer"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            
+            <div className="relative bg-white rounded-xl overflow-hidden shadow-2xl">
               <img
                 src={property.images[selectedImage]}
                 alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover transition-all duration-500 ease-in-out"
-                style={{ objectPosition: 'center' }}
+                className="w-full h-auto max-h-[80vh] object-contain"
               />
+              
               {property.images.length > 1 && (
                 <>
                   <button
                     onClick={() => setSelectedImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all cursor-pointer"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={() => setSelectedImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all cursor-pointer"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm transition-opacity duration-300">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium">
                     {selectedImage + 1} / {property.images.length}
                   </div>
                 </>
               )}
             </div>
-
-            {/* Thumbnail Gallery */}
-            {property.images.length > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                {property.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                      selectedImage === index
-                        ? 'border-green-600 ring-2 ring-green-200'
-                        : 'border-gray-200 hover:border-green-400'
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-16 object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Property Details */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Property Details</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Property Name */}
-            <div className="md:col-span-2">
-              <div className="flex items-start space-x-3">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Home className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">{property.property_name}</h3>
-                  <p className="text-gray-600 mt-1">{property.property_type}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="md:col-span-2">
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Address</label>
-              <div className="flex items-start space-x-2">
-                <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                <div className="text-gray-900">
-                  <p>{property.address}</p>
-                  <p>{property.city}, {property.state} {property.postal_code}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Monthly Rent */}
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Monthly Rent</label>
-              <div className="flex items-center space-x-2">
-                <DollarSign className="w-5 h-5 text-green-600" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatAmount(property.monthly_rent)}
-                </p>
-              </div>
-            </div>
-
-            {/* Move-in Date */}
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Move-in Date</label>
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-gray-400" />
-                <p className="text-gray-900 font-medium">{formatDate(property.move_in_date)}</p>
-              </div>
-            </div>
-
-            {/* Move-out Date */}
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Move-out Date</label>
-              {property.move_out_date ? (
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5 text-gray-400" />
-                  <p className="text-gray-900 font-medium">{formatDate(property.move_out_date)}</p>
-                </div>
-              ) : (
-                <span className="text-green-600 font-semibold">Still Residing</span>
-              )}
-            </div>
-
-            {/* Property Status */}
-            <div className="md:col-span-2">
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Property Status</label>
-              <span className={`inline-flex px-4 py-2 rounded-full text-sm font-semibold ${
-                property.status === 'Active' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
-                {property.status}
-              </span>
-            </div>
           </div>
         </div>
-
-        {/* Landlord Contact */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Landlord Contact</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Name</label>
-              <div className="flex items-center space-x-2">
-                <UserIcon className="w-5 h-5 text-gray-400" />
-                <p className="text-gray-900 font-medium">{property.landlord.name}</p>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Email</label>
-              <a 
-                href={`mailto:${property.landlord.email}`}
-                className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
-              >
-                <Mail className="w-5 h-5" />
-                <span>{property.landlord.email}</span>
-              </a>
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">Phone</label>
-              <a 
-                href={`tel:${property.landlord.phone}`}
-                className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
-              >
-                <Phone className="w-5 h-5" />
-                <span>{property.landlord.phone}</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </TenantLayout>
+      )}
+    </>
   );
 }
