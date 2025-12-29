@@ -75,7 +75,7 @@ export default function LandlordTenantsProperties() {
           </div>
           <button 
             onClick={() => navigate('/landlord/add-tenant')}
-            className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
           >
             <UserPlus className="w-5 h-5" />
             <span>Add Tenant</span>

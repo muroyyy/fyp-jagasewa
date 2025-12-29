@@ -438,7 +438,7 @@ export default function Landing() {
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Landlord Features */}
-            <div className="features-card bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
+            <div className="features-card bg-blue-50 rounded-2xl p-8 border-2 border-blue-200">
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
                   <Home className="w-6 h-6 text-white" />
@@ -455,7 +455,7 @@ export default function Landing() {
                   { icon: BarChart3, text: "Financial reports & analytics" },
                   { icon: Shield, text: "Secure document storage" }
                 ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-slate-200">
+                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-blue-200">
                     <feature.icon className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
                     <span className="text-slate-700 font-medium">{feature.text}</span>
                   </div>
@@ -464,9 +464,9 @@ export default function Landing() {
             </div>
 
             {/* Tenant Features */}
-            <div className="features-card bg-slate-100 rounded-2xl p-8 border-2 border-slate-200">
+            <div className="features-card bg-green-50 rounded-2xl p-8 border-2 border-green-200">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mr-4">
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">For Tenants</h3>
@@ -479,8 +479,8 @@ export default function Landing() {
                   { icon: Wrench, text: "Submit maintenance requests with photos" },
                   { icon: FileText, text: "Access lease documents anytime" }
                 ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-slate-200">
-                    <feature.icon className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                  <div key={idx} className="flex items-center p-3 bg-white rounded-lg border border-green-200">
+                    <feature.icon className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-slate-700 font-medium">{feature.text}</span>
                   </div>
                 ))}
