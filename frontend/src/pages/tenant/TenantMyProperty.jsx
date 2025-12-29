@@ -124,27 +124,28 @@ export default function TenantMyProperty() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Property Images</h2>
             
             {/* Main Image */}
-            <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 relative group">
+            <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 relative group" style={{ height: '400px' }}>
               <img
                 src={property.images[selectedImage]}
                 alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                className="w-full h-auto transition-opacity duration-300"
+                className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                style={{ objectPosition: 'center' }}
               />
               {property.images.length > 1 && (
                 <>
                   <button
                     onClick={() => setSelectedImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={() => setSelectedImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm transition-opacity duration-300">
                     {selectedImage + 1} / {property.images.length}
                   </div>
                 </>
