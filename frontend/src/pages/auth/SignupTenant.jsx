@@ -418,7 +418,7 @@ export default function SignupTenant() {
                   required
                   disabled={isLoading}
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
-                  placeholder="Jane Smith"
+                  placeholder="Full name"
                 />
               </div>
             </div>
@@ -440,7 +440,7 @@ export default function SignupTenant() {
                     required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
-                    placeholder="jane@example.com"
+                    placeholder="Email address"
                   />
                 </div>
               </div>
@@ -544,7 +544,7 @@ export default function SignupTenant() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -577,7 +577,7 @@ export default function SignupTenant() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>

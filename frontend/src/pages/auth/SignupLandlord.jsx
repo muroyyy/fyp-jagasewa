@@ -278,7 +278,7 @@ export default function SignupLandlord() {
                   required
                   disabled={isLoading}
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="John Doe"
+                  placeholder="Full name"
                 />
               </div>
             </div>
@@ -300,7 +300,7 @@ export default function SignupLandlord() {
                     required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="john@example.com"
+                    placeholder="Email address"
                   />
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function SignupLandlord() {
                     required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="Your Property Management Company"
+                    placeholder="Company name"
                   />
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function SignupLandlord() {
                     className={`w-full pl-4 pr-20 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       ssmVerified ? 'border-green-500 bg-green-50' : 'border-gray-300 focus:ring-blue-500'
                     }`}
-                    placeholder="123456789012"
+                    placeholder="SSM number (12 digits)"
                   />
                   {!ssmVerified && (
                     <button
@@ -454,7 +454,7 @@ export default function SignupLandlord() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -487,7 +487,7 @@ export default function SignupLandlord() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
