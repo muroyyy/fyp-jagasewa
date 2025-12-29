@@ -298,11 +298,11 @@ export default function TenantMyProperty() {
 
       {/* Image Modal */}
       {showImageModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="relative max-w-4xl max-h-[90vh] w-full">
             <button
               onClick={() => setShowImageModal(false)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors cursor-pointer"
+              className="absolute -top-12 right-0 text-gray-800 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X className="w-8 h-8" />
             </button>
@@ -311,7 +311,7 @@ export default function TenantMyProperty() {
               <img
                 src={property.images[selectedImage]}
                 alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                className="w-full h-auto max-h-[80vh] object-contain"
+                className="w-full h-auto max-h-[80vh] object-contain transition-all duration-500 ease-in-out"
               />
               
               {property.images.length > 1 && (
