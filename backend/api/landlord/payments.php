@@ -60,6 +60,7 @@ try {
                 p.payment_provider,
                 p.transaction_id,
                 p.status,
+                p.receipt_url,
                 p.payment_date,
                 p.created_at,
                 t.full_name as tenant_name,
