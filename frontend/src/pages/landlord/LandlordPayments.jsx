@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle } from 'lucide-react';
+import { Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle, Filter } from 'lucide-react';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -9,9 +9,18 @@ export default function LandlordPayments() {
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filterTenant, setFilterTenant] = useState('all');
+  const [filterProperty, setFilterProperty] = useState('all');
+  const [filterPaymentType, setFilterPaymentType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterMonth, setFilterMonth] = useState('all');
+  
+  // Filter options
+  const [filterOptions, setFilterOptions] = useState({
+    tenants: [],
+    properties: [],
+    paymentTypes: []
+  });
   
   // Stats
   const [stats, setStats] = useState({
@@ -21,9 +30,10 @@ export default function LandlordPayments() {
     completedPayments: 0
   });
 
-  // Fetch payments data
+  // Fetch payments data and filter options
   useEffect(() => {
     fetchPayments();
+    fetchFilterOptions();
   }, []);
 
   const fetchPayments = async () => {
@@ -60,6 +70,28 @@ export default function LandlordPayments() {
     }
   };
 
+  const fetchFilterOptions = async () => {
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      
+      const response = await fetch(`${API_BASE_URL}/api/landlord/payment-filters.php`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFilterOptions(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+    }
+  };
+
   const calculateStats = (paymentsData) => {
     const total = paymentsData.reduce((sum, p) => sum + parseFloat(p.amount), 0);
     
@@ -85,17 +117,31 @@ export default function LandlordPayments() {
     });
   };
 
-  // Search and filter logic
+  const clearAllFilters = () => {
+    setFilterTenant('all');
+    setFilterProperty('all');
+    setFilterPaymentType('all');
+    setFilterStatus('all');
+    setFilterMonth('all');
+  };
+
+  // Filter logic
   useEffect(() => {
     let filtered = [...payments];
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(payment => 
-        payment.tenant_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.property_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.transaction_id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    // Tenant filter
+    if (filterTenant !== 'all') {
+      filtered = filtered.filter(payment => payment.tenant_id === parseInt(filterTenant));
+    }
+
+    // Property filter
+    if (filterProperty !== 'all') {
+      filtered = filtered.filter(payment => payment.property_id === parseInt(filterProperty));
+    }
+
+    // Payment type filter
+    if (filterPaymentType !== 'all') {
+      filtered = filtered.filter(payment => payment.payment_type === filterPaymentType);
     }
 
     // Status filter
@@ -112,7 +158,7 @@ export default function LandlordPayments() {
     }
 
     setFilteredPayments(filtered);
-  }, [searchTerm, filterStatus, filterMonth, payments]);
+  }, [filterTenant, filterProperty, filterPaymentType, filterStatus, filterMonth, payments]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -250,40 +296,95 @@ export default function LandlordPayments() {
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by tenant, property, or transaction ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <Filter className="w-5 h-5 text-gray-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Filter Payments</h3>
+            </div>
+            <button
+              onClick={clearAllFilters}
+              className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            {/* Tenant Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
+              <select
+                value={filterTenant}
+                onChange={(e) => setFilterTenant(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+              >
+                <option value="all">All Tenants</option>
+                {filterOptions.tenants.map(tenant => (
+                  <option key={tenant.tenant_id} value={tenant.tenant_id}>
+                    {tenant.tenant_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Filter Buttons */}
-            <div className="flex items-center space-x-3">
-              {/* Status Filter */}
+            {/* Property Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Property</label>
+              <select
+                value={filterProperty}
+                onChange={(e) => setFilterProperty(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+              >
+                <option value="all">All Properties</option>
+                {filterOptions.properties.map(property => (
+                  <option key={property.property_id} value={property.property_id}>
+                    {property.property_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Payment Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
+              <select
+                value={filterPaymentType}
+                onChange={(e) => setFilterPaymentType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+              >
+                <option value="all">All Types</option>
+                {filterOptions.paymentTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Status</option>
                 <option value="completed">Completed</option>
                 <option value="pending">Pending</option>
                 <option value="failed">Failed</option>
               </select>
+            </div>
 
-              {/* Month Filter */}
+            {/* Month Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Month</label>
               <select
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Months</option>
                 <option value="0">January</option>
@@ -299,13 +400,15 @@ export default function LandlordPayments() {
                 <option value="10">November</option>
                 <option value="11">December</option>
               </select>
+            </div>
 
-              {/* Export Button */}
+            {/* Export Button */}
+            <div className="flex items-end">
               <button
                 onClick={exportToCSV}
-                className="flex items-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-4 h-4" />
                 <span className="font-medium">Export</span>
               </button>
             </div>
@@ -330,8 +433,8 @@ export default function LandlordPayments() {
               <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No Payments Found</h3>
               <p className="text-gray-600">
-                {searchTerm || filterStatus !== 'all' || filterMonth !== 'all'
-                  ? 'Try adjusting your search or filters'
+                {filterTenant !== 'all' || filterProperty !== 'all' || filterPaymentType !== 'all' || filterStatus !== 'all' || filterMonth !== 'all'
+                  ? 'Try adjusting your filters'
                   : 'Payment history will appear here once tenants make payments'}
               </p>
             </div>
