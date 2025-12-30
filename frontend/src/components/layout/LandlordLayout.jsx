@@ -27,11 +27,13 @@ export default function LandlordLayout({ children }) {
     if (storedUser) {
       try {
         setUserData(JSON.parse(storedUser));
-        fetchProfileImage();
       } catch (error) {
         console.error('Error parsing user data:', error);
       }
     }
+    
+    // Fetch fresh profile data from API
+    fetchProfileImage();
   }, [navigate]);
 
   // Handle responsive behavior
@@ -95,11 +97,16 @@ export default function LandlordLayout({ children }) {
       });
 
       const result = await response.json();
-      if (result.success && result.data.profile_image) {
-        const imageUrl = result.data.profile_image.startsWith('https://') 
-          ? result.data.profile_image 
-          : `${API_BASE_URL}/../${result.data.profile_image}`;
-        setProfileImage(imageUrl);
+      if (result.success && result.data) {
+        // Update userData with the fetched profile data
+        setUserData({ full_name: result.data.full_name });
+        
+        if (result.data.profile_image) {
+          const imageUrl = result.data.profile_image.startsWith('https://') 
+            ? result.data.profile_image 
+            : `${API_BASE_URL}/../${result.data.profile_image}`;
+          setProfileImage(imageUrl);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile image:', error);
