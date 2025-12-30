@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle, Filter } from 'lucide-react';
+import { Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle, Filter, FileText, ExternalLink } from 'lucide-react';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -199,7 +199,7 @@ export default function LandlordPayments() {
   };
 
   const exportToCSV = () => {
-    const headers = ['Date', 'Tenant', 'Property', 'Amount', 'Method', 'Status', 'Transaction ID'];
+    const headers = ['Date', 'Tenant', 'Property', 'Amount', 'Method', 'Status', 'Transaction ID', 'Receipt'];
     const rows = filteredPayments.map(p => [
       formatDate(p.payment_date),
       p.tenant_name,
@@ -207,7 +207,8 @@ export default function LandlordPayments() {
       formatCurrency(p.amount),
       p.payment_method.toUpperCase(),
       p.status.toUpperCase(),
-      p.transaction_id
+      p.transaction_id,
+      p.receipt_url || 'No receipt'
     ]);
 
     const csvContent = [
@@ -464,6 +465,9 @@ export default function LandlordPayments() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Transaction ID
                     </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Receipt
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -505,6 +509,22 @@ export default function LandlordPayments() {
                         <div className="text-xs text-gray-500 font-mono">
                           {payment.transaction_id}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {payment.receipt_url ? (
+                          <a
+                            href={payment.receipt_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span className="text-sm">View</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400">No receipt</span>
+                        )}
                       </td>
                     </tr>
                   ))}
