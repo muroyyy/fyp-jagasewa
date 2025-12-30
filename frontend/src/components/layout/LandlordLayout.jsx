@@ -174,9 +174,9 @@ export default function LandlordLayout({ children }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600 font-medium shadow-sm'
+                    ? 'bg-blue-50 text-blue-600 shadow-sm'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
