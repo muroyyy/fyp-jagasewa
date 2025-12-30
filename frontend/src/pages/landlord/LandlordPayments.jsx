@@ -321,7 +321,7 @@ export default function LandlordPayments() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Tenants</option>
-                {filterOptions.tenants.map(tenant => (
+                {filterOptions.tenants && filterOptions.tenants.map(tenant => (
                   <option key={tenant.tenant_id} value={tenant.tenant_id}>
                     {tenant.tenant_name}
                   </option>
@@ -338,7 +338,7 @@ export default function LandlordPayments() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Properties</option>
-                {filterOptions.properties.map(property => (
+                {filterOptions.properties && filterOptions.properties.map(property => (
                   <option key={property.property_id} value={property.property_id}>
                     {property.property_name}
                   </option>
@@ -355,7 +355,7 @@ export default function LandlordPayments() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
               >
                 <option value="all">All Types</option>
-                {filterOptions.paymentTypes.map(type => (
+                {filterOptions.paymentTypes && filterOptions.paymentTypes.map(type => (
                   <option key={type.value} value={type.value}>
                     {type.label}
                   </option>
