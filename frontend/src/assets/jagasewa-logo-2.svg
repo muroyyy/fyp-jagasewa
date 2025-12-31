@@ -1,32 +1,8 @@
 <svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Icon Circle Background -->
-  <circle cx="25" cy="25" r="22" fill="url(#blueGradient)" opacity="0.1"/>
-  
-  <!-- House with Key Icon -->
-  <g transform="translate(25, 25)">
-    <!-- House Roof -->
-    <path d="M -8 -2 L 0 -10 L 8 -2" stroke="url(#blueGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    
-    <!-- House Body -->
-    <rect x="-6" y="-2" width="12" height="10" rx="1" fill="url(#blueGradient)"/>
-    
-    <!-- Door -->
-    <rect x="-2" y="2" width="4" height="6" rx="0.5" fill="white"/>
-    
-    <!-- Key integrated into roof -->
-    <circle cx="0" cy="-10" r="2" stroke="url(#greenGradient)" stroke-width="2" fill="none"/>
-    <line x1="0" y1="-8" x2="0" y2="-4" stroke="url(#greenGradient)" stroke-width="2" stroke-linecap="round"/>
-    <line x1="0" y1="-6" x2="1.5" y2="-6" stroke="url(#greenGradient)" stroke-width="2" stroke-linecap="round"/>
-    <line x1="0" y1="-4.5" x2="1.5" y2="-4.5" stroke="url(#greenGradient)" stroke-width="2" stroke-linecap="round"/>
-  </g>
-  
-  <!-- Text: JagaSewa -->
-  <text x="55" y="33" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#1F2937">
-    JagaSewa
-  </text>
-  
-  <!-- Gradients -->
   <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&amp;display=swap');
+    </style>
     <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
@@ -36,4 +12,34 @@
       <stop offset="100%" style="stop-color:#14B8A6;stop-opacity:1" />
     </linearGradient>
   </defs>
+  <!-- Logo Background -->
+  <rect x="5" y="8" width="180" height="34" rx="17" fill="url(#blueGradient)" opacity="0.08"/>
+  
+  <!-- House with Key Icon -->
+  <g transform="translate(25, 25)">
+    <!-- House Roof -->
+    <path d="M -8 -2 L 0 -10 L 8 -2" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- House Body -->
+    <rect x="-6" y="-2" width="12" height="10" rx="1" fill="#2563EB"/>
+    
+    <!-- Door -->
+    <rect x="-2" y="2" width="4" height="6" rx="0.5" fill="white"/>
+    
+    <!-- Key integrated into roof -->
+    <circle cx="0" cy="-10" r="2" stroke="#059669" stroke-width="2" fill="none"/>
+    <line x1="0" y1="-8" x2="0" y2="-4" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-6" x2="1.5" y2="-6" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-4.5" x2="1.5" y2="-4.5" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Text Shadow -->
+  <text x="46" y="34" font-family="Outfit, Arial, Helvetica, sans-serif" font-size="24" font-weight="600" fill="#E5E7EB" opacity="0.3">
+    <tspan>Jaga</tspan><tspan>Sewa</tspan>
+  </text>
+  
+  <!-- Text: JagaSewa -->
+  <text x="45" y="33" font-family="Outfit, Arial, Helvetica, sans-serif" font-size="24" font-weight="600" letter-spacing="0.5px">
+    <tspan fill="#2563EB" font-weight="700">Jaga</tspan><tspan fill="#059669" font-weight="700">Sewa</tspan>
+  </text>
 </svg>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, CreditCard, Wrench, FileText, Settings, LogOut, Menu, X, Bell, MessageCircle, ChevronLeft, ChevronRight, User } from 'lucide-react';
-import { getCurrentUser, logout } from '../../utils/auth';
+import { isAuthenticated, getUserRole } from '../../utils/auth';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
 
@@ -10,25 +10,39 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 export default function TenantLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userData, setUserData] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [fullName, setFullName] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const user = getCurrentUser();
 
+  // Check authentication
   useEffect(() => {
-    if (user) {
-      fetchProfileData();
+    if (!isAuthenticated() || getUserRole() !== 'tenant') {
+      navigate('/login');
+      return;
     }
-  }, [user]);
+
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUserData(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+    
+    // Fetch fresh profile data from API
+    fetchProfileImage();
+  }, [navigate]);
 
   // Handle responsive behavior
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
+        setIsSidebarOpen(false);
       } else {
-        setSidebarOpen(true);
+        setIsSidebarOpen(true);
       }
     };
 
@@ -40,11 +54,37 @@ export default function TenantLayout({ children }) {
   // Close sidebar on mobile when route changes
   useEffect(() => {
     if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
+      setIsSidebarOpen(false);
     }
   }, [location.pathname]);
 
-  const fetchProfileData = async () => {
+  const handleLogout = () => {
+    localStorage.removeItem('session_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
+    navigate('/login');
+  };
+
+  const isActivePath = (path) => {
+    return location.pathname === path;
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const navItems = [
+    { path: '/tenant-dashboard', icon: Home, label: 'Dashboard' },
+    { path: '/tenant/my-property', icon: Home, label: 'My Property' },
+    { path: '/messages', icon: MessageCircle, label: 'Messages' },
+    { path: '/tenant/payments', icon: CreditCard, label: 'Payments' },
+    { path: '/tenant/maintenance', icon: Wrench, label: 'Maintenance' },
+    { path: '/tenant/documents', icon: FileText, label: 'Documents' },
+    { path: '/tenant/settings', icon: Settings, label: 'Settings' },
+  ];
+
+  // Get user initials for avatar
+  const fetchProfileImage = async () => {
     try {
       const sessionToken = localStorage.getItem('session_token');
       const response = await fetch(`${API_BASE_URL}/api/tenant/profile.php`, {
@@ -56,74 +96,145 @@ export default function TenantLayout({ children }) {
       });
 
       const result = await response.json();
-      
       if (result.success && result.data.profile) {
+        // Update userData with the fetched profile data
+        setUserData({ full_name: result.data.profile.full_name });
+        
         if (result.data.profile.profile_image) {
-          // Handle S3 URLs vs local paths correctly
-          let imageUrl;
-          if (result.data.profile.profile_image.startsWith('https://')) {
-            imageUrl = result.data.profile.profile_image;
-          } else {
-            imageUrl = `${API_BASE_URL}/../${result.data.profile.profile_image}`;
-          }
+          const imageUrl = result.data.profile.profile_image.startsWith('https://') 
+            ? result.data.profile.profile_image 
+            : `${API_BASE_URL}/../${result.data.profile.profile_image}`;
           setProfileImage(imageUrl);
         }
-        if (result.data.profile.full_name) {
-          setFullName(result.data.profile.full_name);
-        }
-      } else {
-        console.error('Profile API failed:', result);
       }
     } catch (error) {
-      console.error('Error fetching profile data:', error);
+      console.error('Error fetching profile image:', error);
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const getUserInitials = () => {
+    if (!userData?.full_name) return 'T';
+    const names = userData.full_name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return userData.full_name[0].toUpperCase();
   };
 
-  const navItems = [
-    { icon: Home, label: 'Dashboard', path: '/tenant-dashboard' },
-    { icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { icon: CreditCard, label: 'Payments', path: '/tenant/payments' },
-    { icon: Wrench, label: 'Maintenance', path: '/tenant/maintenance' },
-    { icon: FileText, label: 'Documents', path: '/tenant/documents' },
-    { icon: Settings, label: 'Settings', path: '/tenant/settings' }
-  ];
-
-  const isActive = (path) => location.pathname === path;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
-      {/* Top Navigation */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              {/* Hamburger Menu (only show when sidebar is closed) */}
-              {!sidebarOpen && (
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
+      {/* Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={toggleSidebar}
+        ></div>
+      )}
+
+      {/* Left Sidebar */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50
+          w-64 bg-white border-r border-gray-200 flex flex-col
+          transform transition-all duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Sidebar Toggle Button - positioned on the right edge */}
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex absolute -right-4 top-1/2 transform -translate-y-1/2 w-8 h-16 bg-white border border-gray-200 rounded-r-xl items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-md z-10 cursor-pointer"
+        >
+          {isSidebarOpen ? (
+            <ChevronLeft className="w-5 h-5" />
+          ) : (
+            <ChevronRight className="w-5 h-5" />
+          )}
+        </button>
+        {/* Logo Section */}
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <Link to="/tenant-dashboard" className="flex items-center">
+            <img 
+              src={jagasewaLogo} 
+              alt="JagaSewa" 
+              className="h-10 w-auto"
+            />
+          </Link>
+          
+          {/* Close button for mobile */}
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden text-gray-500 hover:text-gray-700 p-2 cursor-pointer"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isActivePath(item.path);
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                  isActive
+                    ? 'bg-green-50 text-green-600 shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <Icon className={`w-5 h-5 ${isActive ? 'text-green-600' : 'text-gray-500'}`} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout Button */}
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 px-4 py-3 w-full rounded-xl text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
+      }`}>
+        {/* Top Header */}
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left side: Burger menu (only show when sidebar is closed) */}
+            <div className="flex items-center space-x-4">
+              {!isSidebarOpen && (
                 <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                  onClick={toggleSidebar}
+                  className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="w-6 h-6" />
                 </button>
               )}
               
-              {/* JagaSewa Logo - Desktop Only */}
-              <div className="hidden lg:flex items-center">
-                <img 
-                  src={jagasewaLogo} 
-                  alt="JagaSewa" 
-                  className="h-10 w-auto"
-                />
-              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                {/* This will be filled by the page content */}
+              </h1>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* User Profile Section */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Notifications */}
               <NotificationDropdown userType="tenant" />
-              <div className="flex items-center space-x-3">
+
+              {/* User Info */}
+              <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 border-l border-gray-200">
                 <div 
                   onClick={() => setShowProfileModal(true)}
                   className="cursor-pointer"
@@ -132,105 +243,24 @@ export default function TenantLayout({ children }) {
                     <img
                       src={profileImage}
                       alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover shadow-lg border-2 border-white hover:shadow-xl transition-shadow"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-lg border-2 border-white hover:shadow-xl transition-shadow"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center hover:shadow-xl transition-shadow">
-                      <span className="text-white font-semibold text-sm">
-                        {fullName?.charAt(0) || 'T'}
-                      </span>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg text-sm sm:text-base hover:shadow-xl transition-shadow">
+                      {getUserInitials()}
                     </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </header>
 
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        {/* Sidebar Toggle Button - positioned on the right edge */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden lg:flex absolute -right-4 top-1/2 transform -translate-y-1/2 w-8 h-16 bg-white border border-gray-200 rounded-r-xl items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all shadow-md z-10 cursor-pointer"
-        >
-          {sidebarOpen ? (
-            <ChevronLeft className="w-5 h-5" />
-          ) : (
-            <ChevronRight className="w-5 h-5" />
-          )}
-        </button>
-        <div className="flex flex-col h-full">
-          {/* Sidebar Header with Logo */}
-          <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-            <div className="flex items-center">
-              <img 
-                src={jagasewaLogo} 
-                alt="JagaSewa" 
-                className="h-10 w-auto"
-              />
-            </div>
-            
-            {/* Close button for mobile */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="flex-1 px-4 space-y-2 mt-4">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => {
-                  navigate(item.path);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
-                  isActive(item.path)
-                    ? 'text-green-600 bg-green-50'
-                    : 'text-gray-700 hover:bg-gray-100 cursor-pointer'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-gray-200">
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors cursor-pointer"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Sidebar overlay with blur */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        ></div>
-      )}
-
-      {/* Main Content */}
-      <main className={`pt-16 transition-all duration-300 ease-in-out ${
-        sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
-      }`}>
-        {children}
-      </main>
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
 
       {/* Profile Modal */}
       {showProfileModal && (
@@ -253,27 +283,25 @@ export default function TenantLayout({ children }) {
                   />
                 ) : (
                   <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-lg">
-                    {fullName?.charAt(0) || 'T'}
+                    {getUserInitials()}
                   </div>
                 )}
               </div>
               
               <h3 className="text-xl font-bold text-gray-900 mb-1">
-                {fullName || 'Tenant'}
+                {userData?.full_name || 'Tenant'}
               </h3>
               <p className="text-gray-500 mb-4">Tenant Account</p>
               
               <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    setShowProfileModal(false);
-                    navigate('/tenant/settings');
-                  }}
-                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors cursor-pointer"
+                <Link
+                  to="/tenant/settings"
+                  onClick={() => setShowProfileModal(false)}
+                  className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
                 >
                   <User className="w-4 h-4" />
                   <span>View Profile</span>
-                </button>
+                </Link>
                 
                 <button
                   onClick={() => {
