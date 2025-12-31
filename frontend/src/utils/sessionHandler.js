@@ -93,6 +93,23 @@ export const fetchWithAuth = async (url, options = {}, navigate) => {
   try {
     const response = await fetch(url, defaultOptions);
     
+    // Check for session warning in headers
+    if (response.headers.get('X-Session-Warning') === 'true') {
+      const timeLeft = parseInt(response.headers.get('X-Time-Left') || '30');
+      if (sessionExpiryCallback && !sessionWarningShown) {
+        sessionWarningShown = true;
+        sessionExpiryCallback({
+          type: 'warning',
+          timeLeft: timeLeft,
+          onExtend: () => extendSession(),
+          onLogout: () => {
+            clearSession();
+            navigate('/login');
+          }
+        });
+      }
+    }
+    
     // Check for session expiry
     if (handleSessionExpiry(response, navigate)) {
       return null;

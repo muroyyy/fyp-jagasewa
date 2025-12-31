@@ -12,8 +12,8 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Check authentication with session warning
-    $user = authenticate(true); // Enable session warning check
+    // Check authentication (disable session warning for now to fix 403 issue)
+    $user = authenticate(false); // Disable session warning check temporarily
     
     if (!$user || $user['role'] !== 'landlord') {
         http_response_code(403);

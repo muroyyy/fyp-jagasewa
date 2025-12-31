@@ -93,16 +93,11 @@ function verifyJWT($token, $check_warning = false) {
                 return false;
             }
             
-            // Check for session warning (30 seconds or less remaining)
+            // Check for session warning (30 seconds or less remaining) - only if explicitly requested
             if ($check_warning && $time_left <= 30) {
-                http_response_code(401);
-                echo json_encode([
-                    'success' => false,
-                    'session_warning' => true,
-                    'time_left' => max(0, $time_left),
-                    'message' => 'Session expiring soon'
-                ]);
-                exit;
+                // Don't exit here, just set a header for frontend to detect
+                header('X-Session-Warning: true');
+                header('X-Time-Left: ' . max(0, $time_left));
             }
             
             // Implement sliding expiration - extend session by 2 hours on activity
