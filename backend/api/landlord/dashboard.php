@@ -12,30 +12,16 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Check authentication
-    $token = getBearerToken();
-    if (empty($token)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit();
-    }
-
-    // Verify session token and check landlord role
-    $stmt = $db->prepare("
-        SELECT s.user_id, s.user_role 
-        FROM sessions s 
-        WHERE s.session_token = ? AND s.expires_at > NOW() AND s.user_role = 'landlord'
-    ");
-    $stmt->execute([$token]);
-    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Check authentication with session warning
+    $user = authenticate(true); // Enable session warning check
     
-    if (!$session) {
+    if (!$user || $user['role'] !== 'landlord') {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    $userId = $session['user_id'];
+    $userId = $user['user_id'];
     
     // Get landlord profile information
     $landlordModel = new Landlord($db);

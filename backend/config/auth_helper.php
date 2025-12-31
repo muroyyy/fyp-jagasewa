@@ -63,9 +63,10 @@ function getBearerToken() {
 /**
  * Verify session token with sliding expiration and return user data
  * @param string $token The session token
+ * @param bool $check_warning Whether to check for session warning (30 seconds left)
  * @return array|false User data array or false if invalid
  */
-function verifyJWT($token) {
+function verifyJWT($token, $check_warning = false) {
     try {
         $database = new Database();
         $db = $database->getConnection();
@@ -74,7 +75,7 @@ function verifyJWT($token) {
         $query = "SELECT s.session_id, s.user_id, s.user_role, u.email, s.expires_at
                   FROM sessions s 
                   JOIN users u ON s.user_id = u.user_id 
-                  WHERE s.session_token = :token AND s.expires_at > NOW()";
+                  WHERE s.session_token = :token";
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(':token', $token);
@@ -83,6 +84,27 @@ function verifyJWT($token) {
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($session) {
+            $expires_at = strtotime($session['expires_at']);
+            $current_time = time();
+            $time_left = $expires_at - $current_time;
+            
+            // Check if session has expired
+            if ($time_left <= 0) {
+                return false;
+            }
+            
+            // Check for session warning (30 seconds or less remaining)
+            if ($check_warning && $time_left <= 30) {
+                http_response_code(401);
+                echo json_encode([
+                    'success' => false,
+                    'session_warning' => true,
+                    'time_left' => max(0, $time_left),
+                    'message' => 'Session expiring soon'
+                ]);
+                exit;
+            }
+            
             // Implement sliding expiration - extend session by 2 hours on activity
             $new_expiry = date('Y-m-d H:i:s', strtotime('+2 hours'));
             $update_query = "UPDATE sessions SET expires_at = :new_expiry, last_activity = NOW() WHERE session_id = :session_id";
@@ -176,15 +198,16 @@ function cleanExpiredSessions() {
 
 /**
  * Authenticate user from request headers
+ * @param bool $check_warning Whether to check for session warning
  * @return array|false User data array or false if invalid
  */
-function authenticate() {
+function authenticate($check_warning = false) {
     $token = getBearerToken();
     
     if (empty($token)) {
         return false;
     }
     
-    return verifyJWT($token);
+    return verifyJWT($token, $check_warning);
 }
 ?>

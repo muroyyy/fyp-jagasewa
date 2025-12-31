@@ -1,19 +1,80 @@
-// Session expiry handler utility
+// Session management state
+let sessionExpiryCallback = null;
+let sessionWarningShown = false;
+
+// Set session expiry callback
+export const setSessionExpiryCallback = (callback) => {
+  sessionExpiryCallback = callback;
+};
+
+// Clear session data
+const clearSession = () => {
+  localStorage.removeItem('session_token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('userRole');
+  sessionWarningShown = false;
+};
+
+// Handle session expiry with modal
 export const handleSessionExpiry = (response, navigate) => {
-  if (response.status === 401 || (response.ok && response.json && response.json().message === 'Session expired')) {
-    // Clear local storage
-    localStorage.removeItem('session_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('userRole');
+  if (response.status === 401) {
+    const data = response.json ? response.json() : null;
     
-    // Show popup message
-    alert('⚠️ Your session has expired. Please login again to continue.');
-    
-    // Redirect to login
-    navigate('/login');
-    return true;
+    // Check if it's a session warning (30 seconds left) or actual expiry
+    if (data && data.session_warning && !sessionWarningShown) {
+      sessionWarningShown = true;
+      if (sessionExpiryCallback) {
+        sessionExpiryCallback({
+          type: 'warning',
+          timeLeft: data.time_left || 60,
+          onExtend: () => extendSession(),
+          onLogout: () => {
+            clearSession();
+            navigate('/login');
+          }
+        });
+      }
+      return false; // Don't logout yet, show warning
+    } else {
+      // Actual session expiry
+      clearSession();
+      if (sessionExpiryCallback) {
+        sessionExpiryCallback({ type: 'expired' });
+      }
+      navigate('/login');
+      return true;
+    }
   }
   return false;
+};
+
+// Extend session
+export const extendSession = async () => {
+  try {
+    const token = localStorage.getItem('session_token');
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/extend-session.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      sessionWarningShown = false;
+      if (sessionExpiryCallback) {
+        sessionExpiryCallback({ type: 'extended' });
+      }
+      return true;
+    } else {
+      throw new Error(data.message || 'Failed to extend session');
+    }
+  } catch (error) {
+    console.error('Error extending session:', error);
+    return false;
+  }
 };
 
 // Enhanced fetch with session handling

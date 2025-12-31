@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, DollarSign, Wrench, Bell, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, handleApiResponse } from '../../utils/auth';
+import { getCurrentUser } from '../../utils/auth';
+import { fetchWithAuth } from '../../utils/sessionHandler';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 export default function LandlordDashboard() {
@@ -26,19 +27,14 @@ export default function LandlordDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('session_token');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/dashboard.php`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/landlord/dashboard.php`,
+        { method: 'GET' },
+        navigate
+      );
 
-      // Handle 401 responses (auto-logout)
-      const validResponse = await handleApiResponse(response);
-      if (!validResponse) return; // User was logged out
+      if (!response) return; // Session expired, user redirected
 
       const data = await response.json();
 
