@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Determine environment and API URL
+// Determinee environment and API URL
 $is_local = ($_SERVER['HTTP_HOST'] ?? '') === 'localhost:8000' || 
             ($_SERVER['SERVER_NAME'] ?? '') === 'localhost';
 
