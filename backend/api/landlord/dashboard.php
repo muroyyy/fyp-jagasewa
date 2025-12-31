@@ -12,16 +12,33 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Check authentication (disable session warning for now to fix 403 issue)
-    $user = authenticate(false); // Disable session warning check temporarily
+    // Use old authentication method temporarily
+    $token = getBearerToken();
+    if (empty($token)) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit();
+    }
+
+    $database = new Database();
+    $db = $database->getConnection();
     
-    if (!$user || $user['role'] !== 'landlord') {
+    // Verify session token and check landlord role
+    $stmt = $db->prepare("
+        SELECT s.user_id, s.user_role 
+        FROM sessions s 
+        WHERE s.session_token = ? AND s.expires_at > NOW() AND s.user_role = 'landlord'
+    ");
+    $stmt->execute([$token]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$session) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
     
-    $userId = $user['user_id'];
+    $userId = $session['user_id'];
     
     // Get landlord profile information
     $landlordModel = new Landlord($db);
