@@ -61,11 +61,7 @@ export default function TenantMyProperty() {
   };
 
   const handleImageChange = (newIndex) => {
-    setImageLoading(true);
-    setTimeout(() => {
-      setSelectedImage(newIndex);
-      setImageLoading(false);
-    }, 150);
+    setSelectedImage(newIndex);
   };
 
   if (loading) {
@@ -136,13 +132,23 @@ export default function TenantMyProperty() {
               
               {/* Main Image */}
               <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 relative group" style={{ height: '400px' }}>
-                <img
-                  src={property.images[selectedImage]}
-                  alt={`${property.property_name} - Image ${selectedImage + 1}`}
-                  className="w-full h-full object-cover transition-all duration-500 ease-in-out cursor-pointer"
-                  style={{ objectPosition: 'center' }}
-                  onClick={() => setShowImageModal(true)}
-                />
+                <div className="relative w-full h-full overflow-hidden">
+                  <div 
+                    className="flex transition-transform duration-500 ease-in-out h-full"
+                    style={{ transform: `translateX(-${selectedImage * 100}%)` }}
+                  >
+                    {property.images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`${property.property_name} - Image ${index + 1}`}
+                        className="w-full h-full object-cover flex-shrink-0 cursor-pointer"
+                        style={{ objectPosition: 'center' }}
+                        onClick={() => setShowImageModal(true)}
+                      />
+                    ))}
+                  </div>
+                </div>
                 {property.images.length > 1 && (
                   <>
                     <button
