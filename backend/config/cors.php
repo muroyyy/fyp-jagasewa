@@ -1,7 +1,6 @@
 <?php
 function setCorsHeaders() {
     $allowed_origins = [
-        'http://localhost:5173',       // Local dev
         'https://jagasewa.cloud',      // Production (frontend)
         'https://api.jagasewa.cloud',  // Production (backend)
         'https://dev.jagasewa.cloud'   // Staging

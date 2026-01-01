@@ -46,36 +46,49 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Check cache first
-    $cachedNotifications = LandlordCache::get($landlordId, 'notifications');
-    
+    // Check if requesting all notifications (for notifications page)
+    $fetchAll = isset($_GET['all']) && $_GET['all'] === 'true';
+
+    // Check cache first (only for dropdown, not for full page)
+    $cachedNotifications = null;
+    if (!$fetchAll) {
+        $cachedNotifications = LandlordCache::get($landlordId, 'notifications');
+    }
+
     if ($cachedNotifications !== null) {
         $notifications = $cachedNotifications['notifications'];
         $unreadCount = $cachedNotifications['unread_count'];
     } else {
+        // Set limits based on request type
+        $maintenanceLimit = $fetchAll ? 20 : 5;
+        $paymentLimit = $fetchAll ? 20 : 5;
+        $overdueLimit = $fetchAll ? 10 : 3;
+        $totalLimit = $fetchAll ? 50 : 10;
+        $dateInterval = $fetchAll ? 90 : 30; // 90 days for all, 30 for dropdown
+
         // Consolidated query: Get all notification data in one query using UNION
         $notificationsQuery = "
-            (SELECT 
+            (SELECT
                 CONCAT('maintenance_', mr.request_id) as id,
                 'maintenance_request' as type,
                 'New Maintenance Request' as title,
                 CONCAT(t.full_name, ' reported: ', mr.title) as message,
                 p.property_name,
                 mr.created_at,
-                IF(mr.priority = 'urgent', 'high', 'medium') as priority,
+                IF(mr.priority = 'urgent', 'high', IF(mr.priority = 'high', 'high', 'medium')) as priority,
                 CONCAT('/landlord/maintenance?request_id=', mr.request_id) as link_url,
                 mr.request_id as reference_id
             FROM maintenance_requests mr
             JOIN properties p ON mr.property_id = p.property_id
             JOIN tenants t ON mr.tenant_id = t.tenant_id
-            WHERE p.landlord_id = ? 
-            AND mr.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            WHERE p.landlord_id = ?
+            AND mr.created_at >= DATE_SUB(NOW(), INTERVAL {$dateInterval} DAY)
             ORDER BY mr.created_at DESC
-            LIMIT 5)
-            
+            LIMIT {$maintenanceLimit})
+
             UNION ALL
-            
-            (SELECT 
+
+            (SELECT
                 CONCAT('payment_', pay.payment_id) as id,
                 'rent_payment' as type,
                 IF(pay.status = 'completed', 'Payment Received', 'Payment Pending') as title,
@@ -89,13 +102,13 @@ try {
             JOIN tenants t ON pay.tenant_id = t.tenant_id
             JOIN properties pr ON t.property_id = pr.property_id
             WHERE pr.landlord_id = ?
-            AND pay.payment_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            AND pay.payment_date >= DATE_SUB(NOW(), INTERVAL {$dateInterval} DAY)
             ORDER BY pay.payment_date DESC
-            LIMIT 5)
-            
+            LIMIT {$paymentLimit})
+
             UNION ALL
-            
-            (SELECT 
+
+            (SELECT
                 CONCAT('overdue_', t.tenant_id) as id,
                 'payment_overdue' as type,
                 'Overdue Payment' as title,
@@ -107,16 +120,16 @@ try {
                 t.tenant_id as reference_id
             FROM tenants t
             JOIN properties pr ON t.property_id = pr.property_id
-            LEFT JOIN payments p ON t.tenant_id = p.tenant_id 
+            LEFT JOIN payments p ON t.tenant_id = p.tenant_id
                 AND p.payment_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
                 AND p.status = 'completed'
             WHERE pr.landlord_id = ?
             AND p.payment_id IS NULL
             AND t.move_in_date <= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-            LIMIT 3)
-            
+            LIMIT {$overdueLimit})
+
             ORDER BY created_at DESC
-            LIMIT 10
+            LIMIT {$totalLimit}
         ";
         
         $stmt = $conn->prepare($notificationsQuery);

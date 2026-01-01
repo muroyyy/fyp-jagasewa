@@ -198,7 +198,13 @@ export default function NotificationDropdown({ userType = 'landlord' }) {
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-              <button className="text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate(userType === 'landlord' ? '/landlord/notifications' : userType === 'tenant' ? '/tenant/notifications' : '/admin/notifications');
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+              >
                 View all notifications
               </button>
             </div>

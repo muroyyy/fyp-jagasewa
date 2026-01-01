@@ -28,6 +28,7 @@ import LandlordMaintenance from './pages/landlord/LandlordMaintenance';
 import LandlordDocuments from './pages/landlord/LandlordDocuments';
 import LandlordPropertyDocuments from './pages/landlord/LandlordPropertyDocuments';
 import LandlordSettings from './pages/landlord/LandlordSettings';
+import LandlordNotifications from './pages/landlord/LandlordNotifications';
 
 // Tenant
 import TenantDashboard from './pages/tenant/TenantDashboard';
@@ -36,6 +37,7 @@ import TenantPayments from './pages/tenant/TenantPayments';
 import TenantMaintenance from './pages/tenant/TenantMaintenance';
 import TenantDocuments from './pages/tenant/TenantDocuments';
 import TenantSettings from './pages/tenant/TenantSettings';
+import TenantNotifications from './pages/tenant/TenantNotifications';
 
 // Messages
 import Messages from './pages/general/Messages';
@@ -103,6 +105,7 @@ function App() {
       <Route path="/landlord/documents" element={<LandlordDocuments />} />
       <Route path="/landlord/documents/property/:propertyId" element={<LandlordPropertyDocuments />} />
       <Route path="/landlord/settings" element={<LandlordSettings />} />
+      <Route path="/landlord/notifications" element={<LandlordNotifications />} />
 
       {/* Messages - Shared by Landlord and Tenant */}
       <Route path="/messages" element={<Messages />} />
@@ -114,6 +117,7 @@ function App() {
       <Route path="/tenant/maintenance" element={<TenantMaintenance />} />
       <Route path="/tenant/documents" element={<TenantDocuments />} />
       <Route path="/tenant/settings" element={<TenantSettings />} />
+      <Route path="/tenant/notifications" element={<TenantNotifications />} />
 
       {/* Admin */}
       <Route path="/admin" element={<AdminLayout />}>
