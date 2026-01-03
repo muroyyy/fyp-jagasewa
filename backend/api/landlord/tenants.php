@@ -71,8 +71,8 @@ try {
                             t.move_in_date,
                             t.move_out_date,
                             t.account_status,
-                            p.property_name,
-                            p.property_id,
+                            COALESCE(p.property_name, p2.property_name) as property_name,
+                            COALESCE(t.property_id, p2.property_id) as property_id,
                             pu.unit_number,
                             pu.unit_type,
                             CASE 

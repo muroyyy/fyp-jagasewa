@@ -73,7 +73,13 @@ export default function LandlordPropertyDocuments() {
       }
       
       if (tenantsData.success) {
-        const propertyTenants = (tenantsData.data?.tenants || []).filter(t => t.property_id == propertyId);
+        // Get tenants assigned to this property (either directly or through units)
+        const allTenants = tenantsData.data?.tenants || [];
+        const propertyTenants = allTenants.filter(t => {
+          // Include tenants assigned directly to property or through units in this property
+          return t.property_id == propertyId || 
+                 (t.unit_number && t.property_id == propertyId);
+        });
         setTenants(propertyTenants);
       }
       
@@ -416,7 +422,12 @@ export default function LandlordPropertyDocuments() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{tenant.full_name}</h3>
-                        <p className="text-sm text-gray-500">{tenant.email}</p>
+                        <div className="text-sm text-gray-500">
+                          <p>{tenant.email}</p>
+                          {tenant.unit_number && (
+                            <p className="text-blue-600 font-medium">Unit {tenant.unit_number}</p>
+                          )}
+                        </div>
                       </div>
                       <div className="ml-auto">
                         <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -588,7 +599,7 @@ export default function LandlordPropertyDocuments() {
                     <option value="">All tenants in this property</option>
                     {tenants.map(tenant => (
                       <option key={tenant.tenant_id} value={tenant.tenant_id}>
-                        {tenant.full_name}
+                        {tenant.full_name}{tenant.unit_number ? ` (Unit ${tenant.unit_number})` : ''}
                       </option>
                     ))}
                   </select>
