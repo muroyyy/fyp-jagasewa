@@ -81,15 +81,14 @@ try {
                             END as status
                          FROM tenants t
                          INNER JOIN users u ON t.user_id = u.user_id
-                         LEFT JOIN properties p ON t.property_id = p.property_id AND p.landlord_id = :landlord_id
+                         LEFT JOIN properties p ON t.property_id = p.property_id AND p.landlord_id = ?
                          LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
-                         LEFT JOIN properties p2 ON pu.property_id = p2.property_id AND p2.landlord_id = :landlord_id
-                         WHERE (p.landlord_id = :landlord_id OR p2.landlord_id = :landlord_id)
+                         LEFT JOIN properties p2 ON pu.property_id = p2.property_id AND p2.landlord_id = ?
+                         WHERE (p.landlord_id = ? OR p2.landlord_id = ?)
                          ORDER BY t.move_in_date DESC";
         
         $tenantsStmt = $db->prepare($tenantsQuery);
-        $tenantsStmt->bindParam(':landlord_id', $landlordId);
-        $tenantsStmt->execute();
+        $tenantsStmt->execute([$landlordId, $landlordId, $landlordId, $landlordId]);
         
         $tenants = $tenantsStmt->fetchAll(PDO::FETCH_ASSOC);
         
