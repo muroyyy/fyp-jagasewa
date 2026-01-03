@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Users, Search, UserPlus } from 'lucide-react';
+import { Building2, Users, Search, UserPlus, Home } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/layout/LandlordLayout';
+import PropertyUnitsManager from '../../components/landlord/PropertyUnitsManager';
 
 export default function LandlordTenantsProperties() {
   const navigate = useNavigate();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -35,6 +37,27 @@ export default function LandlordTenantsProperties() {
       setLoading(false);
     }
   };
+
+  const handlePropertyClick = (property) => {
+    if (property.total_units > 1 || property.total_units_created > 0) {
+      setSelectedProperty(property);
+    } else {
+      navigate(`/landlord/tenants/property/${property.property_id}`);
+    }
+  };
+
+  if (selectedProperty) {
+    return (
+      <LandlordLayout>
+        <div className="p-4 sm:p-6 lg:p-8">
+          <PropertyUnitsManager 
+            property={selectedProperty} 
+            onBack={() => setSelectedProperty(null)}
+          />
+        </div>
+      </LandlordLayout>
+    );
+  }
 
   const filteredProperties = properties.filter(p =>
     p.property_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -86,7 +109,7 @@ export default function LandlordTenantsProperties() {
           {filteredProperties.map((property) => (
             <div
               key={property.property_id}
-              onClick={() => navigate(`/landlord/tenants/property/${property.property_id}`)}
+              onClick={() => handlePropertyClick(property)}
               className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all cursor-pointer group"
             >
               <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 relative overflow-hidden">
@@ -114,17 +137,25 @@ export default function LandlordTenantsProperties() {
                     <span className="text-2xl font-bold text-gray-900">{property.tenant_count}</span>
                     <span className="text-gray-600 text-sm">Tenant{property.tenant_count !== 1 ? 's' : ''}</span>
                   </div>
-                  <div className="flex gap-2">
-                    {property.active_tenants > 0 && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                        {property.active_tenants} Active
+                  <div className="flex flex-col items-end gap-1">
+                    {property.total_units_created > 0 && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full flex items-center gap-1">
+                        <Home size={12} />
+                        {property.total_units_created} Units
                       </span>
                     )}
-                    {property.pending_tenants > 0 && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                        {property.pending_tenants} Pending
-                      </span>
-                    )}
+                    <div className="flex gap-2">
+                      {property.active_tenants > 0 && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                          {property.active_tenants} Active
+                        </span>
+                      )}
+                      {property.pending_tenants > 0 && (
+                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                          {property.pending_tenants} Pending
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

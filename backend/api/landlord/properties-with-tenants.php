@@ -49,11 +49,15 @@ try {
                 p.monthly_rent,
                 p.main_image,
                 p.images,
-                COUNT(t.tenant_id) as tenant_count,
+                COUNT(DISTINCT pu.unit_id) as total_units_created,
+                COUNT(DISTINCT t.tenant_id) as tenant_count,
                 COALESCE(SUM(CASE WHEN t.account_status = 'active' THEN 1 ELSE 0 END), 0) as active_tenants,
-                COALESCE(SUM(CASE WHEN t.account_status = 'pending' THEN 1 ELSE 0 END), 0) as pending_tenants
+                COALESCE(SUM(CASE WHEN t.account_status = 'pending' THEN 1 ELSE 0 END), 0) as pending_tenants,
+                COALESCE(COUNT(DISTINCT CASE WHEN pu.status = 'available' THEN pu.unit_id END), 0) as available_units,
+                COALESCE(COUNT(DISTINCT CASE WHEN pu.status = 'occupied' THEN pu.unit_id END), 0) as occupied_units
               FROM properties p
-              LEFT JOIN tenants t ON p.property_id = t.property_id
+              LEFT JOIN property_units pu ON p.property_id = pu.property_id
+              LEFT JOIN tenants t ON pu.unit_id = t.unit_id
               WHERE p.landlord_id = :landlord_id
               GROUP BY p.property_id, p.property_name, p.address, p.city, p.state, p.property_type, p.total_units, p.monthly_rent, p.main_image, p.images
               ORDER BY p.property_name";
