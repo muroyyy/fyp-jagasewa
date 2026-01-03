@@ -3,6 +3,18 @@
  * S3 Helper Functions for File Upload
  */
 
+/**
+ * Sanitize filename by removing spaces and special characters
+ * @param string $filename Original filename
+ * @return string Sanitized filename safe for URLs and S3 keys
+ */
+function sanitizeFilename($filename) {
+    // Remove path info and get just the filename
+    $filename = basename($filename);
+    // Replace spaces and special characters with underscores, keep alphanumeric, dots, hyphens
+    return preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
+}
+
 function uploadToS3($filePath, $s3Key, $contentType = 'application/octet-stream') {
     $bucket = 'jagasewa-assets-prod';
     $region = 'ap-southeast-1';
@@ -48,11 +60,14 @@ function uploadToS3($filePath, $s3Key, $contentType = 'application/octet-stream'
         CURLOPT_POSTFIELDS => $fileContent,
         CURLOPT_HTTPHEADER => array_map(function($k, $v) { return "$k: $v"; }, array_keys($headers), $headers),
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => false
+        CURLOPT_HEADER => false,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CONNECTTIMEOUT => 10
     ]);
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
     
     if ($httpCode === 200) {
@@ -62,6 +77,9 @@ function uploadToS3($filePath, $s3Key, $contentType = 'application/octet-stream'
     }
     
     error_log("S3 upload failed with HTTP code: $httpCode, response: $response");
+    if ($curlError) {
+        error_log("S3 upload curl error: $curlError");
+    }
     return false;
 }
 

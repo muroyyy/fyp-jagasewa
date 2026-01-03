@@ -68,7 +68,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl flex justify-between items-center z-10">
+        <div className="sticky top-0 bg-blue-600 text-white p-6 rounded-t-2xl flex justify-between items-center z-10">
           <div>
             <h2 className="text-2xl font-bold">Property Details</h2>
             <p className="text-blue-100 text-sm mt-1">Complete property information</p>
@@ -105,7 +105,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
               </div>
 
               {/* Property Header */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+              <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-3xl font-bold text-gray-800 mb-2">{property.property_name}</h3>

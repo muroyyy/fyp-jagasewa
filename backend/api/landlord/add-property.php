@@ -67,8 +67,17 @@ try {
         // Validate file type
         $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
         if (in_array($fileType, $allowedTypes) && $fileSize <= 5 * 1024 * 1024) {
-            $s3Key = 'properties/main/' . uniqid() . '_' . basename($fileName);
+            // Sanitize filename: remove spaces, special chars, keep only alphanumeric, dots, hyphens
+            $sanitizedFileName = sanitizeFilename($fileName);
+            $s3Key = 'properties/main/' . uniqid() . '_' . $sanitizedFileName;
             $mainImageUrl = uploadToS3($tmpName, $s3Key, $fileType);
+            
+            // If main image upload fails, return error
+            if (!$mainImageUrl) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to upload main image']);
+                exit();
+            }
         }
     }
 
@@ -96,8 +105,9 @@ try {
                     continue;
                 }
                 
-                // Upload to S3
-                $s3Key = 'properties/' . uniqid() . '_' . basename($fileName);
+                // Upload to S3 with sanitized filename
+                $sanitizedFileName = sanitizeFilename($fileName);
+                $s3Key = 'properties/' . uniqid() . '_' . $sanitizedFileName;
                 $s3Url = uploadToS3($tmpName, $s3Key, $fileType);
                 
                 if ($s3Url) {

@@ -135,10 +135,11 @@ try {
         }
     }
 
-    // Generate unique S3 key
+    // Generate unique S3 key with sanitized filename
     $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $originalFileName = pathinfo($file['name'], PATHINFO_FILENAME);
-    $s3Key = 'documents/landlord_' . $landlordId . '_' . time() . '_' . uniqid() . '.' . $fileExtension;
+    $sanitizedFileName = sanitizeFilename($originalFileName);
+    $s3Key = 'documents/landlord_' . $landlordId . '_' . time() . '_' . uniqid() . '_' . $sanitizedFileName . '.' . $fileExtension;
     
     // Upload to S3
     $s3Url = uploadToS3($file['tmp_name'], $s3Key, $fileType);
@@ -150,7 +151,7 @@ try {
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
-        $uniqueFileName = 'doc_' . $landlordId . '_' . time() . '_' . uniqid() . '.' . $fileExtension;
+        $uniqueFileName = 'doc_' . $landlordId . '_' . time() . '_' . uniqid() . '_' . sanitizeFilename($originalFileName) . '.' . $fileExtension;
         $localPath = $uploadDir . $uniqueFileName;
         if (move_uploaded_file($file['tmp_name'], $localPath)) {
             $filePath = 'uploads/documents/' . $uniqueFileName;

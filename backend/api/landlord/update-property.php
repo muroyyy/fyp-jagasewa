@@ -124,7 +124,9 @@ try {
                 ];
                 
                 error_log("Attempting S3 upload for file: " . $file['name']);
-                $s3Url = uploadToS3($file['tmp_name'], 'properties/' . uniqid() . '_' . $file['name'], $file['type']);
+                // Sanitize filename to handle spaces and special characters
+                $sanitizedFileName = sanitizeFilename($file['name']);
+                $s3Url = uploadToS3($file['tmp_name'], 'properties/' . uniqid() . '_' . $sanitizedFileName, $file['type']);
                 if ($s3Url) {
                     error_log("S3 upload successful: " . $s3Url);
                     $uploadedImages[] = $s3Url;
@@ -136,7 +138,7 @@ try {
                         mkdir($uploadDir, 0755, true);
                         error_log("Created upload directory: " . $uploadDir);
                     }
-                    $fileName = uniqid() . '_' . basename($file['name']);
+                    $fileName = uniqid() . '_' . sanitizeFilename($file['name']);
                     $targetPath = $uploadDir . $fileName;
                     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
                         error_log("Local upload successful: " . $targetPath);

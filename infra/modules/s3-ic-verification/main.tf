@@ -22,6 +22,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "ic_verification" {
     id     = "auto-delete-ic-images"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 1
     }
