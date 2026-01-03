@@ -1,10 +1,14 @@
-import React from 'react';
-import { Home, Mail, Phone, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import jagasewaLogo from '../../assets/jagasewa-logo-2.svg';
+import TermsModal from '../modals/TermsModal';
 
 export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const scrollToSection = (sectionId) => {
     // If not on landing page, navigate to landing page first
@@ -39,10 +43,11 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="text-center md:text-left">
             <div className="flex items-center space-x-2 mb-4 justify-center md:justify-start">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Home className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">JagaSewa</span>
+              <img 
+                src={jagasewaLogo} 
+                alt="JagaSewa Logo" 
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-slate-400 text-sm mb-4">
               Saving Malaysian landlords 5+ hours every week through smart property management automation.
@@ -176,16 +181,34 @@ export default function Footer() {
             </div>
             
             <div className="flex items-center space-x-6 text-sm">
-              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors">
+              <button 
+                onClick={() => setShowPrivacyModal(true)}
+                className="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+              >
                 Privacy Policy
-              </a>
-              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors">
+              </button>
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+              >
                 Terms of Service
-              </a>
+              </button>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Terms and Privacy Modals */}
+      <TermsModal 
+        isOpen={showTermsModal} 
+        onClose={() => setShowTermsModal(false)} 
+        type="terms" 
+      />
+      <TermsModal 
+        isOpen={showPrivacyModal} 
+        onClose={() => setShowPrivacyModal(false)} 
+        type="privacy" 
+      />
     </footer>
   );
 }
