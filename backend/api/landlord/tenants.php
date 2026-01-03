@@ -72,7 +72,7 @@ try {
                             t.move_out_date,
                             t.account_status,
                             COALESCE(p.property_name, p2.property_name) as property_name,
-                            COALESCE(t.property_id, p2.property_id) as property_id,
+                            COALESCE(t.property_id, pu.property_id) as property_id,
                             pu.unit_number,
                             pu.unit_type,
                             CASE 
@@ -85,6 +85,7 @@ try {
                          LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
                          LEFT JOIN properties p2 ON pu.property_id = p2.property_id
                          WHERE (p.landlord_id = :landlord_id OR p2.landlord_id = :landlord_id)
+                         AND (t.property_id IS NOT NULL OR t.unit_id IS NOT NULL)
                          ORDER BY t.move_in_date DESC";
         
         $tenantsStmt = $db->prepare($tenantsQuery);
