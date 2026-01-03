@@ -77,22 +77,6 @@ export default function LandlordDocuments() {
     return propertyDocuments[propertyId]?.length || 0;
   };
 
-  const getTenantCount = async (propertyId) => {
-    try {
-      const token = localStorage.getItem('session_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/tenants.php`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        return (data.data?.tenants || []).filter(t => t.property_id == propertyId).length;
-      }
-    } catch (error) {
-      console.error('Error fetching tenant count:', error);
-    }
-    return 0;
-  };
-
   const filteredProperties = properties.filter(property =>
     property.property_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.address.toLowerCase().includes(searchTerm.toLowerCase())
@@ -101,9 +85,9 @@ export default function LandlordDocuments() {
   return (
     <LandlordLayout>
       {loading ? (
-        <div className="flex items-center justify-center h-96">
+        <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Loading documents...</p>
           </div>
         </div>

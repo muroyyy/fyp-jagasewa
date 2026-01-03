@@ -50,29 +50,32 @@ try {
     if ($cachedProperties !== null) {
         $properties = $cachedProperties;
     } else {
-        // Get all properties for this landlord
+        // Get all properties for this landlord with tenant counts
         $stmt = $conn->prepare("
             SELECT 
-                property_id,
-                landlord_id,
-                property_name,
-                property_type,
-                address,
-                city,
-                state,
-                postal_code,
-                country,
-                total_units,
-                description,
-                monthly_rent,
-                status,
-                images,
-                main_image,
-                created_at,
-                updated_at
-            FROM properties
-            WHERE landlord_id = ?
-            ORDER BY created_at DESC
+                p.property_id,
+                p.landlord_id,
+                p.property_name,
+                p.property_type,
+                p.address,
+                p.city,
+                p.state,
+                p.postal_code,
+                p.country,
+                p.total_units,
+                p.description,
+                p.monthly_rent,
+                p.status,
+                p.images,
+                p.main_image,
+                p.created_at,
+                p.updated_at,
+                COUNT(t.tenant_id) as tenant_count
+            FROM properties p
+            LEFT JOIN tenants t ON p.property_id = t.property_id AND t.account_status = 'active'
+            WHERE p.landlord_id = ?
+            GROUP BY p.property_id
+            ORDER BY p.created_at DESC
         ");
         $stmt->execute([$landlord_id]);
         $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
