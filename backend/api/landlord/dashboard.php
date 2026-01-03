@@ -5,7 +5,7 @@ setCorsHeaders();
 require_once '../../config/database.php';
 require_once '../../config/auth_helper.php';
 require_once '../../models/Landlord.php';
-require_once '../../config/landlord_cache.php';
+require_once '../../config/cache.php';
 
 try {
     // Create database connection

@@ -26,6 +26,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip opcache
 
+# Install APCu for shared memory caching
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
+
 # Configure PHP settings
 RUN echo "extension=pdo_mysql.so" > /usr/local/etc/php/conf.d/pdo_mysql.ini \
     && echo "upload_max_filesize = 10M" > /usr/local/etc/php/conf.d/uploads.ini \
@@ -41,6 +45,13 @@ RUN echo "opcache.enable=1" > /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.validate_timestamps=1" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini
+
+# Configure APCu for user data caching
+RUN echo "apc.enabled=1" > /usr/local/etc/php/conf.d/apcu.ini \
+    && echo "apc.shm_size=64M" >> /usr/local/etc/php/conf.d/apcu.ini \
+    && echo "apc.ttl=3600" >> /usr/local/etc/php/conf.d/apcu.ini \
+    && echo "apc.enable_cli=0" >> /usr/local/etc/php/conf.d/apcu.ini \
+    && echo "apc.shm_segments=1" >> /usr/local/etc/php/conf.d/apcu.ini
 
 # Copy application files
 COPY . .

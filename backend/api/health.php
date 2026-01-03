@@ -24,5 +24,21 @@ try {
     $response['status'] = 'degraded';
 }
 
+// Check APCu cache status
+$response['cache'] = [
+    'apcu_enabled' => extension_loaded('apcu') && apcu_enabled(),
+    'opcache_enabled' => function_exists('opcache_get_status') && opcache_get_status() !== false,
+];
+
+if ($response['cache']['apcu_enabled']) {
+    $apcuInfo = apcu_cache_info(true);
+    $response['cache']['apcu_stats'] = [
+        'memory_size' => $apcuInfo['mem_size'] ?? 0,
+        'num_entries' => $apcuInfo['num_entries'] ?? 0,
+        'hits' => $apcuInfo['num_hits'] ?? 0,
+        'misses' => $apcuInfo['num_misses'] ?? 0,
+    ];
+}
+
 http_response_code(200);
 echo json_encode($response);

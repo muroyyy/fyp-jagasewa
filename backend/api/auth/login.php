@@ -7,12 +7,21 @@
 include_once '../../config/cors.php';
 setCorsHeaders();
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 // only two levels up
 include_once '../../config/database.php';
 include_once '../../config/auth_helper.php';
+include_once '../../config/rate_limiter.php';
 include_once '../../models/User.php';
 include_once '../../models/Landlord.php';
 include_once '../../models/Tenant.php';
+
+// Apply strict rate limiting: 5 attempts per minute
+RateLimiter::enforceStrict('login');
 
 // Create DB connection
 $database = new Database();
