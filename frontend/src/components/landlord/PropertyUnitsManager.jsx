@@ -6,6 +6,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
   const navigate = useNavigate();
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addingUnit, setAddingUnit] = useState(false);
   const [showAddUnit, setShowAddUnit] = useState(false);
   const [showBuildingStructure, setShowBuildingStructure] = useState(false);
   const [showTenantDetails, setShowTenantDetails] = useState(false);
@@ -79,6 +80,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
 
   const handleAddUnit = async (e) => {
     e.preventDefault();
+    setAddingUnit(true);
     try {
       const token = localStorage.getItem('session_token');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/add-unit.php`, {
@@ -116,6 +118,8 @@ const PropertyUnitsManager = ({ property, onBack }) => {
     } catch (error) {
       console.error('Error adding unit:', error);
       alert('Failed to add unit');
+    } finally {
+      setAddingUnit(false);
     }
   };
 
@@ -125,6 +129,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
       tenant_name: unit.tenant_name,
       tenant_phone: unit.tenant_phone,
       move_in_date: unit.move_in_date,
+      move_out_date: unit.move_out_date,
       tenant_status: unit.tenant_status,
       unit_number: unit.unit_number,
       unit_type: unit.unit_type,
@@ -450,10 +455,21 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   </button>
                   <button
                     type="submit"
-                    disabled={!generatedUnitNumber}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!generatedUnitNumber || addingUnit}
+                    className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center ${
+                      !generatedUnitNumber || addingUnit
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
+                    }`}
                   >
-                    Add Unit
+                    {addingUnit ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Adding Unit...
+                      </>
+                    ) : (
+                      'Add Unit'
+                    )}
                   </button>
                 </div>
               </form>
@@ -537,15 +553,31 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                 </div>
 
                 {/* Lease Info */}
-                {selectedTenant.move_in_date && (
+                {(selectedTenant.move_in_date || selectedTenant.move_out_date) && (
                   <div className="bg-green-50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Calendar className="w-5 h-5 text-green-600" />
                       <h4 className="font-medium text-green-900">Lease Information</h4>
                     </div>
-                    <div>
-                      <span className="text-sm text-green-600 font-medium">Move-in Date:</span>
-                      <p className="text-green-900">{new Date(selectedTenant.move_in_date).toLocaleDateString()}</p>
+                    <div className="space-y-2">
+                      {selectedTenant.move_in_date && (
+                        <div>
+                          <span className="text-sm text-green-600 font-medium">Move-in Date:</span>
+                          <p className="text-green-900">{new Date(selectedTenant.move_in_date).toLocaleDateString()}</p>
+                        </div>
+                      )}
+                      {selectedTenant.move_out_date && (
+                        <div>
+                          <span className="text-sm text-green-600 font-medium">Move-out Date:</span>
+                          <p className="text-green-900">{new Date(selectedTenant.move_out_date).toLocaleDateString()}</p>
+                        </div>
+                      )}
+                      {!selectedTenant.move_out_date && selectedTenant.move_in_date && (
+                        <div>
+                          <span className="text-sm text-green-600 font-medium">Lease Type:</span>
+                          <p className="text-green-900">Open-ended</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
