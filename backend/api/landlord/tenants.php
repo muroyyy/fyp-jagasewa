@@ -61,7 +61,7 @@ try {
     if ($cachedTenants !== null) {
         $tenants = $cachedTenants;
     } else {
-        // Get all tenants associated with this landlord's properties
+        // Get all tenants associated with this landlord's properties (including unit assignments)
         $tenantsQuery = "SELECT DISTINCT
                             t.tenant_id,
                             t.user_id,
@@ -73,14 +73,18 @@ try {
                             t.account_status,
                             p.property_name,
                             p.property_id,
+                            pu.unit_number,
+                            pu.unit_type,
                             CASE 
                                 WHEN u.is_active = 1 THEN 'Active'
                                 ELSE 'Inactive'
                             END as status
                          FROM tenants t
                          INNER JOIN users u ON t.user_id = u.user_id
-                         INNER JOIN properties p ON t.property_id = p.property_id
-                         WHERE p.landlord_id = :landlord_id
+                         LEFT JOIN properties p ON t.property_id = p.property_id
+                         LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
+                         LEFT JOIN properties p2 ON pu.property_id = p2.property_id
+                         WHERE (p.landlord_id = :landlord_id OR p2.landlord_id = :landlord_id)
                          ORDER BY t.move_in_date DESC";
         
         $tenantsStmt = $db->prepare($tenantsQuery);

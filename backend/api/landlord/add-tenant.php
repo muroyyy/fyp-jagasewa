@@ -48,10 +48,10 @@ try {
     // Get request body
     $data = json_decode(file_get_contents('php://input'), true);
 
-    // Validate required fields (only email, property_id, and unit_id for invitation)
-    if (empty($data['email']) || empty($data['property_id']) || empty($data['unit_id'])) {
+    // Validate required fields (only email, property_id, unit_id, and move_in_date for invitation)
+    if (empty($data['email']) || empty($data['property_id']) || empty($data['unit_id']) || empty($data['move_in_date'])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Email, property_id, and unit_id required']);
+        echo json_encode(['success' => false, 'message' => 'Email, property_id, unit_id, and move_in_date are required']);
         exit();
     }
 
@@ -124,13 +124,14 @@ try {
         }
         
         // If tenant exists but has no property assigned, allow reassignment
-        // Update the existing tenant record with new property and unit
+        // Update the existing tenant record with new property, unit, and dates
+        $moveOutDate = !empty($data['move_out_date']) ? $data['move_out_date'] : null;
         $stmt = $conn->prepare("
             UPDATE tenants 
-            SET property_id = ?, unit_id = ?, move_in_date = CURDATE(), updated_at = NOW() 
+            SET property_id = ?, unit_id = ?, move_in_date = ?, move_out_date = ?, updated_at = NOW() 
             WHERE user_id = ?
         ");
-        $stmt->execute([$data['property_id'], $data['unit_id'], $existingUser['user_id']]);
+        $stmt->execute([$data['property_id'], $data['unit_id'], $data['move_in_date'], $moveOutDate, $existingUser['user_id']]);
         
         http_response_code(200);
         echo json_encode([
@@ -145,12 +146,13 @@ try {
     $token = bin2hex(random_bytes(32));
     $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
     
-    // Save invitation
+    // Save invitation with move-in and move-out dates
+    $moveOutDate = !empty($data['move_out_date']) ? $data['move_out_date'] : null;
     $stmt = $conn->prepare("
-        INSERT INTO tenant_invitations (landlord_id, property_id, unit_id, tenant_email, invitation_token, expires_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO tenant_invitations (landlord_id, property_id, unit_id, tenant_email, invitation_token, expires_at, move_in_date, move_out_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$landlord_id, $data['property_id'], $data['unit_id'], $data['email'], $token, $expiresAt]);
+    $stmt->execute([$landlord_id, $data['property_id'], $data['unit_id'], $data['email'], $token, $expiresAt, $data['move_in_date'], $moveOutDate]);
     
     // Send invitation email
     $emailResult = sendTenantInvitation(

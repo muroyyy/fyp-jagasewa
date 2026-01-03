@@ -70,8 +70,8 @@ try {
         $statsQuery = "
             SELECT 
                 COUNT(DISTINCT CASE WHEN p.status = 'Active' THEN p.property_id END) as total_properties,
-                COUNT(DISTINCT CASE WHEN p.status = 'Active' AND t.property_id IS NOT NULL THEN t.tenant_id END) as total_tenants,
-                COALESCE(SUM(CASE WHEN p.status = 'Active' AND t.property_id IS NOT NULL THEN p.monthly_rent END), 0) as monthly_revenue,
+                COUNT(DISTINCT CASE WHEN p.status = 'Active' AND (t.property_id IS NOT NULL OR t2.unit_id IS NOT NULL) THEN COALESCE(t.tenant_id, t2.tenant_id) END) as total_tenants,
+                COALESCE(SUM(CASE WHEN p.status = 'Active' AND (t.property_id IS NOT NULL OR t2.unit_id IS NOT NULL) THEN COALESCE(pu.monthly_rent, p.monthly_rent) END), 0) as monthly_revenue,
                 COUNT(DISTINCT CASE WHEN mr.status = 'Pending' THEN mr.request_id END) as pending_requests,
                 COALESCE(SUM(mr.expense_amount), 0) as total_expenses,
                 SUM(CASE WHEN p.status = 'occupied' THEN 1 ELSE 0 END) as status_occupied,
@@ -79,6 +79,8 @@ try {
                 SUM(CASE WHEN p.status = 'maintenance' THEN 1 ELSE 0 END) as status_maintenance
             FROM properties p
             LEFT JOIN tenants t ON t.property_id = p.property_id
+            LEFT JOIN property_units pu ON pu.property_id = p.property_id
+            LEFT JOIN tenants t2 ON t2.unit_id = pu.unit_id
             LEFT JOIN maintenance_requests mr ON mr.property_id = p.property_id
             WHERE p.landlord_id = ?
         ";

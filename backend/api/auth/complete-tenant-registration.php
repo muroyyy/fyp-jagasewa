@@ -54,11 +54,13 @@ try {
     $tenant = new Tenant($db);
     $tenant->user_id = $user->user_id;
     $tenant->property_id = $invitation['property_id'];
+    $tenant->unit_id = $invitation['unit_id'];
     $tenant->full_name = $data->full_name;
     $tenant->phone = $data->phone;
     $tenant->ic_number = $data->ic_number;
     $tenant->date_of_birth = $data->date_of_birth;
-    $tenant->move_in_date = date('Y-m-d');
+    $tenant->move_in_date = $invitation['move_in_date'] ?: date('Y-m-d');
+    $tenant->move_out_date = $invitation['move_out_date'];
     
     if (!$tenant->create()) {
         $db->rollBack();

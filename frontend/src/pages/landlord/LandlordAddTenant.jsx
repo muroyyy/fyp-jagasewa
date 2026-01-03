@@ -18,7 +18,9 @@ export default function LandlordAddTenant() {
   const [formData, setFormData] = useState({
     email: '',
     property_id: '',
-    unit_id: ''
+    unit_id: '',
+    move_in_date: '',
+    move_out_date: ''
   });
   const [invitationLink, setInvitationLink] = useState(null);
 
@@ -125,6 +127,11 @@ export default function LandlordAddTenant() {
     }
     if (!formData.unit_id) {
       setError('Please select a unit');
+      return false;
+    }
+
+    if (!formData.move_in_date) {
+      setError('Please select a move-in date');
       return false;
     }
 
@@ -326,6 +333,39 @@ export default function LandlordAddTenant() {
                   ))}
                 </select>
               )}
+            </div>
+
+            {/* Move-in Date */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                <Calendar className="w-4 h-4" />
+                <span>Move-in Date *</span>
+              </label>
+              <input
+                type="date"
+                name="move_in_date"
+                value={formData.move_in_date}
+                onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Move-out Date */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                <Calendar className="w-4 h-4" />
+                <span>Move-out Date (Optional)</span>
+              </label>
+              <input
+                type="date"
+                name="move_out_date"
+                value={formData.move_out_date}
+                onChange={handleInputChange}
+                min={formData.move_in_date || new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave empty for open-ended lease</p>
             </div>
           </div>
 
