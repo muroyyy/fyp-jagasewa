@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { setSessionExpiryCallback } from './utils/sessionHandler';
 import SessionExpiryModal from './components/shared/SessionExpiryModal';
 
-// General
+// Generall
 import Landing from './pages/general/Landing';
 
 // Auth
