@@ -28,8 +28,14 @@ export default function Login() {
       }
     }
     
-    // Check for admin access via URL parameter
+    // Check for role parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role');
+    if (roleParam === 'tenant') {
+      setUserRole('tenant');
+    }
+    
+    // Check for admin access via URL parameter
     if (urlParams.get('admin') === 'true') {
       setShowAdminOption(true);
     }

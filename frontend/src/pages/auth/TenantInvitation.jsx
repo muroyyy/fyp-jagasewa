@@ -117,7 +117,7 @@ export default function TenantInvitation() {
 
       if (data.success) {
         alert('Registration completed! Please login with your credentials.');
-        navigate('/login');
+        navigate('/login?role=tenant');
       } else {
         setError(data.message || 'Registration failed');
       }
