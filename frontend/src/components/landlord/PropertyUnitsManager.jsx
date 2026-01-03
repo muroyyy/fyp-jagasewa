@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Users, Plus, MapPin, DollarSign, Home, User } from 'lucide-react';
+import { Building2, Users, Plus, MapPin, DollarSign, Home, User, Calendar } from 'lucide-react';
 
 const PropertyUnitsManager = ({ property, onBack }) => {
   const navigate = useNavigate();
@@ -8,6 +8,8 @@ const PropertyUnitsManager = ({ property, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [showAddUnit, setShowAddUnit] = useState(false);
   const [showBuildingStructure, setShowBuildingStructure] = useState(false);
+  const [showTenantDetails, setShowTenantDetails] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState(null);
   const [buildingStructure, setBuildingStructure] = useState('');
   const [newUnit, setNewUnit] = useState({
     block: '',
@@ -115,6 +117,21 @@ const PropertyUnitsManager = ({ property, onBack }) => {
       console.error('Error adding unit:', error);
       alert('Failed to add unit');
     }
+  };
+
+  const handleViewTenantDetails = (unit) => {
+    setSelectedTenant({
+      tenant_id: unit.tenant_id,
+      tenant_name: unit.tenant_name,
+      tenant_phone: unit.tenant_phone,
+      move_in_date: unit.move_in_date,
+      tenant_status: unit.tenant_status,
+      unit_number: unit.unit_number,
+      unit_type: unit.unit_type,
+      monthly_rent: unit.monthly_rent,
+      size_sqft: unit.size_sqft
+    });
+    setShowTenantDetails(true);
   };
 
   const getStatusColor = (status) => {
@@ -228,7 +245,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                     )}
                     <div className="flex gap-2 mt-3">
                       <button 
-                        onClick={() => navigate(`/landlord/tenants/${unit.tenant_id}`)}
+                        onClick={() => handleViewTenantDetails(unit)}
                         className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 cursor-pointer"
                       >
                         View Details
@@ -440,6 +457,108 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tenant Details Modal */}
+      {showTenantDetails && selectedTenant && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Tenant Details</h3>
+                <button
+                  onClick={() => setShowTenantDetails(false)}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {/* Tenant Info */}
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-medium text-blue-900">Tenant Information</h4>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-sm text-blue-600 font-medium">Name:</span>
+                      <p className="text-blue-900">{selectedTenant.tenant_name}</p>
+                    </div>
+                    {selectedTenant.tenant_phone && (
+                      <div>
+                        <span className="text-sm text-blue-600 font-medium">Phone:</span>
+                        <p className="text-blue-900">{selectedTenant.tenant_phone}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm text-blue-600 font-medium">Status:</span>
+                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                        selectedTenant.tenant_status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {selectedTenant.tenant_status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Unit Info */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Home className="w-5 h-5 text-gray-600" />
+                    <h4 className="font-medium text-gray-900">Unit Information</h4>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-sm text-gray-600 font-medium">Unit Number:</span>
+                      <p className="text-gray-900">{selectedTenant.unit_number}</p>
+                    </div>
+                    {selectedTenant.unit_type && (
+                      <div>
+                        <span className="text-sm text-gray-600 font-medium">Type:</span>
+                        <p className="text-gray-900">{selectedTenant.unit_type}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm text-gray-600 font-medium">Monthly Rent:</span>
+                      <p className="text-gray-900">RM {parseFloat(selectedTenant.monthly_rent).toLocaleString()}</p>
+                    </div>
+                    {selectedTenant.size_sqft && (
+                      <div>
+                        <span className="text-sm text-gray-600 font-medium">Size:</span>
+                        <p className="text-gray-900">{selectedTenant.size_sqft} sqft</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Lease Info */}
+                {selectedTenant.move_in_date && (
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Calendar className="w-5 h-5 text-green-600" />
+                      <h4 className="font-medium text-green-900">Lease Information</h4>
+                    </div>
+                    <div>
+                      <span className="text-sm text-green-600 font-medium">Move-in Date:</span>
+                      <p className="text-green-900">{new Date(selectedTenant.move_in_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-6">
+                <button
+                  onClick={() => setShowTenantDetails(false)}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
