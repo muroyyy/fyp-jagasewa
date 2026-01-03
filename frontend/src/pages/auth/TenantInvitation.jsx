@@ -13,7 +13,7 @@ export default function TenantInvitation() {
     password: '',
     confirmPassword: '',
     full_name: '',
-    phone: '',
+    phone: '+601',
     ic_number: '',
     date_of_birth: ''
   });
@@ -131,9 +131,9 @@ export default function TenantInvitation() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Verifying invitation...</p>
         </div>
       </div>
@@ -142,12 +142,12 @@ export default function TenantInvitation() {
 
   if (error && !invitation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid Invitation</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <button onClick={() => navigate('/login')} className="text-indigo-600 hover:underline">
+          <button onClick={() => navigate('/login')} className="text-blue-600 hover:underline cursor-pointer">
             Go to Login
           </button>
         </div>
@@ -156,23 +156,23 @@ export default function TenantInvitation() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-blue-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-8">
           <div className="text-center mb-8">
-            <Building2 className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
+            <Building2 className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900">Complete Your Registration</h1>
             <p className="text-gray-600 mt-2">You've been invited by {invitation?.landlord_name}</p>
           </div>
 
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-center gap-2 text-sm">
-              <Mail className="h-4 w-4 text-indigo-600" />
+              <Mail className="h-4 w-4 text-blue-600" />
               <span className="font-medium">Email:</span>
               <span>{invitation?.tenant_email}</span>
             </div>
             <div className="flex items-center gap-2 text-sm mt-2">
-              <Building2 className="h-4 w-4 text-indigo-600" />
+              <Building2 className="h-4 w-4 text-blue-600" />
               <span className="font-medium">Property:</span>
               <span>{invitation?.property_name}</span>
             </div>
@@ -196,7 +196,7 @@ export default function TenantInvitation() {
                   required
                   value={formData.full_name}
                   onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -212,7 +212,7 @@ export default function TenantInvitation() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="+601x xxxx xxxx"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">Format: +601x xxxx xxxx</p>
               </div>
@@ -230,7 +230,7 @@ export default function TenantInvitation() {
                   onChange={handleInputChange}
                   placeholder="xxxxxx-xx-xxxx"
                   maxLength="14"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">Format: xxxxxx-xx-xxxx</p>
               </div>
@@ -245,7 +245,7 @@ export default function TenantInvitation() {
                   required
                   value={formData.date_of_birth}
                   onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -257,7 +257,7 @@ export default function TenantInvitation() {
                   minLength="6"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
               </div>
@@ -269,7 +269,7 @@ export default function TenantInvitation() {
                   required
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
                     formData.confirmPassword && formData.password !== formData.confirmPassword
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : formData.confirmPassword && formData.password === formData.confirmPassword
@@ -290,7 +290,7 @@ export default function TenantInvitation() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium cursor-pointer"
+              className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium cursor-pointer"
             >
               {submitting ? 'Completing Registration...' : 'Complete Registration'}
             </button>

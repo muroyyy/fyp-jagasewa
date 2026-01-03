@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, CreditCard, Calendar, Home, Save, X } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 export default function LandlordAddTenant() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -29,6 +30,21 @@ export default function LandlordAddTenant() {
       fetchProperties();
     }
   }, []);
+
+  // Handle URL parameters for pre-selection
+  useEffect(() => {
+    const propertyId = searchParams.get('property_id');
+    const unitId = searchParams.get('unit_id');
+    
+    if (propertyId) {
+      setFormData(prev => ({ ...prev, property_id: propertyId }));
+      fetchAvailableUnits(propertyId);
+      
+      if (unitId) {
+        setFormData(prev => ({ ...prev, unit_id: unitId }));
+      }
+    }
+  }, [searchParams, properties]);
 
   const fetchProperties = async () => {
     try {
@@ -229,7 +245,7 @@ export default function LandlordAddTenant() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Email */}
-            <div>
+            <div className="md:col-span-2">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
                 <Mail className="w-4 h-4" />
                 <span>Tenant Email Address *</span>
@@ -277,38 +293,40 @@ export default function LandlordAddTenant() {
             </div>
 
             {/* Unit Selection */}
-            {formData.property_id && (
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
-                  <Home className="w-4 h-4" />
-                  <span>Select Unit *</span>
-                </label>
-                {loadingUnits ? (
-                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
-                    <span className="text-gray-500">Loading available units...</span>
-                  </div>
-                ) : availableUnits.length === 0 ? (
-                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
-                    <span className="text-gray-500">No available units in this property</span>
-                  </div>
-                ) : (
-                  <select
-                    name="unit_id"
-                    value={formData.unit_id}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                  >
-                    <option value="">Select a unit</option>
-                    {availableUnits.map((unit) => (
-                      <option key={unit.unit_id} value={unit.unit_id}>
-                        Unit {unit.unit_number} - RM {parseFloat(unit.monthly_rent).toLocaleString()}/month
-                        {unit.unit_type && ` (${unit.unit_type})`}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            )}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                <Home className="w-4 h-4" />
+                <span>Select Unit *</span>
+              </label>
+              {!formData.property_id ? (
+                <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
+                  <span className="text-gray-500">Please select a property first</span>
+                </div>
+              ) : loadingUnits ? (
+                <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
+                  <span className="text-gray-500">Loading available units...</span>
+                </div>
+              ) : availableUnits.length === 0 ? (
+                <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
+                  <span className="text-gray-500">No available units in this property</span>
+                </div>
+              ) : (
+                <select
+                  name="unit_id"
+                  value={formData.unit_id}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                >
+                  <option value="">Select a unit</option>
+                  {availableUnits.map((unit) => (
+                    <option key={unit.unit_id} value={unit.unit_id}>
+                      Unit {unit.unit_number} - RM {parseFloat(unit.monthly_rent).toLocaleString()}/month
+                      {unit.unit_type && ` (${unit.unit_type})`}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}

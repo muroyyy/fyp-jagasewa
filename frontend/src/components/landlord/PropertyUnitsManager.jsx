@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Users, Plus, MapPin, DollarSign, Home, User } from 'lucide-react';
 
 const PropertyUnitsManager = ({ property, onBack }) => {
+  const navigate = useNavigate();
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddUnit, setShowAddUnit] = useState(false);
@@ -237,7 +239,10 @@ const PropertyUnitsManager = ({ property, onBack }) => {
               ) : (
                 <div className="bg-green-50 rounded-lg p-3 mt-4">
                   <p className="text-green-700 text-sm font-medium">Available for rent</p>
-                  <button className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 cursor-pointer">
+                  <button 
+                    onClick={() => navigate(`/landlord/add-tenant?property_id=${property.property_id}&unit_id=${unit.unit_id}`)}
+                    className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 cursor-pointer"
+                  >
                     Add Tenant
                   </button>
                 </div>
