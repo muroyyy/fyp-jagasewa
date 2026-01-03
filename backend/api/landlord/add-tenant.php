@@ -48,10 +48,10 @@ try {
     // Get request body
     $data = json_decode(file_get_contents('php://input'), true);
 
-    // Validate required fields (only email and property_id for invitation)
-    if (empty($data['email']) || empty($data['property_id'])) {
+    // Validate required fields (only email, property_id, and unit_id for invitation)
+    if (empty($data['email']) || empty($data['property_id']) || empty($data['unit_id'])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Email and property_id required']);
+        echo json_encode(['success' => false, 'message' => 'Email, property_id, and unit_id required']);
         exit();
     }
 
@@ -66,6 +66,26 @@ try {
     }
 
 
+
+    // Verify unit belongs to property and is available
+    $stmt = $conn->prepare("SELECT unit_id, unit_number FROM property_units WHERE unit_id = ? AND property_id = ? AND status = 'available'");
+    $stmt->execute([$data['unit_id'], $data['property_id']]);
+    $unit = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$unit) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Unit not found or not available']);
+        exit();
+    }
+
+    // Check if unit is already occupied
+    $stmt = $conn->prepare("SELECT tenant_id FROM tenants WHERE unit_id = ? AND account_status = 'active'");
+    $stmt->execute([$data['unit_id']]);
+    if ($stmt->fetch()) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Unit is already occupied']);
+        exit();
+    }
 
     // Get property details
     $stmt = $conn->prepare("SELECT property_name FROM properties WHERE property_id = ? AND landlord_id = ?");
@@ -104,13 +124,13 @@ try {
         }
         
         // If tenant exists but has no property assigned, allow reassignment
-        // Update the existing tenant record with new property
+        // Update the existing tenant record with new property and unit
         $stmt = $conn->prepare("
             UPDATE tenants 
-            SET property_id = ?, move_in_date = CURDATE(), updated_at = NOW() 
+            SET property_id = ?, unit_id = ?, move_in_date = CURDATE(), updated_at = NOW() 
             WHERE user_id = ?
         ");
-        $stmt->execute([$data['property_id'], $existingUser['user_id']]);
+        $stmt->execute([$data['property_id'], $data['unit_id'], $existingUser['user_id']]);
         
         http_response_code(200);
         echo json_encode([
@@ -127,16 +147,16 @@ try {
     
     // Save invitation
     $stmt = $conn->prepare("
-        INSERT INTO tenant_invitations (landlord_id, property_id, tenant_email, invitation_token, expires_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO tenant_invitations (landlord_id, property_id, unit_id, tenant_email, invitation_token, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$landlord_id, $data['property_id'], $data['email'], $token, $expiresAt]);
+    $stmt->execute([$landlord_id, $data['property_id'], $data['unit_id'], $data['email'], $token, $expiresAt]);
     
     // Send invitation email
     $emailResult = sendTenantInvitation(
         $data['email'],
         $landlord['full_name'],
-        $property['property_name'],
+        $property['property_name'] . ' - Unit ' . $unit['unit_number'],
         $token
     );
     

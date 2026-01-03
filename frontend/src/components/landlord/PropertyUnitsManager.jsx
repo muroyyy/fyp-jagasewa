@@ -198,23 +198,48 @@ const PropertyUnitsManager = ({ property, onBack }) => {
 
               {unit.tenant_name ? (
                 <div className="bg-blue-50 rounded-lg p-3 mt-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-blue-800 mb-1">
+                  <div className="flex items-center gap-2 text-sm font-medium text-blue-800 mb-2">
                     <User size={16} />
                     Current Tenant
                   </div>
-                  <p className="text-blue-700 font-medium">{unit.tenant_name}</p>
-                  {unit.tenant_phone && (
-                    <p className="text-blue-600 text-sm">{unit.tenant_phone}</p>
-                  )}
-                  {unit.move_in_date && (
-                    <p className="text-blue-600 text-sm">
-                      Moved in: {new Date(unit.move_in_date).toLocaleDateString()}
-                    </p>
-                  )}
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-blue-700 font-medium">{unit.tenant_name}</p>
+                      {unit.tenant_phone && (
+                        <p className="text-blue-600 text-sm">{unit.tenant_phone}</p>
+                      )}
+                    </div>
+                    {unit.move_in_date && (
+                      <div className="text-blue-600 text-sm">
+                        <span className="font-medium">Move-in:</span> {new Date(unit.move_in_date).toLocaleDateString()}
+                      </div>
+                    )}
+                    {unit.tenant_status && (
+                      <div className="text-blue-600 text-sm">
+                        <span className="font-medium">Status:</span> 
+                        <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                          unit.tenant_status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {unit.tenant_status}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-3">
+                      <button className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 cursor-pointer">
+                        View Details
+                      </button>
+                      <button className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200 cursor-pointer">
+                        Contact
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-green-50 rounded-lg p-3 mt-4">
                   <p className="text-green-700 text-sm font-medium">Available for rent</p>
+                  <button className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 cursor-pointer">
+                    Add Tenant
+                  </button>
                 </div>
               )}
             </div>

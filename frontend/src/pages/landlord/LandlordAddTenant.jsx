@@ -10,11 +10,14 @@ export default function LandlordAddTenant() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [properties, setProperties] = useState([]);
+  const [availableUnits, setAvailableUnits] = useState([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
+  const [loadingUnits, setLoadingUnits] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
-    property_id: ''
+    property_id: '',
+    unit_id: ''
   });
   const [invitationLink, setInvitationLink] = useState(null);
 
@@ -54,9 +57,45 @@ export default function LandlordAddTenant() {
     }
   };
 
+  const fetchAvailableUnits = async (propertyId) => {
+    if (!propertyId) {
+      setAvailableUnits([]);
+      return;
+    }
+
+    try {
+      setLoadingUnits(true);
+      const token = localStorage.getItem('session_token');
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/landlord/property-units.php?property_id=${propertyId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        // Filter only available units (no tenant assigned)
+        const availableUnits = data.data.units.filter(unit => !unit.tenant_id && unit.status === 'available');
+        setAvailableUnits(availableUnits);
+      }
+    } catch (err) {
+      console.error('Error fetching units:', err);
+      setAvailableUnits([]);
+    } finally {
+      setLoadingUnits(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Fetch units when property is selected
+    if (name === 'property_id') {
+      setFormData(prev => ({ ...prev, property_id: value, unit_id: '' })); // Reset unit selection
+      fetchAvailableUnits(value);
+    }
   };
 
   const validateForm = () => {
@@ -66,6 +105,10 @@ export default function LandlordAddTenant() {
     }
     if (!formData.property_id) {
       setError('Please select a property');
+      return false;
+    }
+    if (!formData.unit_id) {
+      setError('Please select a unit');
       return false;
     }
 
@@ -221,7 +264,7 @@ export default function LandlordAddTenant() {
                   name="property_id"
                   value={formData.property_id}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                 >
                   <option value="">Select a property</option>
                   {properties.map((property) => (
@@ -232,6 +275,40 @@ export default function LandlordAddTenant() {
                 </select>
               )}
             </div>
+
+            {/* Unit Selection */}
+            {formData.property_id && (
+              <div>
+                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
+                  <Home className="w-4 h-4" />
+                  <span>Select Unit *</span>
+                </label>
+                {loadingUnits ? (
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
+                    <span className="text-gray-500">Loading available units...</span>
+                  </div>
+                ) : availableUnits.length === 0 ? (
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
+                    <span className="text-gray-500">No available units in this property</span>
+                  </div>
+                ) : (
+                  <select
+                    name="unit_id"
+                    value={formData.unit_id}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                  >
+                    <option value="">Select a unit</option>
+                    {availableUnits.map((unit) => (
+                      <option key={unit.unit_id} value={unit.unit_id}>
+                        Unit {unit.unit_number} - RM {parseFloat(unit.monthly_rent).toLocaleString()}/month
+                        {unit.unit_type && ` (${unit.unit_type})`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -272,7 +349,7 @@ export default function LandlordAddTenant() {
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
           <h3 className="font-semibold text-blue-900 mb-2">How It Works:</h3>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>Enter the tenant's email address and select a property</li>
+            <li>Enter the tenant's email address, select a property, and choose an available unit</li>
             <li>An invitation link will be generated (email may not be delivered without SMTP)</li>
             <li>Share the invitation link with your tenant via WhatsApp, SMS, or email</li>
             <li>Tenant clicks the link and completes their registration</li>
