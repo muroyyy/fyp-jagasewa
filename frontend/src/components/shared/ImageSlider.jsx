@@ -32,26 +32,26 @@ export default function ImageSlider({ images, propertyName, className = "h-48" }
 
   if (images.length === 1) {
     return (
-      <div className={`${className} relative overflow-hidden bg-gray-100 flex items-center justify-center`}>
+      <div className={`${className} relative overflow-hidden`}>
         <img 
           src={getImageUrl(images[0])} 
           alt={propertyName}
-          className="max-w-full max-h-full object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
     );
   }
 
   return (
-    <div className={`${className} relative overflow-hidden group bg-gray-100`}>
+    <div className={`${className} relative overflow-hidden group`}>
       {/* Main Image */}
-      <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-full overflow-hidden">
         {images.map((image, index) => (
           <img 
             key={index}
             src={getImageUrl(image)} 
             alt={`${propertyName} - Image ${index + 1}`}
-            className={`max-w-full max-h-full object-contain transition-all duration-500 ease-in-out ${
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out ${
               index === currentIndex 
                 ? 'opacity-100 transform translate-x-0' 
                 : index < currentIndex 
