@@ -227,11 +227,11 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                       </div>
                     )}
                     <div className="flex gap-2 mt-3">
-                      <button className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 cursor-pointer">
+                      <button 
+                        onClick={() => navigate(`/landlord/tenants/${unit.tenant_id}`)}
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 cursor-pointer"
+                      >
                         View Details
-                      </button>
-                      <button className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200 cursor-pointer">
-                        Contact
                       </button>
                     </div>
                   </div>
