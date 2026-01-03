@@ -81,11 +81,10 @@ try {
                             END as status
                          FROM tenants t
                          INNER JOIN users u ON t.user_id = u.user_id
-                         LEFT JOIN properties p ON t.property_id = p.property_id
+                         LEFT JOIN properties p ON t.property_id = p.property_id AND p.landlord_id = :landlord_id
                          LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
-                         LEFT JOIN properties p2 ON pu.property_id = p2.property_id
+                         LEFT JOIN properties p2 ON pu.property_id = p2.property_id AND p2.landlord_id = :landlord_id
                          WHERE (p.landlord_id = :landlord_id OR p2.landlord_id = :landlord_id)
-                         AND (t.property_id IS NOT NULL OR t.unit_id IS NOT NULL)
                          ORDER BY t.move_in_date DESC";
         
         $tenantsStmt = $db->prepare($tenantsQuery);
@@ -110,12 +109,14 @@ try {
     ]);
     
 } catch (PDOException $e) {
+    error_log("Tenants API PDO Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => "Database error: " . $e->getMessage()
     ]);
 } catch (Exception $e) {
+    error_log("Tenants API Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "success" => false,
