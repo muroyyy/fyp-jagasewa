@@ -21,6 +21,8 @@ export default function LandlordProperties() {
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [availableCities, setAvailableCities] = useState([]);
+  const [showCustomCity, setShowCustomCity] = useState(false);
+  const [customCity, setCustomCity] = useState('');
   const navigate = useNavigate();
   
   // View Property Modal States
@@ -147,12 +149,38 @@ export default function LandlordProperties() {
         [name]: value,
         city: '' // Reset city selection
       }));
+      setShowCustomCity(false);
+      setCustomCity('');
+    } else if (name === 'city') {
+      if (value === 'Others') {
+        setShowCustomCity(true);
+        setFormData(prev => ({
+          ...prev,
+          city: customCity
+        }));
+      } else {
+        setShowCustomCity(false);
+        setCustomCity('');
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,
         [name]: value
       }));
     }
+  };
+
+  const handleCustomCityChange = (e) => {
+    const value = e.target.value;
+    setCustomCity(value);
+    setFormData(prev => ({
+      ...prev,
+      city: value
+    }));
   };
 
   const handleMainImageChange = (e) => {
@@ -282,6 +310,8 @@ export default function LandlordProperties() {
         setMainImagePreview(null);
         setSelectedImages([]);
         setImagePreviews([]);
+        setShowCustomCity(false);
+        setCustomCity('');
         
         setTimeout(() => setSuccess(''), 3000);
       } else {
@@ -461,6 +491,8 @@ export default function LandlordProperties() {
                       setShowAddModal(false);
                       setSelectedImages([]);
                       setImagePreviews([]);
+                      setShowCustomCity(false);
+                      setCustomCity('');
                     }}
                     className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                     disabled={isSaving}
@@ -641,7 +673,7 @@ export default function LandlordProperties() {
                       onChange={handleInputChange}
                       required
                       disabled={isSaving}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="">Select State</option>
                       {getStatesList().map(state => (
@@ -656,17 +688,32 @@ export default function LandlordProperties() {
                     </label>
                     <select
                       name="city"
-                      value={formData.city}
+                      value={showCustomCity ? 'Others' : formData.city}
                       onChange={handleInputChange}
-                      required
+                      required={!showCustomCity}
                       disabled={isSaving || !formData.state}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 cursor-pointer"
                     >
                       <option value="">{formData.state ? 'Select City' : 'Select State First'}</option>
                       {availableCities.map(city => (
                         <option key={city} value={city}>{city}</option>
                       ))}
+                      {formData.state && (
+                        <option value="Others">Others (Enter manually)</option>
+                      )}
                     </select>
+                    
+                    {showCustomCity && (
+                      <input
+                        type="text"
+                        value={customCity}
+                        onChange={handleCustomCityChange}
+                        required
+                        disabled={isSaving}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-2"
+                        placeholder="Enter city name"
+                      />
+                    )}
                   </div>
 
                   <div>
@@ -767,6 +814,8 @@ export default function LandlordProperties() {
                       setShowAddModal(false);
                       setSelectedImages([]);
                       setImagePreviews([]);
+                      setShowCustomCity(false);
+                      setCustomCity('');
                     }}
                     disabled={isSaving}
                     className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"

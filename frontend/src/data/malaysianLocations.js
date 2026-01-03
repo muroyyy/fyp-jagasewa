@@ -50,13 +50,20 @@ export const malaysianStates = {
     "Kuala Terengganu", "Kemaman", "Dungun", "Chukai", "Kuala Berang", 
     "Marang", "Jerteh", "Besut", "Setiu"
   ],
-  "Kuala Lumpur": [
-    "Ampang", "Bandar Tun Razak", "Bangsar", "Bangsar South", "Batu", 
-    "Brickfields", "Bukit Bintang", "Bukit Jalil", "Cheras", "Chinatown", 
-    "Damansara Heights", "Desa Parkcity", "Golden Triangle", "Kepong", 
-    "KLCC", "Lembah Pantai", "Mont Kiara", "Segambut", "Sentul", 
-    "Seputeh", "Setapak", "Setiawangsa", "Sri Hartamas", "Sri Petaling", 
-    "Sungai Besi", "Titiwangsa", "TTDI", "Wangsa Maju"
+  "Wilayah Persekutuan Kuala Lumpur": [
+    "Ampang (KL side)", "Bandar Menjalara", "Bandar Sri Damansara (partially KL)", 
+    "Bandar Sri Permaisuri", "Bandar Tasik Selatan", "Bandar Tun Razak", "Bangsar", 
+    "Bangsar South (Kerinchi)", "Batu", "Brickfields (Little India)", "Bukit Bintang", 
+    "Bukit Jalil", "Bukit Kiara", "Bukit Tunku (Kenny Hills)", "Chan Sow Lin", 
+    "Cheras (KL side)", "Chow Kit", "Damansara Heights (Bukit Damansara)", 
+    "Dato' Keramat", "Desa ParkCity", "Desa Petaling", "Dutamas", "Imbi", 
+    "Jalan Ipoh", "Jalan Klang Lama (Old Klang Road)", "Jalan Kuching", "Jinjang", 
+    "Kampung Baru", "Kampung Pandan", "KLCC (Kuala Lumpur City Centre)", "KL Sentral", 
+    "Kepong", "Kuchai Lama", "Lembah Pantai", "Maluri", "Mont Kiara", 
+    "Pantai Dalam", "Pudu", "Salak Selatan", "Segambut", "Sentul", "Seputeh", 
+    "Setapak", "Setiawangsa", "Sri Hartamas", "Sri Petaling", "Sungai Besi", 
+    "Taman Desa", "Taman Melati", "Taman Midah", "Taman OUG (Overseas Union Garden)", 
+    "Taman Tun Dr Ismail (TTDI)", "Titiwangsa", "Wangsa Maju"
   ],
   "Labuan": [
     "Victoria", "Rancha-Rancha", "Pohon Batu", "Layang-Layangan"
@@ -71,5 +78,6 @@ export const getStatesList = () => {
 };
 
 export const getCitiesByState = (state) => {
-  return malaysianStates[state] || [];
+  const cities = malaysianStates[state] || [];
+  return cities.sort();
 };
