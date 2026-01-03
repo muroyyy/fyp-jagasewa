@@ -12,6 +12,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
     level: '',
     room_number: '',
     unit_type: '',
+    custom_unit_type: '',
     size_sqft: '',
     monthly_rent: property.monthly_rent || '',
     status: 'available',
@@ -85,6 +86,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
         body: JSON.stringify({
           ...newUnit,
           unit_number: generatedUnitNumber,
+          unit_type: newUnit.unit_type === 'Others' ? newUnit.custom_unit_type : newUnit.unit_type,
           property_id: property.property_id
         })
       });
@@ -97,6 +99,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
           level: '',
           room_number: '',
           unit_type: '',
+          custom_unit_type: '',
           size_sqft: '',
           monthly_rent: property.monthly_rent || '',
           status: 'available',
@@ -314,13 +317,33 @@ const PropertyUnitsManager = ({ property, onBack }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Unit Type</label>
-                  <input
-                    type="text"
+                  <select
                     value={newUnit.unit_type}
-                    onChange={(e) => setNewUnit({...newUnit, unit_type: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    placeholder="Studio, 1BR, 2BR, 3BR"
-                  />
+                    onChange={(e) => setNewUnit({...newUnit, unit_type: e.target.value, custom_unit_type: ''})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer"
+                  >
+                    <option value="">Select Unit Type</option>
+                    <option value="Studio">Studio</option>
+                    <option value="1BR">1 Bedroom</option>
+                    <option value="2BR">2 Bedroom</option>
+                    <option value="3BR">3 Bedroom</option>
+                    <option value="4BR">4 Bedroom</option>
+                    <option value="5BR">5 Bedroom</option>
+                    <option value="Penthouse">Penthouse</option>
+                    <option value="Duplex">Duplex</option>
+                    <option value="Others">Others</option>
+                  </select>
+                  
+                  {newUnit.unit_type === 'Others' && (
+                    <input
+                      type="text"
+                      value={newUnit.custom_unit_type}
+                      onChange={(e) => setNewUnit({...newUnit, custom_unit_type: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-2"
+                      placeholder="Enter custom unit type"
+                      required
+                    />
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -352,7 +375,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   <select
                     value={newUnit.status}
                     onChange={(e) => setNewUnit({...newUnit, status: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer"
                   >
                     <option value="available">Available</option>
                     <option value="maintenance">Maintenance</option>
