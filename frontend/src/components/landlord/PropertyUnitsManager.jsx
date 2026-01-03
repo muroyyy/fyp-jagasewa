@@ -8,7 +8,6 @@ const PropertyUnitsManager = ({ property, onBack }) => {
   const [showBuildingStructure, setShowBuildingStructure] = useState(false);
   const [buildingStructure, setBuildingStructure] = useState('');
   const [newUnit, setNewUnit] = useState({
-    unit_number: '',
     block: '',
     level: '',
     room_number: '',
@@ -54,6 +53,25 @@ const PropertyUnitsManager = ({ property, onBack }) => {
     setShowAddUnit(true);
   };
 
+  // Generate unit number based on building structure
+  const generateUnitNumber = () => {
+    const structure = buildingStructure || property.building_structure;
+    if (structure === 'multiple') {
+      // Format: B-5-9 (Block-Level-Room)
+      if (newUnit.block && newUnit.level && newUnit.room_number) {
+        return `${newUnit.block}-${newUnit.level}-${newUnit.room_number}`;
+      }
+    } else if (structure === 'single') {
+      // Format: 5-9 (Level-Room)
+      if (newUnit.level && newUnit.room_number) {
+        return `${newUnit.level}-${newUnit.room_number}`;
+      }
+    }
+    return '';
+  };
+
+  const generatedUnitNumber = generateUnitNumber();
+
   const handleAddUnit = async (e) => {
     e.preventDefault();
     try {
@@ -66,6 +84,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
         },
         body: JSON.stringify({
           ...newUnit,
+          unit_number: generatedUnitNumber,
           property_id: property.property_id
         })
       });
@@ -74,7 +93,6 @@ const PropertyUnitsManager = ({ property, onBack }) => {
       if (data.success) {
         setShowAddUnit(false);
         setNewUnit({
-          unit_number: '',
           block: '',
           level: '',
           room_number: '',
@@ -247,49 +265,49 @@ const PropertyUnitsManager = ({ property, onBack }) => {
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">Add New Unit</h3>
               <form onSubmit={handleAddUnit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit Number *</label>
-                  <input
-                    type="text"
-                    value={newUnit.unit_number}
-                    onChange={(e) => setNewUnit({...newUnit, unit_number: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    placeholder="e.g., B-5-9, 101, A-12-03"
-                    required
-                  />
-                </div>
+                {/* Generated Unit Number Display */}
+                {generatedUnitNumber && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <label className="block text-sm font-medium text-blue-800 mb-1">Generated Unit Number</label>
+                    <div className="text-lg font-bold text-blue-900">{generatedUnitNumber}</div>
+                    <p className="text-xs text-blue-600 mt-1">This will be the unit identifier</p>
+                  </div>
+                )}
 
                 <div className={`grid gap-3 ${(buildingStructure === 'multiple' || property.building_structure === 'multiple') ? 'grid-cols-3' : 'grid-cols-2'}`}>
                   {(buildingStructure === 'multiple' || property.building_structure === 'multiple') && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Block</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Block *</label>
                       <input
                         type="text"
                         value={newUnit.block}
                         onChange={(e) => setNewUnit({...newUnit, block: e.target.value})}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2"
                         placeholder="A, B, C"
+                        required
                       />
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Level *</label>
                     <input
                       type="text"
                       value={newUnit.level}
                       onChange={(e) => setNewUnit({...newUnit, level: e.target.value})}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="5, 12"
+                      placeholder="5, 12, G"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Room *</label>
                     <input
                       type="text"
                       value={newUnit.room_number}
                       onChange={(e) => setNewUnit({...newUnit, room_number: e.target.value})}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="9, 03"
+                      placeholder="9, 03, 15"
+                      required
                     />
                   </div>
                 </div>
@@ -362,7 +380,8 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                    disabled={!generatedUnitNumber}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Add Unit
                   </button>
