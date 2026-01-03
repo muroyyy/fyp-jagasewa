@@ -72,6 +72,7 @@ try {
                 t.move_in_date,
                 t.move_out_date,
                 t.property_id,
+                t.unit_id,
                 u.email,
                 p.property_name,
                 p.property_type,
@@ -82,12 +83,17 @@ try {
                 p.monthly_rent,
                 p.status as property_status,
                 p.images as property_images,
+                pu.unit_number,
+                pu.unit_type,
+                pu.size_sqft,
+                pu.monthly_rent as unit_rent,
                 l.full_name as landlord_name,
                 l.phone as landlord_phone,
                 lu.email as landlord_email
             FROM tenants t
             JOIN users u ON t.user_id = u.user_id
             LEFT JOIN properties p ON t.property_id = p.property_id
+            LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
             LEFT JOIN landlords l ON p.landlord_id = l.landlord_id
             LEFT JOIN users lu ON l.user_id = lu.user_id
             WHERE t.tenant_id = :tenant_id
@@ -140,7 +146,8 @@ try {
 
         // Calculate next payment
         $next_payment = null;
-        if ($tenant['property_id'] && $tenant['monthly_rent']) {
+        if ($tenant['property_id'] && ($tenant['unit_rent'] || $tenant['monthly_rent'])) {
+            $rent_amount = $tenant['unit_rent'] ?: $tenant['monthly_rent'];
             $last_payment = $payment_stats['last_payment_date'];
             if ($last_payment) {
                 $next_due = date('Y-m-d', strtotime($last_payment . ' +1 month'));
@@ -168,7 +175,7 @@ try {
             
             if ($payment_check['count'] == 0) {
                 $next_payment = [
-                    'amount' => $tenant['monthly_rent'],
+                    'amount' => $rent_amount,
                     'due_date' => $next_due,
                     'property_name' => $tenant['property_name']
                 ];
@@ -203,11 +210,18 @@ try {
             'city' => $tenant['city'],
             'state' => $tenant['state'],
             'postal_code' => $tenant['postal_code'],
-            'monthly_rent' => $tenant['monthly_rent'],
+            'monthly_rent' => $tenant['unit_rent'] ?: $tenant['monthly_rent'],
             'status' => $tenant['property_status'],
             'move_in_date' => $tenant['move_in_date'],
             'move_out_date' => $tenant['move_out_date'],
             'images' => $property_images,
+            'unit' => $tenant['unit_id'] ? [
+                'unit_id' => $tenant['unit_id'],
+                'unit_number' => $tenant['unit_number'],
+                'unit_type' => $tenant['unit_type'],
+                'size_sqft' => $tenant['size_sqft'],
+                'monthly_rent' => $tenant['unit_rent']
+            ] : null,
             'landlord' => [
                 'name' => $tenant['landlord_name'],
                 'phone' => $tenant['landlord_phone'],

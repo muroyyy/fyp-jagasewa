@@ -226,6 +226,9 @@ export default function TenantDashboard() {
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">{property.property_name}</h3>
                       <p className="text-sm text-gray-600">{property.property_type}</p>
+                      {property.unit && (
+                        <p className="text-sm text-blue-600 font-medium">Unit {property.unit.unit_number}</p>
+                      )}
                     </div>
                   </div>
                   
@@ -242,8 +245,20 @@ export default function TenantDashboard() {
                       <DollarSign className="w-4 h-4 text-gray-400" />
                       <p className="text-sm text-gray-900 font-semibold">
                         {formatAmount(property.monthly_rent)}/month
+                        {property.unit && property.unit.unit_type && (
+                          <span className="text-gray-600 font-normal"> • {property.unit.unit_type}</span>
+                        )}
                       </p>
                     </div>
+                    
+                    {property.unit && property.unit.size_sqft && (
+                      <div className="flex items-center space-x-2">
+                        <Home className="w-4 h-4 text-gray-400" />
+                        <p className="text-sm text-gray-600">
+                          {property.unit.size_sqft} sqft
+                        </p>
+                      </div>
+                    )}
                     
                     <div className="flex items-center space-x-2">
                       <Home className="w-4 h-4 text-gray-400" />
