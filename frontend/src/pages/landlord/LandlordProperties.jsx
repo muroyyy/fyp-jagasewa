@@ -641,8 +641,28 @@ export default function LandlordProperties() {
                     <option value="Villa">Villa</option>
                     <option value="House">House</option>
                     <option value="Studio">Studio</option>
+                    <option value="Others">Others</option>
                   </select>
                 </div>
+
+                {/* Custom Property Type */}
+                {formData.property_type === 'Others' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Custom Property Type <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="custom_property_type"
+                      value={formData.custom_property_type || ''}
+                      onChange={(e) => setFormData(prev => ({...prev, custom_property_type: e.target.value}))}
+                      required
+                      disabled={isSaving}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Enter property type"
+                    />
+                  </div>
+                )}
 
                 {/* Address */}
                 <div>

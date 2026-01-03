@@ -5,6 +5,8 @@ const PropertyUnitsManager = ({ property, onBack }) => {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddUnit, setShowAddUnit] = useState(false);
+  const [showBuildingStructure, setShowBuildingStructure] = useState(false);
+  const [buildingStructure, setBuildingStructure] = useState('');
   const [newUnit, setNewUnit] = useState({
     unit_number: '',
     block: '',
@@ -36,6 +38,20 @@ const PropertyUnitsManager = ({ property, onBack }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddUnitClick = () => {
+    if ((property.property_type === 'Apartment' || property.property_type === 'Condominium') && !property.building_structure) {
+      setShowBuildingStructure(true);
+    } else {
+      setShowAddUnit(true);
+    }
+  };
+
+  const handleBuildingStructureSelect = (structure) => {
+    setBuildingStructure(structure);
+    setShowBuildingStructure(false);
+    setShowAddUnit(true);
   };
 
   const handleAddUnit = async (e) => {
@@ -113,7 +129,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
           </p>
         </div>
         <button
-          onClick={() => setShowAddUnit(true)}
+          onClick={handleAddUnitClick}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 cursor-pointer"
         >
           <Plus size={16} />
@@ -185,6 +201,45 @@ const PropertyUnitsManager = ({ property, onBack }) => {
         ))}
       </div>
 
+      {/* Building Structure Modal */}
+      {showBuildingStructure && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Building Structure</h3>
+              <p className="text-gray-600 mb-6">Is this property a single building or multiple buildings?</p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleBuildingStructureSelect('single')}
+                  className="w-full p-4 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left cursor-pointer"
+                >
+                  <div className="font-medium">Single Building</div>
+                  <div className="text-sm text-gray-600">One building with multiple levels and rooms</div>
+                </button>
+                
+                <button
+                  onClick={() => handleBuildingStructureSelect('multiple')}
+                  className="w-full p-4 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left cursor-pointer"
+                >
+                  <div className="font-medium">Multiple Buildings</div>
+                  <div className="text-sm text-gray-600">Multiple blocks/buildings (A, B, C, etc.)</div>
+                </button>
+              </div>
+              
+              <div className="flex gap-3 pt-6">
+                <button
+                  onClick={() => setShowBuildingStructure(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Unit Modal */}
       {showAddUnit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -204,17 +259,19 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Block</label>
-                    <input
-                      type="text"
-                      value={newUnit.block}
-                      onChange={(e) => setNewUnit({...newUnit, block: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="A, B, C"
-                    />
-                  </div>
+                <div className={`grid gap-3 ${(buildingStructure === 'multiple' || property.building_structure === 'multiple') ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  {(buildingStructure === 'multiple' || property.building_structure === 'multiple') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Block</label>
+                      <input
+                        type="text"
+                        value={newUnit.block}
+                        onChange={(e) => setNewUnit({...newUnit, block: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        placeholder="A, B, C"
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
                     <input
@@ -299,13 +356,13 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                   <button
                     type="button"
                     onClick={() => setShowAddUnit(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
                   >
                     Add Unit
                   </button>

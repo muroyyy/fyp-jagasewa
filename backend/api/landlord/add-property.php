@@ -145,7 +145,7 @@ try {
     $result = $stmt->execute([
         $landlord_id,
         trim($data['property_name']),
-        trim($data['property_type']),
+        $data['property_type'] === 'Others' ? trim($data['custom_property_type']) : trim($data['property_type']),
         trim($data['address']),
         trim($data['city']),
         trim($data['state']),
