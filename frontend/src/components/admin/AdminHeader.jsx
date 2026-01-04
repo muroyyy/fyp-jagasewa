@@ -52,7 +52,7 @@ const AdminHeader = ({ onMenuClick }) => {
             <input
               type="text"
               placeholder="Search users, properties..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
@@ -66,7 +66,7 @@ const AdminHeader = ({ onMenuClick }) => {
                 className="w-8 h-8 rounded-full object-cover shadow-lg border-2 border-white"
               />
             ) : (
-              <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
                 <User className="text-white" size={16} />
               </div>
             )}

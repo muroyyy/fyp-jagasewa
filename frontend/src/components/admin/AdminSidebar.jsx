@@ -23,7 +23,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/users', icon: Users, label: 'User Management' },
     { path: '/admin/properties', icon: Building, label: 'Properties' },
-    { path: '/admin/settings', icon: Settings, label: 'System Settings' },
     { path: '/admin/profile', icon: User, label: 'Admin Profile' },
   ];
 
@@ -55,7 +54,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer lg:hidden"
           >
             <X size={20} />
           </button>
@@ -71,7 +70,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-indigo-50 text-indigo-600 border-r-2 border-indigo-600'
+                      ? 'bg-purple-50 text-purple-600 border-r-2 border-purple-600'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                   }`
                 }

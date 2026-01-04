@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
       </div>
     );
   }
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
           change="+12%"
           changeType="increase"
           icon={Users}
-          color="indigo"
+          color="purple"
         />
         <AnalyticsCard
           title="Total Properties"
@@ -108,8 +108,8 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-50 rounded-lg">
-              <Users className="text-indigo-600" size={24} />
+            <div className="p-3 bg-purple-50 rounded-lg">
+              <Users className="text-purple-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Landlords</p>
@@ -153,7 +153,7 @@ const AdminDashboard = () => {
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
                 <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-900">{activity.description}</p>
                     <p className="text-xs text-gray-500">{activity.timestamp}</p>
