@@ -53,12 +53,27 @@ try {
             }
         }
 
-        // Verify property belongs to landlord
-        $stmt = $conn->prepare("SELECT property_id FROM properties WHERE property_id = ? AND landlord_id = ?");
+        // Verify property belongs to landlord and get total_units limit
+        $stmt = $conn->prepare("SELECT property_id, total_units FROM properties WHERE property_id = ? AND landlord_id = ?");
         $stmt->execute([$data['property_id'], $landlord_id]);
-        if (!$stmt->fetch()) {
+        $property = $stmt->fetch();
+        if (!$property) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Property not found or access denied']);
+            exit();
+        }
+
+        // Check current unit count against total_units limit
+        $stmt = $conn->prepare("SELECT COUNT(*) as current_units FROM property_units WHERE property_id = ?");
+        $stmt->execute([$data['property_id']]);
+        $unitCount = $stmt->fetch();
+        
+        if ($unitCount['current_units'] >= $property['total_units']) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false, 
+                'message' => "Cannot add more units. Property limit is {$property['total_units']} units and {$unitCount['current_units']} units already exist."
+            ]);
             exit();
         }
 
