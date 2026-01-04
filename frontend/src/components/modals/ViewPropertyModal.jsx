@@ -2,17 +2,20 @@ import { X, Building2, MapPin, Home, DollarSign, Users, Calendar, FileText, Chec
 import { useState, useEffect } from 'react';
 import ImageSlider from '../shared/ImageSlider';
 
-const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ViewPropertyModal = ({ isOpen, onClose, propertyId, property }) => {
+  const [propertyData, setPropertyData] = useState(property || null);
+  const [loading, setLoading] = useState(!property);
   const [error, setError] = useState('');
 
-
   useEffect(() => {
-    if (isOpen && propertyId) {
+    if (isOpen && propertyId && !property) {
       fetchPropertyDetails();
+    } else if (isOpen && property) {
+      setPropertyData(property);
+      setLoading(false);
+      setError('');
     }
-  }, [isOpen, propertyId]);
+  }, [isOpen, propertyId, property]);
 
   const fetchPropertyDetails = async () => {
     setLoading(true);
@@ -29,8 +32,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
       const data = await response.json();
       
       if (data.success) {
-        setProperty(data.data.property);
-
+        setPropertyData(data.data.property);
       } else {
         setError(data.message || 'Failed to load property details');
       }
@@ -93,13 +95,13 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
               <XCircle className="text-red-500 flex-shrink-0" size={20} />
               <p className="text-red-700">{error}</p>
             </div>
-          ) : property ? (
+          ) : propertyData ? (
             <div className="space-y-6">
               {/* Image Gallery */}
               <div className="bg-gray-100 rounded-xl overflow-hidden">
                 <ImageSlider 
-                  images={property.images} 
-                  propertyName={property.property_name}
+                  images={propertyData.images} 
+                  propertyName={propertyData.property_name}
                   className="h-96"
                 />
               </div>
@@ -108,20 +110,20 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
               <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-3xl font-bold text-gray-800 mb-2">{property.property_name}</h3>
+                    <h3 className="text-3xl font-bold text-gray-800 mb-2">{propertyData.property_name}</h3>
                     <div className="flex items-center gap-2 text-gray-600">
                       <MapPin size={18} className="text-blue-600" />
-                      <span className="text-lg">{property.address}, {property.city}, {property.state} {property.postal_code}</span>
+                      <span className="text-lg">{propertyData.address}, {propertyData.city}, {propertyData.state} {propertyData.postal_code}</span>
                     </div>
                   </div>
                   <span className={`px-4 py-2 rounded-full text-sm font-medium ${
-                    property.status === 'Active' 
+                    propertyData.status === 'Active' 
                       ? 'bg-green-100 text-green-700' 
-                      : property.status === 'Inactive'
+                      : propertyData.status === 'Inactive'
                       ? 'bg-gray-100 text-gray-700'
                       : 'bg-yellow-100 text-yellow-700'
                   }`}>
-                    {property.status === 'Active' ? (
+                    {propertyData.status === 'Active' ? (
                       <span className="flex items-center gap-1">
                         <CheckCircle size={16} />
                         Active
@@ -129,7 +131,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                     ) : (
                       <span className="flex items-center gap-1">
                         <XCircle size={16} />
-                        {property.status}
+                        {propertyData.status}
                       </span>
                     )}
                   </span>
@@ -139,19 +141,19 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <p className="text-sm text-gray-500 mb-1">Property Type</p>
-                    <p className="text-lg font-bold text-gray-800">{property.property_type}</p>
+                    <p className="text-lg font-bold text-gray-800">{propertyData.property_type}</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <p className="text-sm text-gray-500 mb-1">Total Units</p>
-                    <p className="text-lg font-bold text-gray-800">{property.total_units}</p>
+                    <p className="text-lg font-bold text-gray-800">{propertyData.total_units}</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <p className="text-sm text-gray-500 mb-1">Monthly Rent</p>
-                    <p className="text-lg font-bold text-green-600">{formatCurrency(property.monthly_rent)}</p>
+                    <p className="text-lg font-bold text-green-600">{formatCurrency(propertyData.monthly_rent)}</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <p className="text-sm text-gray-500 mb-1">Country</p>
-                    <p className="text-lg font-bold text-gray-800">{property.country}</p>
+                    <p className="text-lg font-bold text-gray-800">{propertyData.country}</p>
                   </div>
                 </div>
               </div>
@@ -167,27 +169,27 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Property Name</label>
-                    <p className="text-gray-800 font-medium">{property.property_name}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.property_name}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Property Type</label>
                     <p className="text-gray-800 font-medium flex items-center gap-2">
                       <Home size={16} className="text-gray-400" />
-                      {property.property_type}
+                      {propertyData.property_type}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Total Units</label>
                     <p className="text-gray-800 font-medium flex items-center gap-2">
                       <Users size={16} className="text-gray-400" />
-                      {property.total_units} units
+                      {propertyData.total_units} units
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Monthly Rent</label>
                     <p className="text-gray-800 font-bold text-lg flex items-center gap-2">
                       <DollarSign size={18} className="text-green-600" />
-                      {formatCurrency(property.monthly_rent)}
+                      {formatCurrency(propertyData.monthly_rent)}
                     </p>
                   </div>
                 </div>
@@ -204,29 +206,29 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
                     <label className="text-sm text-gray-500 mb-1 block">Full Address</label>
-                    <p className="text-gray-800 font-medium">{property.address}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.address}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">City</label>
-                    <p className="text-gray-800 font-medium">{property.city}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.city}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">State</label>
-                    <p className="text-gray-800 font-medium">{property.state}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.state}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Postal Code</label>
-                    <p className="text-gray-800 font-medium">{property.postal_code}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.postal_code}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Country</label>
-                    <p className="text-gray-800 font-medium">{property.country}</p>
+                    <p className="text-gray-800 font-medium">{propertyData.country}</p>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
-              {property.description && (
+              {propertyData.description && (
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                   <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
                     <h4 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -235,7 +237,7 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                     </h4>
                   </div>
                   <div className="p-6">
-                    <p className="text-gray-700 leading-relaxed">{property.description}</p>
+                    <p className="text-gray-700 leading-relaxed">{propertyData.description}</p>
                   </div>
                 </div>
               )}
@@ -252,12 +254,12 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Status</label>
                     <p className="text-gray-800 font-medium">
-                      {property.status === 'Active' ? (
+                      {propertyData.status === 'Active' ? (
                         <span className="text-green-600 flex items-center gap-2">
                           <CheckCircle size={16} />
                           Active
                         </span>
-                      ) : property.status === 'Inactive' ? (
+                      ) : propertyData.status === 'Inactive' ? (
                         <span className="text-gray-600 flex items-center gap-2">
                           <XCircle size={16} />
                           Inactive
@@ -273,16 +275,16 @@ const ViewPropertyModal = ({ isOpen, onClose, propertyId }) => {
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Images</label>
                     <p className="text-gray-800 font-medium">
-                      {property.images ? property.images.length : 0} photo{property.images && property.images.length !== 1 ? 's' : ''}
+                      {propertyData.images ? propertyData.images.length : 0} photo{propertyData.images && propertyData.images.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Created At</label>
-                    <p className="text-gray-800 font-medium">{formatDate(property.created_at)}</p>
+                    <p className="text-gray-800 font-medium">{formatDate(propertyData.created_at)}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500 mb-1 block">Last Updated</label>
-                    <p className="text-gray-800 font-medium">{formatDate(property.updated_at)}</p>
+                    <p className="text-gray-800 font-medium">{formatDate(propertyData.updated_at)}</p>
                   </div>
                 </div>
               </div>

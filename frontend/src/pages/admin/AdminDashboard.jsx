@@ -69,7 +69,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <AnalyticsCard
           title="Total Users"
           value={stats.totalUsers}
@@ -86,26 +86,10 @@ const AdminDashboard = () => {
           icon={Building}
           color="green"
         />
-        <AnalyticsCard
-          title="Active Rentals"
-          value={stats.activeRentals}
-          change="+15%"
-          changeType="increase"
-          icon={Activity}
-          color="slate"
-        />
-        <AnalyticsCard
-          title="Pending Verifications"
-          value={stats.pendingVerifications}
-          change="-5%"
-          changeType="decrease"
-          icon={Eye}
-          color="yellow"
-        />
       </div>
 
       {/* Secondary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-purple-50 rounded-lg">
@@ -126,18 +110,6 @@ const AdminDashboard = () => {
             <div>
               <p className="text-sm text-gray-600">Tenants</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalTenants}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-slate-50 rounded-lg">
-              <Activity className="text-slate-600" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">System Uptime</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.systemUptime}</p>
             </div>
           </div>
         </div>

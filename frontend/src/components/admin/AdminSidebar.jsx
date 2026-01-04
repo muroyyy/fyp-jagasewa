@@ -48,13 +48,10 @@ const AdminSidebar = ({ isOpen, onClose }) => {
               alt="JagaSewa" 
               className="h-10 w-auto"
             />
-            <div>
-              <p className="text-sm text-gray-500">Admin Panel</p>
-            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer lg:hidden"
+            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
