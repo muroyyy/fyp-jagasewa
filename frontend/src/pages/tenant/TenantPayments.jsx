@@ -169,7 +169,7 @@ export default function TenantPayments() {
           <div className="mb-8">
             <button
               onClick={() => setShowPaymentModal(true)}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r bg-green-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
+              className="w-full sm:w-auto px-8 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
             >
               <CreditCard className="w-5 h-5" />
               <span>Make Payment - {formatAmount(paymentStatus.payment_options[0].amount)}</span>
@@ -238,7 +238,7 @@ export default function TenantPayments() {
                             const token = localStorage.getItem('session_token');
                             window.open(`${import.meta.env.VITE_API_URL}/api/tenant/download-receipt.php?payment_id=${payment.payment_id}&token=${token}`, '_blank');
                           }}
-                          className="px-3 py-1 bg-blue-50 text-green-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors cursor-pointer"
+                          className="px-3 py-1 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 text-sm font-medium transition-colors cursor-pointer"
                         >
                           View Receipt
                         </button>

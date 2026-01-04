@@ -382,7 +382,7 @@ function ProfileTab({ profile, setError, setSuccess, onProfileUpdate }) {
         className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
           saving
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gradient-to-r bg-green-700 hover:shadow-lg cursor-pointer'
+            : 'bg-green-600 hover:bg-green-700 hover:shadow-lg cursor-pointer'
         }`}
       >
         {saving ? (
@@ -567,7 +567,7 @@ function SecurityTab({ setError, setSuccess }) {
         className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
           saving
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gradient-to-r bg-green-700 hover:shadow-lg cursor-pointer'
+            : 'bg-green-600 hover:bg-green-700 hover:shadow-lg cursor-pointer'
         }`}
       >
         {saving ? (

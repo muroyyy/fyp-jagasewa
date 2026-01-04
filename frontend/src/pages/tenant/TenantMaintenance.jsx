@@ -188,7 +188,7 @@ export default function TenantMaintenance() {
 
           <button
             onClick={() => setShowNewRequestModal(true)}
-            className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer"
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition-all cursor-pointer"
           >
             <Plus className="w-5 h-5" />
             <span>New Request</span>
@@ -259,7 +259,7 @@ export default function TenantMaintenance() {
               </p>
               <button
                 onClick={() => setShowNewRequestModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer"
+                className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition-all cursor-pointer"
               >
                 Submit New Request
               </button>
@@ -493,7 +493,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Leaking kitchen sink"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
             </div>
@@ -506,7 +506,7 @@ function NewRequestModal({ onClose, onSuccess }) {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer"
                 required
               >
                 <option value="">Select a category</option>
@@ -526,7 +526,7 @@ function NewRequestModal({ onClose, onSuccess }) {
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer"
                 required
               >
                 <option value="low">Low</option>
@@ -546,7 +546,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the issue in detail..."
                 rows="4"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                 required
               />
             </div>
@@ -561,7 +561,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                 value={formData.preferred_date}
                 onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer"
               />
             </div>
 
@@ -720,7 +720,7 @@ function NewRequestModal({ onClose, onSuccess }) {
                     <button
                       type="button"
                       onClick={analyzePhoto}
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Sparkle className="w-5 h-5" />
                       Analyze with AI
@@ -738,7 +738,7 @@ function NewRequestModal({ onClose, onSuccess }) {
               className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${
                 loading
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-orange-600 to-red-600 hover:shadow-lg cursor-pointer'
+                  : 'bg-green-600 hover:bg-green-700 hover:shadow-lg cursor-pointer'
               }`}
             >
               {loading ? (
