@@ -15,7 +15,7 @@ if ($is_local) {
     $api_base_url = "http://localhost:8000/api";
     $environment = 'development';
 } else {
-    // Production uses ALB with custom domain
+    // Production uses ALB with custom domainn
     $api_base_url = "https://api.jagasewa.cloud/api";
     $environment = 'production';
 }
