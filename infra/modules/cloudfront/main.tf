@@ -31,14 +31,6 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       override               = true
     }
   }
-
-  custom_headers_config {
-    items {
-      header   = "X-XSS-Protection"
-      value    = "1; mode=block"
-      override = true
-    }
-  }
 }
 
 # ─────────────────────────────────────────────────────────
