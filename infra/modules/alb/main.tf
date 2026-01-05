@@ -83,16 +83,6 @@ resource "aws_lb_listener" "https_listener" {
     target_group_arn = aws_lb_target_group.backend_tg.arn
   }
 
-  # Add security headers
-  default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "OK"
-      status_code  = "200"
-    }
-  }
-
   tags = {
     Name = "${var.project_name}-https-listener"
   }

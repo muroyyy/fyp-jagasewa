@@ -26,17 +26,16 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       referrer_policy = "strict-origin-when-cross-origin"
       override        = true
     }
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.jagasewa.cloud;"
+      override               = true
+    }
   }
 
   custom_headers_config {
     items {
       header   = "X-XSS-Protection"
       value    = "1; mode=block"
-      override = true
-    }
-    items {
-      header   = "Content-Security-Policy"
-      value    = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.jagasewa.cloud;"
       override = true
     }
   }
