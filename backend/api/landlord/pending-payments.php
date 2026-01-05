@@ -67,12 +67,21 @@ try {
     foreach ($tenants as $tenant) {
         $moveInDate = new DateTime($tenant['move_in_date']);
         
-        // Calculate months since move-in
-        $interval = $currentDate->diff($moveInDate);
-        $monthsSinceMoveIn = ($interval->y * 12) + $interval->m;
+        // Start generating payments from the month after move-in
+        $firstPaymentMonth = clone $moveInDate;
+        $firstPaymentMonth->modify('first day of next month');
         
-        // Only process if tenant has been living for at least 1 month
-        if ($monthsSinceMoveIn >= 1) {
+        // Generate expected payment months from first payment month to current date
+        $expectedMonths = [];
+        $checkDate = clone $firstPaymentMonth;
+        
+        while ($checkDate <= $currentDate) {
+            $expectedMonths[] = $checkDate->format('Y-m');
+            $checkDate->add(new DateInterval('P1M'));
+        }
+        
+        // Only process if there are expected payments
+        if (!empty($expectedMonths)) {
             // Check payments made by this tenant
             $paymentStmt = $conn->prepare("
                 SELECT 
@@ -94,15 +103,6 @@ try {
                 }
             }
             
-            // Generate expected payment months since move-in
-            $expectedMonths = [];
-            $checkDate = clone $moveInDate;
-            
-            while ($checkDate <= $currentDate) {
-                $expectedMonths[] = $checkDate->format('Y-m');
-                $checkDate->add(new DateInterval('P1M'));
-            }
-            
             // Find missing payments
             foreach ($expectedMonths as $expectedMonth) {
                 if (!in_array($expectedMonth, $paidMonths)) {
@@ -111,7 +111,7 @@ try {
                     $dueDate->setDate($dueDate->format('Y'), $dueDate->format('m'), 5);
                     
                     // Check if payment is overdue (more than 5 days past due date)
-                    $daysPastDue = $currentDate->diff($dueDate)->days;
+                    $daysPastDue = $currentDate > $dueDate ? $currentDate->diff($dueDate)->days : 0;
                     $isOverdue = $currentDate > $dueDate && $daysPastDue > 5;
                     
                     $pendingPayments[] = [
@@ -122,7 +122,7 @@ try {
                         'amount' => $tenant['monthly_rent'],
                         'payment_period' => $expectedMonth,
                         'due_date' => $dueDate->format('Y-m-d'),
-                        'days_overdue' => $isOverdue ? $daysPastDue : 0,
+                        'days_overdue' => $daysPastDue,
                         'status' => $isOverdue ? 'overdue' : 'pending',
                         'payment_type' => 'full_month'
                     ];
@@ -136,6 +136,10 @@ try {
         'data' => [
             'pending_payments' => $pendingPayments,
             'total_count' => count($pendingPayments)
+        ],
+        'debug' => [
+            'current_date' => $currentDate->format('Y-m-d H:i:s'),
+            'tenants_processed' => count($tenants)
         ]
     ]);
 
