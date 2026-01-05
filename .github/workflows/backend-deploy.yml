@@ -53,6 +53,8 @@ jobs:
             "docker pull '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest",
             "docker stop jagasewa-backend || true",
             "docker rm jagasewa-backend || true",
+            "docker image prune -af",
+            "docker volume prune -f",
             "docker run -d --name jagasewa-backend --restart unless-stopped -p 80:80 -e DB_SECRET_NAME=jagasewa-db-credentials-prod '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest"
           ]' \
           --output text

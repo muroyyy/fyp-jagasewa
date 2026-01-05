@@ -16,6 +16,7 @@ export default function LandlordPayments() {
   const [filterPaymentType, setFilterPaymentType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterMonth, setFilterMonth] = useState('all');
+  const [filterYear, setFilterYear] = useState('all');
   
   // Filter options
   const [filterOptions, setFilterOptions] = useState({
@@ -156,6 +157,7 @@ export default function LandlordPayments() {
     setFilterPaymentType('all');
     setFilterStatus('all');
     setFilterMonth('all');
+    setFilterYear('all');
   };
 
   // Filter logic
@@ -192,8 +194,18 @@ export default function LandlordPayments() {
       });
     }
 
+    // Year filter
+    if (filterYear !== 'all') {
+      filtered = filtered.filter(payment => {
+        const paymentYear = payment.payment_date ? 
+          new Date(payment.payment_date).getFullYear() : 
+          new Date(payment.due_date).getFullYear();
+        return paymentYear === parseInt(filterYear);
+      });
+    }
+
     setFilteredPayments(filtered);
-  }, [filterTenant, filterProperty, filterPaymentType, filterStatus, filterMonth, allPayments]);
+  }, [filterTenant, filterProperty, filterPaymentType, filterStatus, filterMonth, filterYear, allPayments]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -349,7 +361,7 @@ export default function LandlordPayments() {
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
             {/* Tenant Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
@@ -438,6 +450,22 @@ export default function LandlordPayments() {
                 <option value="9">October</option>
                 <option value="10">November</option>
                 <option value="11">December</option>
+              </select>
+            </div>
+
+            {/* Year Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+              <select
+                value={filterYear}
+                onChange={(e) => setFilterYear(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white cursor-pointer"
+              >
+                <option value="all">All Years</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
               </select>
             </div>
 
