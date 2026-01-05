@@ -6,6 +6,8 @@ const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
 export default function LandlordPayments() {
   const [payments, setPayments] = useState([]);
+  const [pendingPayments, setPendingPayments] = useState([]);
+  const [allPayments, setAllPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +35,7 @@ export default function LandlordPayments() {
   // Fetch payments data and filter options
   useEffect(() => {
     fetchPayments();
+    fetchPendingPayments();
     fetchFilterOptions();
   }, []);
 
@@ -92,6 +95,36 @@ export default function LandlordPayments() {
     }
   };
 
+  const fetchPendingPayments = async () => {
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      
+      const response = await fetch(`${API_BASE_URL}/api/landlord/pending-payments.php`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setPendingPayments(result.data.pending_payments || []);
+      }
+    } catch (error) {
+      console.error('Error fetching pending payments:', error);
+    }
+  };
+
+  // Combine payments and pending payments
+  useEffect(() => {
+    const combined = [...payments, ...pendingPayments];
+    setAllPayments(combined);
+    setFilteredPayments(combined);
+    calculateStats(combined);
+  }, [payments, pendingPayments]);
+
   const calculateStats = (paymentsData) => {
     const total = paymentsData.reduce((sum, p) => sum + parseFloat(p.amount), 0);
     
@@ -127,7 +160,7 @@ export default function LandlordPayments() {
 
   // Filter logic
   useEffect(() => {
-    let filtered = [...payments];
+    let filtered = [...allPayments];
 
     // Tenant filter
     if (filterTenant !== 'all') {
@@ -152,13 +185,15 @@ export default function LandlordPayments() {
     // Month filter
     if (filterMonth !== 'all') {
       filtered = filtered.filter(payment => {
-        const paymentMonth = new Date(payment.payment_date).getMonth();
+        const paymentMonth = payment.payment_date ? 
+          new Date(payment.payment_date).getMonth() : 
+          new Date(payment.due_date).getMonth();
         return paymentMonth === parseInt(filterMonth);
       });
     }
 
     setFilteredPayments(filtered);
-  }, [filterTenant, filterProperty, filterPaymentType, filterStatus, filterMonth, payments]);
+  }, [filterTenant, filterProperty, filterPaymentType, filterStatus, filterMonth, allPayments]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -166,6 +201,8 @@ export default function LandlordPayments() {
         return 'bg-green-100 text-green-800 border-green-200';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'overdue':
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'failed':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
@@ -375,6 +412,7 @@ export default function LandlordPayments() {
                 <option value="all">All Status</option>
                 <option value="completed">Completed</option>
                 <option value="pending">Pending</option>
+                <option value="overdue">Overdue</option>
                 <option value="failed">Failed</option>
               </select>
             </div>
@@ -477,8 +515,14 @@ export default function LandlordPayments() {
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 text-gray-400 mr-2" />
                           <span className="text-sm font-medium text-gray-900">
-                            {formatDate(payment.payment_date)}
+                            {payment.payment_date ? formatDate(payment.payment_date) : 
+                             payment.due_date ? `Due: ${formatDate(payment.due_date)}` : 'N/A'}
                           </span>
+                          {payment.days_overdue > 0 && (
+                            <span className="ml-2 text-xs text-red-600 font-medium">
+                              ({payment.days_overdue} days overdue)
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -494,10 +538,16 @@ export default function LandlordPayments() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
-                          <span className="text-lg">{getPaymentMethodIcon(payment.payment_method)}</span>
-                          <span className="text-sm text-gray-700 capitalize">
-                            {payment.payment_method} • {payment.payment_provider}
-                          </span>
+                          {payment.payment_method ? (
+                            <>
+                              <span className="text-lg">{getPaymentMethodIcon(payment.payment_method)}</span>
+                              <span className="text-sm text-gray-700 capitalize">
+                                {payment.payment_method} • {payment.payment_provider}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-sm text-gray-500">Awaiting Payment</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -507,7 +557,7 @@ export default function LandlordPayments() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-xs text-gray-500 font-mono">
-                          {payment.transaction_id}
+                          {payment.transaction_id || 'N/A'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -537,7 +587,7 @@ export default function LandlordPayments() {
         {/* Results Summary */}
         {filteredPayments.length > 0 && (
           <div className="mt-4 text-center text-sm text-gray-600">
-            Showing {filteredPayments.length} of {payments.length} payment{payments.length !== 1 ? 's' : ''}
+            Showing {filteredPayments.length} of {allPayments.length} payment{allPayments.length !== 1 ? 's' : ''}
           </div>
         )}
       </div>

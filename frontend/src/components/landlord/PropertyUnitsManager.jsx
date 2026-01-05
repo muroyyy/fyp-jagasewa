@@ -255,6 +255,12 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                       >
                         View Details
                       </button>
+                      <button 
+                        onClick={() => navigate(`/landlord/tenants/edit/${unit.tenant_id}`)}
+                        className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 cursor-pointer"
+                      >
+                        Edit
+                      </button>
                     </div>
                   </div>
                 </div>
