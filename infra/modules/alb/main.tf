@@ -83,7 +83,36 @@ resource "aws_lb_listener" "https_listener" {
     target_group_arn = aws_lb_target_group.backend_tg.arn
   }
 
+  # Add security headers
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "OK"
+      status_code  = "200"
+    }
+  }
+
   tags = {
     Name = "${var.project_name}-https-listener"
+  }
+}
+
+# ─────────────────────────────────────────────────────────
+# ALB Listener Rule for Security Headers
+# ─────────────────────────────────────────────────────────
+resource "aws_lb_listener_rule" "api_security_headers" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.backend_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
   }
 }

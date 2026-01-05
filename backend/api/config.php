@@ -1,6 +1,8 @@
 <?php
 include_once '../../config/cors.php';
+include_once '../../config/security_headers.php';
 setCorsHeaders();
+setSecurityHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);

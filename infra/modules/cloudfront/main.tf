@@ -3,6 +3,46 @@
 ##########################################################
 
 # ─────────────────────────────────────────────────────────
+# Response Headers Policy for Security
+# ─────────────────────────────────────────────────────────
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "${var.project_name}-security-headers"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+    content_type_options {
+      override = true
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "X-XSS-Protection"
+      value    = "1; mode=block"
+      override = true
+    }
+    items {
+      header   = "Content-Security-Policy"
+      value    = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.jagasewa.cloud;"
+      override = true
+    }
+  }
+}
+
+# ─────────────────────────────────────────────────────────
 # Origin Access Control for S3
 # ─────────────────────────────────────────────────────────
 resource "aws_cloudfront_origin_access_control" "s3_oac" {
@@ -29,11 +69,12 @@ resource "aws_cloudfront_distribution" "frontend" {
   aliases             = [var.domain_name]
 
   default_cache_behavior {
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${var.s3_bucket_name}"
-    compress               = true
-    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods               = ["GET", "HEAD"]
+    target_origin_id             = "S3-${var.s3_bucket_name}"
+    compress                     = true
+    viewer_protocol_policy       = "redirect-to-https"
+    response_headers_policy_id   = aws_cloudfront_response_headers_policy.security_headers.id
 
     forwarded_values {
       query_string = false
