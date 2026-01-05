@@ -66,7 +66,7 @@ function getBearerToken() {
  * @param bool $check_warning Whether to check for session warning (30 seconds left)
  * @return array|false User data array or false if invalid
  */
-function verifyJWT($token, $check_warning = false) {
+function verifySessionToken($token, $check_warning = false) {
     try {
         $database = new Database();
         $db = $database->getConnection();
@@ -203,6 +203,6 @@ function authenticate($check_warning = false) {
         return false;
     }
     
-    return verifyJWT($token, $check_warning);
+    return verifySessionToken($token, $check_warning);
 }
 ?>
