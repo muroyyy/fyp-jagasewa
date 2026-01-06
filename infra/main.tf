@@ -82,6 +82,7 @@ module "cloudfront" {
   s3_bucket_name        = module.s3.frontend_bucket_name
   s3_bucket_domain_name = module.s3.frontend_bucket_domain_name
   certificate_arn       = module.acm.cloudfront_certificate_arn
+  alb_dns_name          = module.alb.dns_name
 }
 
 module "alb" {

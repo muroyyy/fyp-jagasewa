@@ -27,3 +27,8 @@ variable "certificate_arn" {
   description = "ACM certificate ARN (us-east-1)"
   type        = string
 }
+
+variable "alb_dns_name" {
+  description = "ALB DNS name for backend API origin"
+  type        = string
+}

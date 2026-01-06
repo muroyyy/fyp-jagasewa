@@ -48,10 +48,24 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" {
 # CloudFront Distribution
 # ─────────────────────────────────────────────────────────
 resource "aws_cloudfront_distribution" "frontend" {
+  # S3 Origin for Frontend
   origin {
     domain_name              = var.s3_bucket_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
     origin_id                = "S3-${var.s3_bucket_name}"
+  }
+
+  # ALB Origin for Backend API
+  origin {
+    domain_name = var.alb_dns_name
+    origin_id   = "ALB-${var.project_name}"
+    
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
   }
 
   enabled             = true
@@ -59,6 +73,29 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_root_object = "index.html"
   aliases             = [var.domain_name]
 
+  # API Cache Behavior (for /api/* paths)
+  ordered_cache_behavior {
+    path_pattern             = "/api/*"
+    allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "ALB-${var.project_name}"
+    compress                 = true
+    viewer_protocol_policy   = "redirect-to-https"
+
+    forwarded_values {
+      query_string = true
+      headers      = ["Authorization", "Content-Type"]
+      cookies {
+        forward = "all"
+      }
+    }
+
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
+  }
+
+  # Default Cache Behavior (for frontend)
   default_cache_behavior {
     allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods               = ["GET", "HEAD"]
