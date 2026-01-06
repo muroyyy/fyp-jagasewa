@@ -46,18 +46,21 @@ export default function SignupLandlord() {
         cleaned = '+601';
       }
       
-      // Limit to +601 + 9 digits (total 13 characters)
-      if (cleaned.length > 13) {
-        cleaned = cleaned.slice(0, 13);
+      // Limit to +601 + 10 digits (total 14 characters for longest format)
+      if (cleaned.length > 14) {
+        cleaned = cleaned.slice(0, 14);
       }
       
-      // Format as +601X XXX XXXX
+      // Format as +601X XXX XXXX or +601X XXXX XXXX
       let formatted = cleaned;
       if (cleaned.length > 5) {
-        formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5);
-      }
-      if (cleaned.length > 8) {
-        formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 8) + ' ' + cleaned.slice(8);
+        // For 10-digit numbers: +601X XXX XXXX
+        if (cleaned.length <= 12) {
+          formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 8) + ' ' + cleaned.slice(8);
+        } else {
+          // For 11-digit numbers: +601X XXXX XXXX  
+          formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 9) + ' ' + cleaned.slice(9);
+        }
       }
       
       setFormData({
@@ -192,10 +195,10 @@ export default function SignupLandlord() {
       return;
     }
     
-    // Validate phone number format
+    // Validate phone number format - Malaysian numbers can be 10-11 digits after +60
     const phoneDigitsOnly = formData.phone.replace(/\D/g, '');
-    if (phoneDigitsOnly.length < 12 || phoneDigitsOnly.length > 13) {
-      setError('Please enter a valid Malaysian phone number (+601X XXX XXXX)');
+    if (phoneDigitsOnly.length < 11 || phoneDigitsOnly.length > 12) {
+      setError('Please enter a valid Malaysian phone number (+601X XXX XXXX or +601X XXXX XXXX)');
       return;
     }
 
@@ -355,10 +358,10 @@ export default function SignupLandlord() {
                     required
                     disabled={isLoading}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="+601X XXX XXXX"
+                    placeholder="+601X XXX XXXX or +601X XXXX XXXX"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Format: +601X XXX XXXX (10-11 digits)</p>
+                <p className="text-xs text-gray-500 mt-1">Format: +601X XXX XXXX or +601X XXXX XXXX</p>
               </div>
             </div>
 
