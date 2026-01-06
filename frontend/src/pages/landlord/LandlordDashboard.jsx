@@ -74,7 +74,7 @@ export default function LandlordDashboard() {
 
   return (
     <LandlordLayout>
-      <div className="p-4 sm:p-5 lg:p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+      <div className="p-4 sm:p-5 lg:p-6">
         {/* Error Message */}
         {error && (
           <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg">
@@ -118,13 +118,13 @@ export default function LandlordDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-3 gap-3 flex-1 min-h-0">
+        <div className="grid grid-cols-3 gap-3">
           {/* Financial Overview */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-            <h2 className="text-base font-bold text-gray-900 mb-2">Financial Overview</h2>
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 mb-3">Financial Overview</h2>
 
             {/* Compact Bar Chart */}
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex items-end justify-center gap-6 h-20 mb-3">
               {(() => {
                 const revenue = stats?.monthly_revenue || 0;
                 const expenses = stats?.total_expenses || 0;
@@ -133,72 +133,70 @@ export default function LandlordDashboard() {
                 const expensesHeight = (expenses / maxValue) * 100;
 
                 return (
-                  <div className="flex items-end justify-center gap-8 h-28">
+                  <>
                     {/* Revenue Bar */}
-                    <div className="flex flex-col items-center gap-1.5 w-14">
-                      <div className="w-full flex flex-col justify-end h-full relative">
+                    <div className="flex flex-col items-center gap-1 w-12">
+                      <div className="w-full flex flex-col justify-end h-12">
                         <div
-                          className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-lg transition-all duration-500"
+                          className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-md transition-all duration-500"
                           style={{
-                            height: `${Math.max(revenueHeight, 5)}%`,
-                            minHeight: revenue > 0 ? '16px' : '0px'
+                            height: `${Math.max(revenueHeight, 10)}%`,
+                            minHeight: '8px'
                           }}
                         ></div>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs font-medium text-green-600">Revenue</p>
-                        <p className="text-sm font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
+                        <p className="text-[10px] font-medium text-green-600">Revenue</p>
+                        <p className="text-xs font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
 
                     {/* Expenses Bar */}
-                    <div className="flex flex-col items-center gap-1.5 w-14">
-                      <div className="w-full flex flex-col justify-end h-full relative">
+                    <div className="flex flex-col items-center gap-1 w-12">
+                      <div className="w-full flex flex-col justify-end h-12">
                         <div
-                          className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-lg transition-all duration-500"
+                          className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-md transition-all duration-500"
                           style={{
-                            height: `${Math.max(expensesHeight, 5)}%`,
-                            minHeight: expenses > 0 ? '16px' : '0px'
+                            height: `${Math.max(expensesHeight, 10)}%`,
+                            minHeight: '8px'
                           }}
                         ></div>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs font-medium text-red-600">Expenses</p>
-                        <p className="text-sm font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
+                        <p className="text-[10px] font-medium text-red-600">Expenses</p>
+                        <p className="text-xs font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
 
             {/* Net Profit */}
-            <div className="pt-2 border-t border-gray-200 mt-2">
-              <div className="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="p-1 bg-blue-100 rounded-md">
-                    <DollarSign className="text-blue-600" size={14} />
-                  </div>
-                  <p className="text-xs font-medium text-gray-700">Net Profit</p>
+            <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="p-1 bg-blue-100 rounded-md">
+                  <DollarSign className="text-blue-600" size={12} />
                 </div>
-                <p className={`text-base font-bold ${
-                  ((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)) >= 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}>
-                  RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { maximumFractionDigits: 0 })}
-                </p>
+                <p className="text-xs font-medium text-gray-700">Net Profit</p>
               </div>
+              <p className={`text-sm font-bold ${
+                ((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}>
+                RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { maximumFractionDigits: 0 })}
+              </p>
             </div>
           </div>
 
           {/* Property Status */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-            <h2 className="text-base font-bold text-gray-900 mb-2">Property Status</h2>
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 mb-3">Property Status</h2>
 
             {/* Compact Pie Chart */}
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="relative w-20 h-20 mb-2">
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16 flex-shrink-0">
                 <svg viewBox="0 0 100 100" className="transform -rotate-90">
                   {(() => {
                     const occupied = stats?.property_status?.occupied || 0;
@@ -210,14 +208,10 @@ export default function LandlordDashboard() {
                       return <circle cx="50" cy="50" r="35" fill="#e5e7eb" />;
                     }
 
-                    const occupiedPercent = (occupied / total) * 100;
-                    const vacantPercent = (vacant / total) * 100;
-                    const maintenancePercent = (maintenance / total) * 100;
-
                     const circumference = 2 * Math.PI * 35;
-                    const occupiedLength = (occupiedPercent / 100) * circumference;
-                    const vacantLength = (vacantPercent / 100) * circumference;
-                    const maintenanceLength = (maintenancePercent / 100) * circumference;
+                    const occupiedLength = ((occupied / total) * 100 / 100) * circumference;
+                    const vacantLength = ((vacant / total) * 100 / 100) * circumference;
+                    const maintenanceLength = ((maintenance / total) * 100 / 100) * circumference;
 
                     return (
                       <>
@@ -230,30 +224,30 @@ export default function LandlordDashboard() {
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-base font-bold text-gray-900">{stats?.total_properties || 0}</p>
-                    <p className="text-[10px] text-gray-500">Total</p>
+                    <p className="text-sm font-bold text-gray-900">{stats?.total_properties || 0}</p>
+                    <p className="text-[8px] text-gray-500">Total</p>
                   </div>
                 </div>
               </div>
 
               {/* Compact Legend */}
-              <div className="space-y-1 w-full mt-1">
+              <div className="space-y-1.5 flex-1">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     <span className="text-xs text-gray-700">Occupied</span>
                   </div>
                   <span className="text-xs font-bold text-gray-900">{stats?.property_status?.occupied || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                     <span className="text-xs text-gray-700">Vacant</span>
                   </div>
                   <span className="text-xs font-bold text-gray-900">{stats?.property_status?.vacant || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                     <span className="text-xs text-gray-700">Maintenance</span>
                   </div>
@@ -264,58 +258,58 @@ export default function LandlordDashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-base font-bold text-gray-900 mb-2">Quick Actions</h2>
 
-            <div className="flex-1 flex flex-col justify-center space-y-2">
+            <div className="space-y-1.5">
               <button
                 onClick={() => navigate('/landlord/properties')}
-                className="w-full p-2.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left cursor-pointer"
+                className="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-blue-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Manage Properties</p>
-                    <p className="text-xs text-gray-600">Add or edit properties</p>
+                    <p className="text-[10px] text-gray-600">Add or edit properties</p>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => navigate('/landlord/tenants')}
-                className="w-full p-2.5 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left cursor-pointer"
+                className="w-full p-2 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-green-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Tenant Management</p>
-                    <p className="text-xs text-gray-600">View tenant details</p>
+                    <p className="text-[10px] text-gray-600">View tenant details</p>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => navigate('/landlord/payments')}
-                className="w-full p-2.5 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-left cursor-pointer"
+                className="w-full p-2 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-left cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-purple-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Payment Records</p>
-                    <p className="text-xs text-gray-600">Track payments</p>
+                    <p className="text-[10px] text-gray-600">Track payments</p>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => navigate('/landlord/maintenance')}
-                className="w-full p-2.5 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors text-left cursor-pointer"
+                className="w-full p-2 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors text-left cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <Wrench className="w-4 h-4 text-orange-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Maintenance</p>
-                    <p className="text-xs text-gray-600">Handle requests</p>
+                    <p className="text-[10px] text-gray-600">Handle requests</p>
                   </div>
                 </div>
               </button>
