@@ -38,6 +38,17 @@ export default function SignupLandlord() {
     
     // Handle phone number input with max length
     if (name === 'phone') {
+      // Allow deletion by checking if user is deleting
+      if (value.length < formData.phone.length) {
+        // User is deleting - allow it but maintain +601 prefix
+        if (value.length < 4) {
+          setFormData({ ...formData, [name]: '+601' });
+        } else {
+          setFormData({ ...formData, [name]: value });
+        }
+        return;
+      }
+      
       // Remove all non-digit characters except the + at the start
       let cleaned = value.replace(/[^\d+]/g, '');
       
@@ -482,7 +493,7 @@ export default function SignupLandlord() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type="password"
                     id="password"
                     name="password"
                     value={formData.password}
@@ -490,6 +501,7 @@ export default function SignupLandlord() {
                     required
                     minLength="8"
                     disabled={isLoading}
+                    autoComplete="new-password"
                     className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="••••••••"
                   />
@@ -519,6 +531,7 @@ export default function SignupLandlord() {
                     required
                     minLength="8"
                     disabled={isLoading}
+                    autoComplete="new-password"
                     className={`w-full pl-11 pr-12 py-3 border rounded-xl focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       passwordMatch === null ? 'border-gray-300 focus:ring-blue-500' :
                       passwordMatch ? 'border-green-500 focus:ring-green-500' :
