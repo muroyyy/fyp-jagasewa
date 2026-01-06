@@ -44,23 +44,19 @@ export default function SignupTenant() {
     if (name === 'phone') {
       if (!value.startsWith('+601')) return;
       const digitsOnly = value.slice(4).replace(/\D/g, '');
-      const limitedDigits = digitsOnly.slice(0, 10); // Allow up to 10 digits after +601
+      const limitedDigits = digitsOnly.slice(0, 9); // Allow exactly 8-9 digits after +601
       let formatted = '+601';
       if (limitedDigits.length > 0) {
         formatted += limitedDigits[0];
         if (limitedDigits.length > 1) {
-          // For 10-digit numbers: +601X XXX XXXX
+          // For 8-digit numbers: +601X XXX XXXX
           if (limitedDigits.length <= 4) {
             formatted += ' ' + limitedDigits.slice(1);
           } else if (limitedDigits.length <= 7) {
             formatted += ' ' + limitedDigits.slice(1, 4) + ' ' + limitedDigits.slice(4);
           } else {
-            // For 11-digit numbers: +601X XXXX XXXX
-            if (limitedDigits.length <= 8) {
-              formatted += ' ' + limitedDigits.slice(1, 5) + ' ' + limitedDigits.slice(5);
-            } else {
-              formatted += ' ' + limitedDigits.slice(1, 5) + ' ' + limitedDigits.slice(5, 9);
-            }
+            // For 9-digit numbers: +601X XXXX XXXX
+            formatted += ' ' + limitedDigits.slice(1, 5) + ' ' + limitedDigits.slice(5);
           }
         }
       }
@@ -465,7 +461,7 @@ export default function SignupTenant() {
                     onChange={handleChange}
                     required
                     disabled={isLoading}
-                    maxLength="18"
+                    maxLength="17"
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                     placeholder="+601X XXX XXXX or +601X XXXX XXXX"
                   />

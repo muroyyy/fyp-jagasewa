@@ -46,19 +46,19 @@ export default function SignupLandlord() {
         cleaned = '+601';
       }
       
-      // Limit to +601 + 10 digits (total 14 characters for longest format)
-      if (cleaned.length > 14) {
-        cleaned = cleaned.slice(0, 14);
+      // Limit to +601 + 9 digits maximum (total 13 characters)
+      if (cleaned.length > 13) {
+        cleaned = cleaned.slice(0, 13);
       }
       
-      // Format as +601X XXX XXXX or +601X XXXX XXXX
+      // Format as +601X XXX XXXX (8 digits) or +601X XXXX XXXX (9 digits)
       let formatted = cleaned;
       if (cleaned.length > 5) {
-        // For 10-digit numbers: +601X XXX XXXX
+        // For 8-digit numbers: +601X XXX XXXX
         if (cleaned.length <= 12) {
           formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 8) + ' ' + cleaned.slice(8);
         } else {
-          // For 11-digit numbers: +601X XXXX XXXX  
+          // For 9-digit numbers: +601X XXXX XXXX  
           formatted = cleaned.slice(0, 5) + ' ' + cleaned.slice(5, 9) + ' ' + cleaned.slice(9);
         }
       }
