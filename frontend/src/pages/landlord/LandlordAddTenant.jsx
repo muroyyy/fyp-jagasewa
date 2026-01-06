@@ -23,6 +23,7 @@ export default function LandlordAddTenant() {
     move_out_date: ''
   });
   const [invitationLink, setInvitationLink] = useState(null);
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -229,7 +230,8 @@ export default function LandlordAddTenant() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(invitationLink);
-                      alert('Link copied to clipboard!');
+                      setShowCopyNotification(true);
+                      setTimeout(() => setShowCopyNotification(false), 3000);
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm cursor-pointer"
                   >
@@ -415,6 +417,14 @@ export default function LandlordAddTenant() {
             <li>Invitation links expire after 7 days</li>
           </ul>
         </div>
+
+        {/* Copy Notification */}
+        {showCopyNotification && (
+          <div className="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2">
+            <Save className="w-5 h-5" />
+            <span>Link copied to clipboard!</span>
+          </div>
+        )}
       </div>
     </LandlordLayout>
   );
