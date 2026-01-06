@@ -99,7 +99,44 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
 
   const handleCardChange = (e) => {
     const { name, value } = e.target;
-    setCardDetails(prev => ({ ...prev, [name]: value }));
+    let formattedValue = value;
+    
+    if (name === 'number') {
+      // Remove all non-digits and limit to 16 digits
+      const digits = value.replace(/\D/g, '').slice(0, 16);
+      // Add spaces every 4 digits
+      formattedValue = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+    } else if (name === 'name') {
+      // Convert to uppercase
+      formattedValue = value.toUpperCase();
+    } else if (name === 'expiry') {
+      // Remove all non-digits and limit to 4 digits
+      const digits = value.replace(/\D/g, '').slice(0, 4);
+      
+      if (digits.length >= 2) {
+        const month = digits.slice(0, 2);
+        const year = digits.slice(2, 4);
+        
+        // Validate month (01-12)
+        if (parseInt(month) > 12 || parseInt(month) < 1) {
+          return; // Don't update if invalid month
+        }
+        
+        // Validate year (current year or future)
+        if (year.length === 2) {
+          const currentYear = new Date().getFullYear() % 100; // Get last 2 digits of current year
+          if (parseInt(year) < currentYear) {
+            return; // Don't update if year is in the past
+          }
+        }
+        
+        formattedValue = month + (year ? '/' + year : '');
+      } else {
+        formattedValue = digits;
+      }
+    }
+    
+    setCardDetails(prev => ({ ...prev, [name]: formattedValue }));
   };
 
   const handleConfirm = () => {
@@ -175,7 +212,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
             {step > 1 && step < 4 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -351,7 +388,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
                       name="name"
                       value={cardDetails.name}
                       onChange={handleCardChange}
-                      placeholder="JOHN DOE"
+                      placeholder="Enter cardholder name"
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     />
                   </div>
@@ -392,7 +429,7 @@ export default function PaymentModal({ amount, onClose, onSuccess }) {
               <button
                 onClick={handleConfirm}
                 disabled={selectedMethod === 'card' ? !cardDetails.number || !cardDetails.name : !selectedProvider}
-                className="w-full py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue to Confirmation
               </button>
