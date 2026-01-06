@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, CreditCard, Calendar, Receipt, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { DollarSign, CreditCard, Calendar, Receipt } from 'lucide-react';
 import { getCurrentUser } from '../../utils/auth';
 import TenantLayout from '../../components/layout/TenantLayout';
 import PaymentModal from '../../components/modals/PaymentModal';
@@ -12,7 +12,6 @@ export default function TenantPayments() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [nextPayment, setNextPayment] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
-  const [paymentSummary, setPaymentSummary] = useState(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -20,7 +19,6 @@ export default function TenantPayments() {
       setUser(currentUser);
       fetchPayments();
       fetchPaymentStatus();
-      fetchPaymentSummary();
     } else {
       window.location.href = '/login';
     }
@@ -75,31 +73,10 @@ export default function TenantPayments() {
     }
   };
 
-  const fetchPaymentSummary = async () => {
-    try {
-      const token = localStorage.getItem('session_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tenant/payment-summary.php`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setPaymentSummary(data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching payment summary:', err);
-    }
-  };
-
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
     fetchPayments();
     fetchPaymentStatus();
-    fetchPaymentSummary();
   };
 
   const formatDate = (dateString) => {
@@ -140,98 +117,6 @@ export default function TenantPayments() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Payments</h1>
           <p className="text-gray-600">Manage your rent payments and view history</p>
         </div>
-
-        {/* Payment Summary Section */}
-        {paymentSummary && (
-          <div className="mb-8">
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 mb-6 border border-green-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                Payment Summary
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-xl shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Total Paid</span>
-                    <DollarSign className="w-4 h-4 text-green-600" />
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {formatAmount(paymentSummary.financial.total_paid)}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {paymentSummary.financial.total_payments} payments
-                  </p>
-                </div>
-                
-                <div className="bg-white p-4 rounded-xl shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">On-Time Rate</span>
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {paymentSummary.payment_behavior.on_time_percentage}%
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {paymentSummary.payment_behavior.completed_payments} completed
-                  </p>
-                </div>
-                
-                <div className="bg-white p-4 rounded-xl shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Payment Streak</span>
-                    <Clock className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {paymentSummary.payment_behavior.payment_streak}
-                  </p>
-                  <p className="text-xs text-gray-500">consecutive months</p>
-                </div>
-                
-                <div className="bg-white p-4 rounded-xl shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Tenancy</span>
-                    <Calendar className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {paymentSummary.timeline.tenancy_months}
-                  </p>
-                  <p className="text-xs text-gray-500">months</p>
-                </div>
-              </div>
-              
-              {/* Current Status Indicator */}
-              <div className="mt-4 flex items-center space-x-4">
-                <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
-                  paymentSummary.timeline.current_month_paid 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {paymentSummary.timeline.current_month_paid ? (
-                    <CheckCircle className="w-4 h-4" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4" />
-                  )}
-                  <span className="text-sm font-medium">
-                    {paymentSummary.timeline.current_month_paid 
-                      ? 'Current month paid' 
-                      : 'Payment pending for current month'
-                    }
-                  </span>
-                </div>
-                
-                {paymentSummary.payment_behavior.pending_payments > 0 && (
-                  <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-orange-100 text-orange-800">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {paymentSummary.payment_behavior.pending_payments} pending payment(s)
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
