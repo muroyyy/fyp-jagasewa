@@ -148,6 +148,15 @@ const PropertyUnitsManager = ({ property, onBack }) => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -235,7 +244,7 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                     </div>
                     {unit.move_in_date && (
                       <div className="text-blue-600 text-sm">
-                        <span className="font-medium">Move-in:</span> {new Date(unit.move_in_date).toLocaleDateString()}
+                        <span className="font-medium">Move-in:</span> {formatDate(unit.move_in_date)}
                       </div>
                     )}
                     {unit.tenant_status && (
@@ -569,13 +578,13 @@ const PropertyUnitsManager = ({ property, onBack }) => {
                       {selectedTenant.move_in_date && (
                         <div>
                           <span className="text-sm text-green-600 font-medium">Move-in Date:</span>
-                          <p className="text-green-900">{new Date(selectedTenant.move_in_date).toLocaleDateString()}</p>
+                          <p className="text-green-900">{formatDate(selectedTenant.move_in_date)}</p>
                         </div>
                       )}
                       {selectedTenant.move_out_date && (
                         <div>
                           <span className="text-sm text-green-600 font-medium">Move-out Date:</span>
-                          <p className="text-green-900">{new Date(selectedTenant.move_out_date).toLocaleDateString()}</p>
+                          <p className="text-green-900">{formatDate(selectedTenant.move_out_date)}</p>
                         </div>
                       )}
                       {!selectedTenant.move_out_date && selectedTenant.move_in_date && (
