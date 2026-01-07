@@ -51,6 +51,25 @@ resource "aws_iam_policy" "github_asg_policy" {
   })
 }
 
+# SNS Policy for GitHub Actions
+resource "aws_iam_policy" "github_sns_policy" {
+  name        = "GitHubActions-SNS-Policy"
+  description = "Allows GitHub Actions to list SNS topics"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:ListTopics"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Attach policies to user
 resource "aws_iam_user_policy_attachment" "github_ecr" {
   user       = aws_iam_user.github_deployer.name
@@ -60,6 +79,11 @@ resource "aws_iam_user_policy_attachment" "github_ecr" {
 resource "aws_iam_user_policy_attachment" "github_asg" {
   user       = aws_iam_user.github_deployer.name
   policy_arn = aws_iam_policy.github_asg_policy.arn
+}
+
+resource "aws_iam_user_policy_attachment" "github_sns" {
+  user       = aws_iam_user.github_deployer.name
+  policy_arn = aws_iam_policy.github_sns_policy.arn
 }
 
 # EC2 Role for SNS publishing

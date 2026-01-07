@@ -42,10 +42,8 @@ jobs:
         INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+        SNS_TOPIC_ARN: ${{ secrets.SNS_PAYMENT_REMINDERS_TOPIC_ARN }}
       run: |
-        # Get SNS Topic ARN from Terraform outputs
-        SNS_TOPIC_ARN=$(aws sns list-topics --query "Topics[?contains(TopicArn, 'jagasewa-payment-reminders-prod')].TopicArn" --output text)
-        
         aws ssm send-command \
           --instance-ids $INSTANCE_ID \
           --document-name "AWS-RunShellScript" \
