@@ -43,6 +43,9 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
       run: |
+        # Get SNS Topic ARN from Terraform outputs
+        SNS_TOPIC_ARN=$(aws sns list-topics --query "Topics[?contains(TopicArn, 'jagasewa-payment-reminders-prod')].TopicArn" --output text)
+        
         aws ssm send-command \
           --instance-ids $INSTANCE_ID \
           --document-name "AWS-RunShellScript" \
@@ -53,7 +56,7 @@ jobs:
             "docker pull '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest",
             "docker stop jagasewa-backend || true",
             "docker rm jagasewa-backend || true",
-            "docker run -d --name jagasewa-backend --restart unless-stopped -p 80:80 -e DB_SECRET_NAME=jagasewa-db-credentials-prod '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest",
+            "docker run -d --name jagasewa-backend --restart unless-stopped -p 80:80 -e DB_SECRET_NAME=jagasewa-db-credentials-prod -e SNS_PAYMENT_REMINDERS_TOPIC_ARN='"$SNS_TOPIC_ARN"' '"$ECR_REGISTRY"'/'"$ECR_REPOSITORY"':latest",
             "docker image prune -af",
             "docker volume prune -f"
           ]' \

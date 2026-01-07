@@ -163,6 +163,12 @@ module "iam" {
   source = "./modules/iam"
 }
 
+module "sns" {
+  source        = "./modules/sns"
+  environment   = var.environment
+  ec2_role_arn  = module.iam.ec2_role_arn
+}
+
 # Update S3 bucket policy with specific CloudFront distribution ID
 resource "aws_s3_bucket_policy" "frontend_policy_specific" {
   bucket     = module.s3.frontend_bucket_name

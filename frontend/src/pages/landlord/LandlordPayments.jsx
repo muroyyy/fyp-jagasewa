@@ -293,7 +293,8 @@ export default function LandlordPayments() {
         body: JSON.stringify({
           tenant_id: payment.tenant_id,
           payment_period: payment.payment_period || new Date().toISOString().slice(0, 7),
-          message: null // Use default message
+          message: null, // Use default message
+          send_email: true // Enable email notifications
         })
       });
 
@@ -301,6 +302,12 @@ export default function LandlordPayments() {
 
       if (result.success) {
         setReminderSuccess(prev => ({ ...prev, [paymentKey]: true }));
+        
+        // Show success message with notification methods
+        const methods = result.notification_methods || ['system'];
+        const emailSent = result.email_sent ? ' + Email' : '';
+        alert(`Reminder sent successfully via: ${methods.join(', ')}${emailSent}`);
+        
         // Clear success message after 3 seconds
         setTimeout(() => {
           setReminderSuccess(prev => ({ ...prev, [paymentKey]: false }));

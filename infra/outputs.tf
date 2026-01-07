@@ -56,3 +56,13 @@ output "dynamodb_conversations_table" {
   description = "DynamoDB conversations table name"
   value       = module.dynamodb.conversations_table_name
 }
+
+output "sns_topic_arn" {
+  description = "SNS topic ARN for payment reminders"
+  value       = module.sns.sns_topic_arn
+}
+
+output "ec2_instance_profile" {
+  description = "EC2 instance profile name for SNS permissions"
+  value       = module.iam.ec2_instance_profile_name
+}

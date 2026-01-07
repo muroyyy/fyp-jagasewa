@@ -2,6 +2,7 @@
 require_once '../config/cors.php';
 require_once '../config/database.php';
 require_once '../config/auth_helper.php';
+require_once '../config/sns_helper.php';
 
 setCorsHeaders();
 
@@ -32,6 +33,7 @@ if (!isset($input['tenant_id']) || !isset($input['payment_period'])) {
 $tenant_id = (int)$input['tenant_id'];
 $payment_period = $input['payment_period']; // Format: YYYY-MM
 $custom_message = $input['message'] ?? null;
+$send_email = $input['send_email'] ?? true; // Default to true
 
 try {
     $pdo = getDBConnection();
@@ -89,11 +91,37 @@ try {
         $reminder_type = 'upcoming';
     }
     
+    $notification_methods = ['system'];
+    $sns_message_id = null;
+    
+    // Send email via SNS if requested
+    if ($send_email) {
+        $snsHelper = new SNSHelper();
+        $emailData = [
+            'tenant_name' => $tenant['full_name'],
+            'tenant_email' => $tenant['email'],
+            'property_name' => $tenant['property_name'],
+            'unit_number' => $tenant['unit_number'],
+            'payment_period' => $payment_period,
+            'amount' => $tenant['monthly_rent'],
+            'reminder_type' => $reminder_type
+        ];
+        
+        $snsResult = $snsHelper->sendPaymentReminderEmail($emailData);
+        
+        if ($snsResult['success']) {
+            $notification_methods[] = 'email';
+            $sns_message_id = $snsResult['message_id'];
+        } else {
+            error_log("Failed to send SNS email: " . $snsResult['error']);
+        }
+    }
+    
     // Insert reminder record
     $stmt = $pdo->prepare("
         INSERT INTO payment_reminders 
-        (tenant_id, property_id, unit_id, payment_period, reminder_type, sent_by, message, notification_method)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'system')
+        (tenant_id, property_id, unit_id, payment_period, reminder_type, sent_by, message, notification_method, sns_message_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         $tenant_id,
@@ -102,7 +130,9 @@ try {
         $payment_period,
         $reminder_type,
         $landlord_id,
-        $custom_message
+        $custom_message,
+        implode(',', $notification_methods),
+        $sns_message_id
     ]);
     
     // Create system message for tenant
@@ -141,6 +171,8 @@ try {
         'message' => 'Payment reminder sent successfully',
         'reminder_type' => $reminder_type,
         'tenant_name' => $tenant['full_name'],
+        'notification_methods' => $notification_methods,
+        'email_sent' => in_array('email', $notification_methods),
         'sent_at' => date('Y-m-d H:i:s')
     ]);
     
