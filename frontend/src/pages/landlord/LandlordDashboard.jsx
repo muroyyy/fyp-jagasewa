@@ -74,38 +74,38 @@ export default function LandlordDashboard() {
 
   return (
     <LandlordLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="p-4 sm:p-5 lg:p-6">
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg">
             {error}
           </div>
         )}
 
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-3">
+          <h1 className="text-xl font-bold text-gray-900 mb-0.5">
             Welcome back, {profile?.full_name || 'Landlord'}!
           </h1>
-          <p className="text-gray-600">Here's what's happening with your properties today.</p>
+          <p className="text-gray-600 text-sm">Here's what's happening with your properties today.</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-4 gap-3 mb-3">
           {statsCards.map((stat, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+            <div key={idx} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-xs text-gray-600 mb-0.5">{stat.label}</p>
+                  <p className="text-lg font-bold text-gray-900">{stat.value}</p>
                 </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   stat.color === 'blue' ? 'bg-blue-100' :
                   stat.color === 'green' ? 'bg-green-100' :
                   stat.color === 'purple' ? 'bg-purple-100' :
                   'bg-orange-100'
                 }`}>
-                  <stat.icon className={`w-6 h-6 ${
+                  <stat.icon className={`w-4 h-4 ${
                     stat.color === 'blue' ? 'text-blue-600' :
                     stat.color === 'green' ? 'text-green-600' :
                     stat.color === 'purple' ? 'text-purple-600' :
@@ -117,253 +117,202 @@ export default function LandlordDashboard() {
           ))}
         </div>
 
-        {/* Financial Overview & Property Status */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-3 gap-3">
           {/* Financial Overview */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Financial Overview</h2>
-            
-            {/* Bar Chart */}
-            <div className="mb-6">
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 mb-3">Financial Overview</h2>
+
+            {/* Compact Bar Chart */}
+            <div className="flex items-end justify-center gap-6 h-20 mb-3">
               {(() => {
                 const revenue = stats?.monthly_revenue || 0;
                 const expenses = stats?.total_expenses || 0;
                 const maxValue = Math.max(revenue, expenses, 1);
                 const revenueHeight = (revenue / maxValue) * 100;
                 const expensesHeight = (expenses / maxValue) * 100;
-                
+
                 return (
-                  <div className="flex items-end justify-center gap-12 h-80 px-4">
+                  <>
                     {/* Revenue Bar */}
-                    <div className="flex flex-col items-center gap-3 w-32">
-                      <div className="w-full flex flex-col justify-end h-full relative">
-                        <div 
-                          className="w-full bg-gradient-to-t from-green-600 via-green-500 to-green-400 rounded-t-xl transition-all duration-700 ease-out hover:shadow-2xl hover:scale-105 relative group shadow-lg"
-                          style={{ 
-                            height: `${Math.max(revenueHeight, 5)}%`,
-                            minHeight: revenue > 0 ? '40px' : '0px'
+                    <div className="flex flex-col items-center gap-1 w-12">
+                      <div className="w-full flex flex-col justify-end h-12">
+                        <div
+                          className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-md transition-all duration-500"
+                          style={{
+                            height: `${Math.max(revenueHeight, 10)}%`,
+                            minHeight: '8px'
                           }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-t-xl"></div>
-                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-10">
-                            RM {revenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
-                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
-                          </div>
-                        </div>
+                        ></div>
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-xs font-semibold text-green-600 uppercase tracking-wide">Revenue</p>
-                        <p className="text-lg font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
+                      <div className="text-center">
+                        <p className="text-[10px] font-medium text-green-600">Revenue</p>
+                        <p className="text-xs font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
 
                     {/* Expenses Bar */}
-                    <div className="flex flex-col items-center gap-3 w-32">
-                      <div className="w-full flex flex-col justify-end h-full relative">
-                        <div 
-                          className="w-full bg-gradient-to-t from-red-600 via-red-500 to-red-400 rounded-t-xl transition-all duration-700 ease-out hover:shadow-2xl hover:scale-105 relative group shadow-lg"
-                          style={{ 
-                            height: `${Math.max(expensesHeight, 5)}%`,
-                            minHeight: expenses > 0 ? '40px' : '0px'
+                    <div className="flex flex-col items-center gap-1 w-12">
+                      <div className="w-full flex flex-col justify-end h-12">
+                        <div
+                          className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-md transition-all duration-500"
+                          style={{
+                            height: `${Math.max(expensesHeight, 10)}%`,
+                            minHeight: '8px'
                           }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-t-xl"></div>
-                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-10">
-                            RM {expenses.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
-                            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
-                          </div>
-                        </div>
+                        ></div>
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-xs font-semibold text-red-600 uppercase tracking-wide">Expenses</p>
-                        <p className="text-lg font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
+                      <div className="text-center">
+                        <p className="text-[10px] font-medium text-red-600">Expenses</p>
+                        <p className="text-xs font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
 
-            {/* Net Profit Summary */}
-            <div className="pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between p-5 bg-blue-50 rounded-xl hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-100 rounded-lg">
-                    <DollarSign className="text-blue-600" size={22} />
-                  </div>
-                  <p className="text-sm font-semibold text-gray-700">Net Profit This Month</p>
+            {/* Net Profit */}
+            <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="p-1 bg-blue-100 rounded-md">
+                  <DollarSign className="text-blue-600" size={12} />
                 </div>
-                <p className={`text-2xl font-bold ${
-                  ((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)) >= 0 
-                    ? 'text-green-600' 
-                    : 'text-red-600'
-                }`}>
-                  RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
+                <p className="text-xs font-medium text-gray-700">Net Profit</p>
               </div>
+              <p className={`text-sm font-bold ${
+                ((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}>
+                RM {((stats?.monthly_revenue || 0) - (stats?.total_expenses || 0)).toLocaleString('en-MY', { maximumFractionDigits: 0 })}
+              </p>
             </div>
           </div>
 
-          {/* Property Status Distribution */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Property Status Distribution</h2>
-            
-            {/* Pie Chart */}
-            <div className="flex flex-col items-center">
-              <div className="relative w-48 h-48 mb-6">
+          {/* Property Status */}
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 mb-3">Property Status</h2>
+
+            {/* Compact Pie Chart */}
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16 flex-shrink-0">
                 <svg viewBox="0 0 100 100" className="transform -rotate-90">
                   {(() => {
                     const occupied = stats?.property_status?.occupied || 0;
                     const vacant = stats?.property_status?.vacant || 0;
                     const maintenance = stats?.property_status?.maintenance || 0;
                     const total = occupied + vacant + maintenance;
-                    
+
                     if (total === 0) {
-                      return <circle cx="50" cy="50" r="40" fill="#e5e7eb" />;
+                      return <circle cx="50" cy="50" r="35" fill="#e5e7eb" />;
                     }
-                    
-                    const occupiedPercent = (occupied / total) * 100;
-                    const vacantPercent = (vacant / total) * 100;
-                    const maintenancePercent = (maintenance / total) * 100;
-                    
-                    const circumference = 2 * Math.PI * 40;
-                    const occupiedLength = (occupiedPercent / 100) * circumference;
-                    const vacantLength = (vacantPercent / 100) * circumference;
-                    const maintenanceLength = (maintenancePercent / 100) * circumference;
-                    
+
+                    const circumference = 2 * Math.PI * 35;
+                    const occupiedLength = ((occupied / total) * 100 / 100) * circumference;
+                    const vacantLength = ((vacant / total) * 100 / 100) * circumference;
+                    const maintenanceLength = ((maintenance / total) * 100 / 100) * circumference;
+
                     return (
                       <>
-                        {/* Occupied */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#10b981"
-                          strokeWidth="20"
-                          strokeDasharray={`${occupiedLength} ${circumference}`}
-                          strokeDashoffset="0"
-                          className="transition-all duration-500"
-                        />
-                        {/* Vacant */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#eab308"
-                          strokeWidth="20"
-                          strokeDasharray={`${vacantLength} ${circumference}`}
-                          strokeDashoffset={-occupiedLength}
-                          className="transition-all duration-500"
-                        />
-                        {/* Maintenance */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#f97316"
-                          strokeWidth="20"
-                          strokeDasharray={`${maintenanceLength} ${circumference}`}
-                          strokeDashoffset={-(occupiedLength + vacantLength)}
-                          className="transition-all duration-500"
-                        />
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="#10b981" strokeWidth="15" strokeDasharray={`${occupiedLength} ${circumference}`} strokeDashoffset="0" />
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="#eab308" strokeWidth="15" strokeDasharray={`${vacantLength} ${circumference}`} strokeDashoffset={-occupiedLength} />
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="#f97316" strokeWidth="15" strokeDasharray={`${maintenanceLength} ${circumference}`} strokeDashoffset={-(occupiedLength + vacantLength)} />
                       </>
                     );
                   })()}
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-gray-900">{stats?.total_properties || 0}</p>
-                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="text-sm font-bold text-gray-900">{stats?.total_properties || 0}</p>
+                    <p className="text-[8px] text-gray-500">Total</p>
                   </div>
                 </div>
               </div>
-              
-              {/* Legend */}
-              <div className="space-y-3 w-full">
+
+              {/* Compact Legend */}
+              <div className="space-y-1.5 flex-1">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <span className="text-sm text-gray-700">Occupied</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-xs text-gray-700">Occupied</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-gray-900">{stats?.property_status?.occupied || 0}</span>
-                    <span className="text-xs text-gray-500 ml-1">({stats?.total_properties > 0 ? (((stats?.property_status?.occupied || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%)</span>
-                  </div>
+                  <span className="text-xs font-bold text-gray-900">{stats?.property_status?.occupied || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                    <span className="text-sm text-gray-700">Vacant</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <span className="text-xs text-gray-700">Vacant</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-gray-900">{stats?.property_status?.vacant || 0}</span>
-                    <span className="text-xs text-gray-500 ml-1">({stats?.total_properties > 0 ? (((stats?.property_status?.vacant || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%)</span>
-                  </div>
+                  <span className="text-xs font-bold text-gray-900">{stats?.property_status?.vacant || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-                    <span className="text-sm text-gray-700">Maintenance</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                    <span className="text-xs text-gray-700">Maintenance</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-gray-900">{stats?.property_status?.maintenance || 0}</span>
-                    <span className="text-xs text-gray-500 ml-1">({stats?.total_properties > 0 ? (((stats?.property_status?.maintenance || 0) / stats?.total_properties) * 100).toFixed(1) : 0}%)</span>
-                  </div>
+                  <span className="text-xs font-bold text-gray-900">{stats?.property_status?.maintenance || 0}</span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Recent Properties */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Properties</h2>
-            <div className="text-center py-8 text-gray-500">
-              <Building2 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No properties added yet</p>
-              <button 
+          {/* Quick Actions */}
+          <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 mb-2">Quick Actions</h2>
+
+            <div className="space-y-1.5">
+              <button
                 onClick={() => navigate('/landlord/properties')}
-                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                className="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left cursor-pointer"
               >
-                Add Property
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Manage Properties</p>
+                    <p className="text-[10px] text-gray-600">Add or edit properties</p>
+                  </div>
+                </div>
               </button>
-            </div>
-          </div>
 
-          {/* Recent Activity */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="text-center py-8 text-gray-500">
-              <Bell className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No recent activity</p>
-            </div>
-          </div>
-        </div>
+              <button
+                onClick={() => navigate('/landlord/tenants')}
+                className="w-full p-2 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-green-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Tenant Management</p>
+                    <p className="text-[10px] text-gray-600">View tenant details</p>
+                  </div>
+                </div>
+              </button>
 
-        {/* Account Information */}
-        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Account Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Full Name</p>
-              <p className="text-gray-900 font-medium">{profile?.full_name || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Email</p>
-              <p className="text-gray-900 font-medium">{profile?.email || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Phone</p>
-              <p className="text-gray-900 font-medium">{profile?.phone || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Company</p>
-              <p className="text-gray-900 font-medium">{profile?.company_name || 'N/A'}</p>
+              <button
+                onClick={() => navigate('/landlord/payments')}
+                className="w-full p-2 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Payment Records</p>
+                    <p className="text-[10px] text-gray-600">Track payments</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/landlord/maintenance')}
+                className="w-full p-2 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Wrench className="w-4 h-4 text-orange-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Maintenance</p>
+                    <p className="text-[10px] text-gray-600">Handle requests</p>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>
