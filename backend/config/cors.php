@@ -10,13 +10,12 @@ function setCorsHeaders() {
 
     if (in_array($origin, $allowed_origins)) {
         header("Access-Control-Allow-Origin: $origin");
-        header("Vary: Origin");
     } else {
-        // For Safari compatibility, don't set credentials with wildcard-like behavior
+        // Fallback to main domain
         header("Access-Control-Allow-Origin: https://jagasewa.cloud");
-        header("Vary: Origin");
     }
-
+    
+    header("Vary: Origin");
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
     header("Access-Control-Max-Age: 86400");

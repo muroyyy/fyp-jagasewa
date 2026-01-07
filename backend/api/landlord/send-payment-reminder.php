@@ -1,12 +1,28 @@
 <?php
-require_once '../config/cors.php';
-require_once '../config/database.php';
-require_once '../config/auth_helper.php';
-require_once '../config/sns_helper.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
 
+// Log the request
+error_log("Payment reminder request: " . $_SERVER['REQUEST_METHOD'] . " from " . ($_SERVER['HTTP_ORIGIN'] ?? 'unknown'));
+
+require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth_helper.php';
+require_once __DIR__ . '/../config/sns_helper.php';
+
+// Set CORS headers first
 setCorsHeaders();
 
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    error_log("Handling OPTIONS preflight request");
+    http_response_code(200);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    error_log("Invalid method: " . $_SERVER['REQUEST_METHOD']);
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
     exit;
@@ -15,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Verify landlord authentication
 $auth = verifyAuth();
 if (!$auth['valid'] || $auth['role'] !== 'landlord') {
+    error_log("Auth failed: " . json_encode($auth));
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
