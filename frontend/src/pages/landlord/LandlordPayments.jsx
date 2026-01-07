@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle, Filter, FileText, ExternalLink } from 'lucide-react';
+import { Download, Calendar, DollarSign, Users, TrendingUp, AlertCircle, Filter, FileText, ExternalLink, Bell, Send } from 'lucide-react';
 import LandlordLayout from '../../components/layout/LandlordLayout';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
@@ -32,6 +32,10 @@ export default function LandlordPayments() {
     pendingPayments: 0,
     completedPayments: 0
   });
+  
+  // Reminder states
+  const [sendingReminder, setSendingReminder] = useState({});
+  const [reminderSuccess, setReminderSuccess] = useState({});
 
   // Fetch payments data and filter options
   useEffect(() => {
@@ -271,6 +275,49 @@ export default function LandlordPayments() {
     a.href = url;
     a.download = `payments_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+  };
+
+  const sendPaymentReminder = async (payment) => {
+    const paymentKey = `${payment.tenant_id}_${payment.payment_period || new Date().toISOString().slice(0, 7)}`;
+    setSendingReminder(prev => ({ ...prev, [paymentKey]: true }));
+    
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      
+      const response = await fetch(`${API_BASE_URL}/api/landlord/send-payment-reminder.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          tenant_id: payment.tenant_id,
+          payment_period: payment.payment_period || new Date().toISOString().slice(0, 7),
+          message: null // Use default message
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setReminderSuccess(prev => ({ ...prev, [paymentKey]: true }));
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setReminderSuccess(prev => ({ ...prev, [paymentKey]: false }));
+        }, 3000);
+      } else {
+        alert(result.error || 'Failed to send reminder');
+      }
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setSendingReminder(prev => ({ ...prev, [paymentKey]: false }));
+    }
+  };
+
+  const canSendReminder = (payment) => {
+    return payment.status === 'pending' || payment.status === 'overdue';
   };
 
   if (isLoading) {
@@ -534,6 +581,9 @@ export default function LandlordPayments() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Receipt
                     </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -602,6 +652,51 @@ export default function LandlordPayments() {
                           </a>
                         ) : (
                           <span className="text-xs text-gray-400">No receipt</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {canSendReminder(payment) && (
+                          <div className="flex items-center space-x-2">
+                            {(() => {
+                              const paymentKey = `${payment.tenant_id}_${payment.payment_period || new Date().toISOString().slice(0, 7)}`;
+                              const isLoading = sendingReminder[paymentKey];
+                              const isSuccess = reminderSuccess[paymentKey];
+                              
+                              if (isSuccess) {
+                                return (
+                                  <div className="flex items-center space-x-1 text-green-600">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    <span className="text-xs font-medium">Sent!</span>
+                                  </div>
+                                );
+                              }
+                              
+                              return (
+                                <button
+                                  onClick={() => sendPaymentReminder(payment)}
+                                  disabled={isLoading}
+                                  className={`flex items-center space-x-1 px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                                    isLoading
+                                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                      : 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 cursor-pointer'
+                                  }`}
+                                >
+                                  {isLoading ? (
+                                    <>
+                                      <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                      <span>Sending...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Bell className="w-3 h-3" />
+                                      <span>Remind</span>
+                                    </>
+                                  )}
+                                </button>
+                              );
+                            })()
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>
