@@ -694,8 +694,7 @@ export default function LandlordPayments() {
                                   )}
                                 </button>
                               );
-                            })()
-                            )}
+                            })()}
                           </div>
                         )}
                       </td>
