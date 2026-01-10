@@ -7,8 +7,9 @@ require_once '../../config/auth_helper.php';
 
 try {
     $database = new Database();
-    $db = $database->getConnection();
-    
+    $db = $database->getConnection();           // Primary for session verification
+    $readDb = $database->getReadConnection();   // Replica for read-only queries
+
     $token = getBearerToken();
     if (empty($token)) {
         http_response_code(401);
@@ -20,25 +21,27 @@ try {
     $stmt->bindParam(':token', $token);
     $stmt->execute();
     $session = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$session) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit();
     }
-    
-    $landlordStmt = $db->prepare("SELECT landlord_id FROM landlords WHERE user_id = :user_id");
+
+    // Get landlord_id (using read replica)
+    $landlordStmt = $readDb->prepare("SELECT landlord_id FROM landlords WHERE user_id = :user_id");
     $landlordStmt->bindParam(':user_id', $session['user_id']);
     $landlordStmt->execute();
     $landlord = $landlordStmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$landlord) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Landlord profile not found']);
         exit();
     }
-    
-    $query = "SELECT 
+
+    // Get properties with tenants (using read replica)
+    $query = "SELECT
                 p.property_id,
                 p.property_name,
                 p.address,
@@ -61,11 +64,11 @@ try {
               WHERE p.landlord_id = :landlord_id
               GROUP BY p.property_id, p.property_name, p.address, p.city, p.state, p.property_type, p.total_units, p.monthly_rent, p.main_image, p.images
               ORDER BY p.property_name";
-    
-    $stmt = $db->prepare($query);
+
+    $stmt = $readDb->prepare($query);
     $stmt->bindParam(':landlord_id', $landlord['landlord_id']);
     $stmt->execute();
-    
+
     $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     http_response_code(200);

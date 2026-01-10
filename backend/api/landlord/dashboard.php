@@ -8,10 +8,11 @@ require_once '../../models/Landlord.php';
 require_once '../../config/cache.php';
 
 try {
-    // Create database connection
+    // Create database connections
     $database = new Database();
-    $db = $database->getConnection();
-    
+    $db = $database->getConnection();           // Primary for session verification
+    $readDb = $database->getReadConnection();   // Replica for read-only queries
+
     // Use old authentication method temporarily
     $token = getBearerToken();
     if (empty($token)) {
@@ -19,9 +20,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit();
     }
-
-    $database = new Database();
-    $db = $database->getConnection();
     
     // Verify session token and check landlord role
     $stmt = $db->prepare("
@@ -54,10 +52,10 @@ try {
     }
     
     $landlordId = $landlordProfile['landlord_id'];
-    
+
     // Check cache first
     $cachedStats = LandlordCache::get($landlordId, 'dashboard_stats');
-    
+
     if ($cachedStats !== null) {
         $totalProperties = $cachedStats['total_properties'];
         $totalTenants = $cachedStats['total_tenants'];
@@ -66,9 +64,9 @@ try {
         $totalExpenses = $cachedStats['total_expenses'];
         $propertyStatus = $cachedStats['property_status'];
     } else {
-        // Consolidated query: Get all stats in one query
+        // Consolidated query: Get all stats in one query (using read replica)
         $statsQuery = "
-            SELECT 
+            SELECT
                 COUNT(DISTINCT CASE WHEN p.status = 'Active' THEN p.property_id END) as total_properties,
                 COUNT(DISTINCT CASE WHEN p.status = 'Active' AND (t.property_id IS NOT NULL OR t2.unit_id IS NOT NULL) THEN COALESCE(t.tenant_id, t2.tenant_id) END) as total_tenants,
                 COALESCE(SUM(CASE WHEN p.status = 'Active' AND (t.property_id IS NOT NULL OR t2.unit_id IS NOT NULL) THEN COALESCE(pu.monthly_rent, p.monthly_rent) END), 0) as monthly_revenue,
@@ -84,8 +82,8 @@ try {
             LEFT JOIN maintenance_requests mr ON mr.property_id = p.property_id
             WHERE p.landlord_id = ?
         ";
-        
-        $statsStmt = $db->prepare($statsQuery);
+
+        $statsStmt = $readDb->prepare($statsQuery);
         $statsStmt->execute([$landlordId]);
         $stats = $statsStmt->fetch(PDO::FETCH_ASSOC);
         

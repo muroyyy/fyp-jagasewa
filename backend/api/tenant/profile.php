@@ -20,7 +20,8 @@ if (empty($token)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session token
     $stmt = $conn->prepare("
@@ -47,8 +48,8 @@ try {
     $tenant_id = $session['tenant_id'];
     $user_id = $session['user_id'];
 
-    // Get tenant profile
-    $stmt = $conn->prepare("
+    // Get tenant profile (using read replica)
+    $stmt = $readConn->prepare("
         SELECT 
             t.tenant_id,
             t.user_id,

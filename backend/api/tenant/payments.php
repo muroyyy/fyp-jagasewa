@@ -9,8 +9,9 @@ require_once '../../config/tenant_cache.php';
 try {
     // Create database connection
     $database = new Database();
-    $db = $database->getConnection();
-    
+    $db = $database->getConnection();             // Primary for session verification
+    $readDb = $database->getReadConnection();     // Replica for read-only queries
+
     // Check authentication
     $token = getBearerToken();
     if (empty($token)) {
@@ -39,9 +40,9 @@ try {
     
     $userId = $user_data['user_id'];
     
-    // Get tenant_id from tenants table
+    // Get tenant_id from tenants table (using read replica)
     $tenantQuery = "SELECT tenant_id, property_id FROM tenants WHERE user_id = :user_id";
-    $tenantStmt = $db->prepare($tenantQuery);
+    $tenantStmt = $readDb->prepare($tenantQuery);
     $tenantStmt->bindParam(':user_id', $userId);
     $tenantStmt->execute();
     $tenant = $tenantStmt->fetch(PDO::FETCH_ASSOC);
@@ -65,8 +66,8 @@ try {
         $payments = $cachedPayments['payments'];
         $nextPayment = $cachedPayments['next_payment'];
     } else {
-        // Get payment history
-        $paymentsQuery = "SELECT 
+        // Get payment history (using read replica)
+        $paymentsQuery = "SELECT
                             payment_id,
                             amount,
                             payment_method,
@@ -79,8 +80,8 @@ try {
                           FROM payments
                           WHERE tenant_id = :tenant_id
                           ORDER BY payment_date DESC";
-        
-        $paymentsStmt = $db->prepare($paymentsQuery);
+
+        $paymentsStmt = $readDb->prepare($paymentsQuery);
         $paymentsStmt->bindParam(':tenant_id', $tenantId);
         $paymentsStmt->execute();
         
@@ -90,7 +91,7 @@ try {
         
         if ($propertyId) {
             $rentQuery = "SELECT monthly_rent FROM properties WHERE property_id = :property_id";
-            $rentStmt = $db->prepare($rentQuery);
+            $rentStmt = $readDb->prepare($rentQuery);
             $rentStmt->bindParam(':property_id', $propertyId);
             $rentStmt->execute();
             $property = $rentStmt->fetch(PDO::FETCH_ASSOC);

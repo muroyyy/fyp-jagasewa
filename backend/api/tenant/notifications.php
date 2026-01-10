@@ -25,7 +25,8 @@ try {
     }
 
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get tenant_id
     $stmt = $conn->prepare("
@@ -67,10 +68,10 @@ try {
         $totalLimit = $fetchAll ? 50 : 10;
         $dateInterval = $fetchAll ? 90 : 30;
 
-        // Get property name for notifications
+        // Get property name for notifications (using read replica)
         $propertyName = '';
         if ($propertyId) {
-            $propStmt = $conn->prepare("SELECT property_name FROM properties WHERE property_id = ?");
+            $propStmt = $readConn->prepare("SELECT property_name FROM properties WHERE property_id = ?");
             $propStmt->execute([$propertyId]);
             $propResult = $propStmt->fetch(PDO::FETCH_ASSOC);
             $propertyName = $propResult ? $propResult['property_name'] : '';
@@ -155,7 +156,7 @@ try {
             LIMIT {$totalLimit}
         ";
 
-        $stmt = $conn->prepare($notificationsQuery);
+        $stmt = $readConn->prepare($notificationsQuery);
         $stmt->execute([$tenantId, $tenantId, $propertyId ?: 0]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -22,7 +22,8 @@ if (empty($token)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session token
     $stmt = $conn->prepare("
@@ -55,8 +56,8 @@ try {
     if ($cachedDocuments !== null) {
         $documents = $cachedDocuments;
     } else {
-        // Get all documents for this tenant's property
-        $stmt = $conn->prepare("
+        // Get all documents for this tenant's property (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 d.document_id,
                 d.file_name,

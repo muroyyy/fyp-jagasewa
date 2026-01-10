@@ -9,8 +9,9 @@ require_once '../../config/tenant_cache.php';
 try {
     // Create database connection
     $database = new Database();
-    $db = $database->getConnection();
-    
+    $db = $database->getConnection();             // Primary for session verification
+    $readDb = $database->getReadConnection();     // Replica for read-only queries
+
     // Check authentication
     $token = getBearerToken();
     if (empty($token)) {
@@ -37,9 +38,9 @@ try {
     
     $userId = $session['user_id'];
     
-    // Get tenant_id from tenants table
+    // Get tenant_id from tenants table (using read replica)
     $tenantQuery = "SELECT tenant_id, property_id, unit_id, move_in_date FROM tenants WHERE user_id = :user_id";
-    $tenantStmt = $db->prepare($tenantQuery);
+    $tenantStmt = $readDb->prepare($tenantQuery);
     $tenantStmt->bindParam(':user_id', $userId);
     $tenantStmt->execute();
     $tenant = $tenantStmt->fetch(PDO::FETCH_ASSOC);
@@ -65,8 +66,8 @@ try {
     if ($cachedSummary !== null) {
         $summary = $cachedSummary;
     } else {
-        // Get payment statistics
-        $summaryQuery = "SELECT 
+        // Get payment statistics (using read replica)
+        $summaryQuery = "SELECT
                             COUNT(*) as total_payments,
                             SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as total_paid,
                             AVG(CASE WHEN status = 'completed' THEN amount ELSE NULL END) as avg_payment,
@@ -74,23 +75,23 @@ try {
                             COUNT(CASE WHEN status = 'pending' THEN 1 ELSE NULL END) as pending_payments,
                             MAX(payment_date) as last_payment_date,
                             MIN(payment_date) as first_payment_date
-                         FROM payments 
+                         FROM payments
                          WHERE tenant_id = :tenant_id";
-        
-        $summaryStmt = $db->prepare($summaryQuery);
+
+        $summaryStmt = $readDb->prepare($summaryQuery);
         $summaryStmt->bindParam(':tenant_id', $tenantId);
         $summaryStmt->execute();
         $paymentStats = $summaryStmt->fetch(PDO::FETCH_ASSOC);
         
         // Calculate on-time payment percentage (payments made within first 5 days of month)
-        $onTimeQuery = "SELECT 
+        $onTimeQuery = "SELECT
                            COUNT(*) as total_due_payments,
                            COUNT(CASE WHEN DAY(payment_date) <= 5 THEN 1 ELSE NULL END) as on_time_payments
-                        FROM payments 
+                        FROM payments
                         WHERE tenant_id = :tenant_id AND status = 'completed'
                         AND payment_date IS NOT NULL";
-        
-        $onTimeStmt = $db->prepare($onTimeQuery);
+
+        $onTimeStmt = $readDb->prepare($onTimeQuery);
         $onTimeStmt->bindParam(':tenant_id', $tenantId);
         $onTimeStmt->execute();
         $onTimeStats = $onTimeStmt->fetch(PDO::FETCH_ASSOC);
@@ -99,7 +100,7 @@ try {
         $monthlyRent = 0;
         if ($unitId) {
             $rentQuery = "SELECT monthly_rent FROM property_units WHERE unit_id = :unit_id";
-            $rentStmt = $db->prepare($rentQuery);
+            $rentStmt = $readDb->prepare($rentQuery);
             $rentStmt->bindParam(':unit_id', $unitId);
             $rentStmt->execute();
             $unit = $rentStmt->fetch(PDO::FETCH_ASSOC);
@@ -108,7 +109,7 @@ try {
         
         if ($monthlyRent == 0 && $propertyId) {
             $rentQuery = "SELECT monthly_rent FROM properties WHERE property_id = :property_id";
-            $rentStmt = $db->prepare($rentQuery);
+            $rentStmt = $readDb->prepare($rentQuery);
             $rentStmt->bindParam(':property_id', $propertyId);
             $rentStmt->execute();
             $property = $rentStmt->fetch(PDO::FETCH_ASSOC);
@@ -126,12 +127,12 @@ try {
         
         // Calculate payment streak (consecutive months paid)
         $streakQuery = "SELECT COUNT(DISTINCT payment_period) as payment_streak
-                        FROM payments 
+                        FROM payments
                         WHERE tenant_id = :tenant_id AND status = 'completed'
                         AND payment_period IS NOT NULL
                         ORDER BY payment_period DESC";
-        
-        $streakStmt = $db->prepare($streakQuery);
+
+        $streakStmt = $readDb->prepare($streakQuery);
         $streakStmt->bindParam(':tenant_id', $tenantId);
         $streakStmt->execute();
         $streakResult = $streakStmt->fetch(PDO::FETCH_ASSOC);
@@ -145,12 +146,12 @@ try {
         // Get current month payment status
         $currentMonth = date('Y-m');
         $currentMonthQuery = "SELECT COUNT(*) as current_month_paid
-                             FROM payments 
-                             WHERE tenant_id = :tenant_id 
-                             AND payment_period = :current_month 
+                             FROM payments
+                             WHERE tenant_id = :tenant_id
+                             AND payment_period = :current_month
                              AND status = 'completed'";
-        
-        $currentMonthStmt = $db->prepare($currentMonthQuery);
+
+        $currentMonthStmt = $readDb->prepare($currentMonthQuery);
         $currentMonthStmt->bindParam(':tenant_id', $tenantId);
         $currentMonthStmt->bindParam(':current_month', $currentMonth);
         $currentMonthStmt->execute();

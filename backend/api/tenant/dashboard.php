@@ -25,7 +25,8 @@ if (empty($token)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session token
     $stmt = $conn->prepare("
@@ -61,8 +62,8 @@ try {
         $next_payment = $cachedDashboard['next_payment'];
         $maintenance_stats = $cachedDashboard['maintenance_stats'];
     } else {
-        // Get tenant profile with property information
-        $stmt = $conn->prepare("
+        // Get tenant profile with property information (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 t.tenant_id,
                 t.full_name,
@@ -102,9 +103,9 @@ try {
         $stmt->execute();
 
         $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Get payment and maintenance stats in one query
-        $stmt = $conn->prepare("
+
+        // Get payment and maintenance stats in one query (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 COUNT(DISTINCT pay.payment_id) as total_payments,
                 COALESCE(SUM(CASE WHEN pay.status = 'completed' THEN pay.amount ELSE 0 END), 0) as total_paid,
@@ -158,8 +159,8 @@ try {
             
             $next_year = date('Y', strtotime($next_due));
             $next_month = date('m', strtotime($next_due));
-            
-            $stmt = $conn->prepare("
+
+            $stmt = $readConn->prepare("
                 SELECT COUNT(*) as count
                 FROM payments
                 WHERE tenant_id = :tenant_id

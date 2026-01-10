@@ -7,8 +7,9 @@ require_once '../../config/auth_helper.php';
 
 try {
     $database = new Database();
-    $db = $database->getConnection();
-    
+    $db = $database->getConnection();             // Primary for session verification
+    $readDb = $database->getReadConnection();     // Replica for read-only queries
+
     $token = getBearerToken();
     if (empty($token)) {
         http_response_code(401);
@@ -29,8 +30,8 @@ try {
     
     $userId = $session['user_id'];
     
-    // Get tenant info
-    $tenantStmt = $db->prepare("SELECT tenant_id, property_id FROM tenants WHERE user_id = :user_id");
+    // Get tenant info (using read replica)
+    $tenantStmt = $readDb->prepare("SELECT tenant_id, property_id FROM tenants WHERE user_id = :user_id");
     $tenantStmt->bindParam(':user_id', $userId);
     $tenantStmt->execute();
     $tenant = $tenantStmt->fetch(PDO::FETCH_ASSOC);
@@ -44,8 +45,8 @@ try {
     // Get current month in YYYY-MM format
     $currentPeriod = date('Y-m');
     
-    // Check if current month is already paid
-    $paymentCheckStmt = $db->prepare("
+    // Check if current month is already paid (using read replica)
+    $paymentCheckStmt = $readDb->prepare("
         SELECT payment_id, payment_type, amount, payment_date 
         FROM payments 
         WHERE tenant_id = :tenant_id 
@@ -72,15 +73,15 @@ try {
         }
     }
     
-    // Get property monthly rent
-    $rentStmt = $db->prepare("SELECT monthly_rent FROM properties WHERE property_id = :property_id");
+    // Get property monthly rent (using read replica)
+    $rentStmt = $readDb->prepare("SELECT monthly_rent FROM properties WHERE property_id = :property_id");
     $rentStmt->bindParam(':property_id', $tenant['property_id']);
     $rentStmt->execute();
     $property = $rentStmt->fetch(PDO::FETCH_ASSOC);
     $monthlyRent = $property['monthly_rent'] ?? 0;
     
-    // Check for pending payment requests
-    $requestStmt = $db->prepare("
+    // Check for pending payment requests (using read replica)
+    $requestStmt = $readDb->prepare("
         SELECT request_id, request_type, status 
         FROM payment_requests 
         WHERE tenant_id = :tenant_id 

@@ -20,7 +20,8 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
@@ -43,15 +44,15 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $property_id = $_GET['property_id'] ?? null;
-        
+
         if (!$property_id) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Property ID is required']);
             exit();
         }
 
-        // Verify property belongs to landlord
-        $stmt = $conn->prepare("SELECT property_id FROM properties WHERE property_id = ? AND landlord_id = ?");
+        // Verify property belongs to landlord (using read replica)
+        $stmt = $readConn->prepare("SELECT property_id FROM properties WHERE property_id = ? AND landlord_id = ?");
         $stmt->execute([$property_id, $landlord_id]);
         if (!$stmt->fetch()) {
             http_response_code(403);
@@ -59,9 +60,9 @@ try {
             exit();
         }
 
-        // Get units with tenant information
-        $stmt = $conn->prepare("
-            SELECT 
+        // Get units with tenant information (using read replica)
+        $stmt = $readConn->prepare("
+            SELECT
                 pu.*,
                 t.tenant_id,
                 t.full_name as tenant_name,

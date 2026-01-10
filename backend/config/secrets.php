@@ -29,6 +29,7 @@ class SecretsManager {
             // Normalize keys to uppercase format expected by Database class
             return [
                 'DB_HOST' => $secret['host'] ?? $secret['DB_HOST'] ?? null,
+                'DB_REPLICA_HOST' => $secret['DB_REPLICA_HOST'] ?? null,
                 'DB_NAME' => $secret['dbname'] ?? $secret['DB_NAME'] ?? null,
                 'DB_USERNAME' => $secret['username'] ?? $secret['DB_USERNAME'] ?? null,
                 'DB_PASSWORD' => $secret['password'] ?? $secret['DB_PASSWORD'] ?? null

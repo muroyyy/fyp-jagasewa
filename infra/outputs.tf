@@ -17,9 +17,9 @@ output "rds_endpoint" {
   value       = module.rds.db_endpoint
 }
 
-output "rds_replica_endpoint" {
-  description = "RDS read replica endpoint (null if not created)"
-  value       = module.rds.db_replica_endpoint
+output "rds_multi_az" {
+  description = "Whether RDS Multi-AZ is enabled"
+  value       = module.rds.multi_az_enabled
 }
 
 output "cloudfront_distribution_id" {

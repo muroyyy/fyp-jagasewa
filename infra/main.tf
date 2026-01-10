@@ -107,13 +107,13 @@ module "ec2" {
 }
 
 module "secrets" {
-  source       = "./modules/secrets"
-  project_name = var.project_name
-  environment  = var.environment
-  domain_name  = var.domain_name
-  db_endpoint  = module.rds.db_endpoint
-  db_name      = var.db_name
-  db_username  = var.db_username
+  source              = "./modules/secrets"
+  project_name        = var.project_name
+  environment         = var.environment
+  domain_name         = var.domain_name
+  db_endpoint         = module.rds.db_endpoint
+  db_name             = var.db_name
+  db_username         = var.db_username
 }
 
 module "rds" {
@@ -125,8 +125,7 @@ module "rds" {
   db_name             = var.db_name
   db_username         = var.db_username
   db_password         = module.secrets.db_password
-  create_read_replica = var.create_rds_read_replica
-  availability_zones  = var.availability_zones
+  multi_az            = var.rds_multi_az
 }
 
 module "ecr" {

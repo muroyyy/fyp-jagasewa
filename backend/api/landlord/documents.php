@@ -22,11 +22,12 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
-        SELECT s.user_id, u.user_role, l.landlord_id 
+        SELECT s.user_id, u.user_role, l.landlord_id
         FROM sessions s
         JOIN users u ON s.user_id = u.user_id
         JOIN landlords l ON u.user_id = l.user_id
@@ -48,9 +49,9 @@ try {
     $propertyId = isset($_GET['property_id']) ? $_GET['property_id'] : null;
     $tenantId = isset($_GET['tenant_id']) ? $_GET['tenant_id'] : null;
 
-    // Build query
+    // Build query (using read replica)
     $query = "
-        SELECT 
+        SELECT
             d.*,
             p.property_name,
             t.full_name as tenant_name
@@ -59,7 +60,7 @@ try {
         LEFT JOIN tenants t ON d.tenant_id = t.tenant_id
         WHERE d.landlord_id = ? AND d.is_active = 1
     ";
-    
+
     $params = [$landlordId];
 
     if ($category && $category !== 'all') {
@@ -79,13 +80,13 @@ try {
 
     $query .= " ORDER BY d.uploaded_at DESC";
 
-    $stmt = $conn->prepare($query);
+    $stmt = $readConn->prepare($query);
     $stmt->execute($params);
     $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get statistics
+    // Get statistics (using read replica)
     $statsQuery = "
-        SELECT 
+        SELECT
             COUNT(*) as total_documents,
             SUM(CASE WHEN category = 'lease' THEN 1 ELSE 0 END) as lease_count,
             SUM(CASE WHEN category = 'invoice' THEN 1 ELSE 0 END) as invoice_count,
@@ -97,8 +98,8 @@ try {
         FROM documents
         WHERE landlord_id = ? AND is_active = 1
     ";
-    
-    $statsStmt = $conn->prepare($statsQuery);
+
+    $statsStmt = $readConn->prepare($statsQuery);
     $statsStmt->execute([$landlordId]);
     $stats = $statsStmt->fetch(PDO::FETCH_ASSOC);
 

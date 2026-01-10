@@ -22,11 +22,12 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
-    // Verify session and get user data
-    $stmt = $conn->prepare("
-        SELECT 
+    // Verify session and get user data (using read replica)
+    $stmt = $readConn->prepare("
+        SELECT
             u.user_id,
             u.email,
             l.landlord_id,

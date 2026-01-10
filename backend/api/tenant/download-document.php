@@ -32,7 +32,8 @@ if (empty($token)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session token
     $stmt = $conn->prepare("
@@ -65,8 +66,8 @@ try {
         exit();
     }
 
-    // Get document details and verify access
-    $stmt = $conn->prepare("
+    // Get document details and verify access (using read replica)
+    $stmt = $readConn->prepare("
         SELECT 
             d.document_id,
             d.file_name,

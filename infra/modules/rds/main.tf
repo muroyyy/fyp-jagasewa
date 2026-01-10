@@ -29,7 +29,7 @@ resource "aws_db_instance" "this" {
   db_name                 = var.db_name
   username                = var.db_username
   password                = var.db_password
-  multi_az                = false
+  multi_az                = var.multi_az
   publicly_accessible     = false
   
   # Backup & Snapshot Configuration
@@ -58,37 +58,3 @@ resource "aws_db_instance" "this" {
   }
 }
 
-# ─────────────────────────────────────────────────────────
-# RDS Read Replica (Different AZ)
-# ─────────────────────────────────────────────────────────
-resource "aws_db_instance" "replica" {
-  count = var.create_read_replica ? 1 : 0
-
-  identifier          = "${var.project_name}-rds-replica-${var.environment}"
-  replicate_source_db = aws_db_instance.this.identifier
-  instance_class      = var.replica_instance_class != null ? var.replica_instance_class : var.instance_class
-
-  # Replica will be in a different AZ than primary
-  availability_zone   = var.availability_zones[1]
-
-  # Storage is inherited from source
-  storage_type        = "gp3"
-
-  # Network configuration
-  publicly_accessible    = false
-  vpc_security_group_ids = [var.rds_sg_id]
-
-  # Replica-specific settings
-  skip_final_snapshot    = true
-  backup_retention_period = 0  # Replicas don't need their own backups
-
-  # Performance Insights (optional, free for 7 days retention)
-  performance_insights_enabled = false
-
-  tags = {
-    Name    = "${var.project_name}-rds-replica"
-    Project = var.project_name
-    Env     = var.environment
-    Role    = "read-replica"
-  }
-}

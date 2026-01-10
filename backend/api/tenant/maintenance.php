@@ -22,7 +22,8 @@ if (empty($token)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session token
     $stmt = $conn->prepare("
@@ -54,8 +55,8 @@ try {
     if ($cachedRequests !== null) {
         $requests = $cachedRequests;
     } else {
-        // Get all maintenance requests for this tenant
-        $stmt = $conn->prepare("
+        // Get all maintenance requests for this tenant (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 mr.*,
                 p.property_name

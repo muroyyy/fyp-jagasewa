@@ -20,11 +20,12 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
-        SELECT s.user_id, u.user_role, l.landlord_id 
+        SELECT s.user_id, u.user_role, l.landlord_id
         FROM sessions s
         JOIN users u ON s.user_id = u.user_id
         JOIN landlords l ON u.user_id = l.user_id
@@ -41,9 +42,9 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Get all tenants with their move-in dates and property details
-    $stmt = $conn->prepare("
-        SELECT 
+    // Get all tenants with their move-in dates and property details (using read replica)
+    $stmt = $readConn->prepare("
+        SELECT
             t.tenant_id,
             t.full_name as tenant_name,
             t.move_in_date,
@@ -53,8 +54,8 @@ try {
             pr.monthly_rent
         FROM tenants t
         JOIN properties pr ON t.property_id = pr.property_id
-        WHERE pr.landlord_id = ? 
-        AND t.move_in_date IS NOT NULL 
+        WHERE pr.landlord_id = ?
+        AND t.move_in_date IS NOT NULL
         AND (t.move_out_date IS NULL OR t.move_out_date > NOW())
         AND t.account_status = 'active'
     ");
@@ -66,29 +67,29 @@ try {
 
     foreach ($tenants as $tenant) {
         $moveInDate = new DateTime($tenant['move_in_date']);
-        
+
         // Start generating payments from the month after move-in
         $firstPaymentMonth = clone $moveInDate;
         $firstPaymentMonth->modify('first day of next month');
-        
+
         // Generate expected payment months from first payment month to current date
         $expectedMonths = [];
         $checkDate = clone $firstPaymentMonth;
-        
+
         while ($checkDate <= $currentDate) {
             $expectedMonths[] = $checkDate->format('Y-m');
             $checkDate->add(new DateInterval('P1M'));
         }
-        
+
         // Only process if there are expected payments
         if (!empty($expectedMonths)) {
-            // Check payments made by this tenant
-            $paymentStmt = $conn->prepare("
-                SELECT 
+            // Check payments made by this tenant (using read replica)
+            $paymentStmt = $readConn->prepare("
+                SELECT
                     payment_date,
                     payment_period,
                     status
-                FROM payments 
+                FROM payments
                 WHERE tenant_id = ? AND status = 'completed'
                 ORDER BY payment_date DESC
             ");

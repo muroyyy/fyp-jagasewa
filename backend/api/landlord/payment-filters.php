@@ -20,11 +20,12 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
-        SELECT s.user_id, u.user_role, l.landlord_id 
+        SELECT s.user_id, u.user_role, l.landlord_id
         FROM sessions s
         JOIN users u ON s.user_id = u.user_id
         JOIN landlords l ON u.user_id = l.user_id
@@ -41,8 +42,8 @@ try {
 
     $landlordId = $session['landlord_id'];
 
-    // Get tenants for this landlord's properties
-    $stmt = $conn->prepare("
+    // Get tenants for this landlord's properties (using read replica)
+    $stmt = $readConn->prepare("
         SELECT DISTINCT t.tenant_id, t.full_name as tenant_name
         FROM tenants t
         JOIN properties pr ON t.property_id = pr.property_id
@@ -52,8 +53,8 @@ try {
     $stmt->execute([$landlordId]);
     $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get properties for this landlord
-    $stmt = $conn->prepare("
+    // Get properties for this landlord (using read replica)
+    $stmt = $readConn->prepare("
         SELECT property_id, property_name
         FROM properties
         WHERE landlord_id = ?

@@ -23,7 +23,8 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
@@ -46,12 +47,12 @@ try {
 
     // Check cache first
     $cachedProperties = LandlordCache::get($landlord_id, 'properties');
-    
+
     if ($cachedProperties !== null) {
         $properties = $cachedProperties;
     } else {
-        // Get all properties for this landlord with tenant counts
-        $stmt = $conn->prepare("
+        // Get all properties for this landlord with tenant counts (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 p.property_id,
                 p.landlord_id,

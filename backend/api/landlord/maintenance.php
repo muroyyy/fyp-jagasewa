@@ -23,11 +23,12 @@ if (empty($sessionToken)) {
 
 try {
     $database = new Database();
-    $conn = $database->getConnection();
+    $conn = $database->getConnection();           // Primary for session verification
+    $readConn = $database->getReadConnection();   // Replica for read-only queries
 
     // Verify session and get landlord_id
     $stmt = $conn->prepare("
-        SELECT s.user_id, u.user_role, l.landlord_id 
+        SELECT s.user_id, u.user_role, l.landlord_id
         FROM sessions s
         JOIN users u ON s.user_id = u.user_id
         JOIN landlords l ON u.user_id = l.user_id
@@ -46,12 +47,12 @@ try {
 
     // Check cache first
     $cachedRequests = LandlordCache::get($landlordId, 'maintenance');
-    
+
     if ($cachedRequests !== null) {
         $requests = $cachedRequests;
     } else {
-        // Fetch all maintenance requests for this landlord's properties
-        $stmt = $conn->prepare("
+        // Fetch all maintenance requests for this landlord's properties (using read replica)
+        $stmt = $readConn->prepare("
             SELECT 
                 m.request_id,
                 m.title,

@@ -15,7 +15,7 @@ ec2_instance_type = "t3.small"
 ec2_key_name      = "terraform-key-pair"
 
 # Database Configuration
-db_name                 = "jagasewa_prod_db"
-db_username             = "admin"
-create_rds_read_replica = true  # Creates read replica in ap-southeast-1b
+db_name       = "jagasewa_prod_db"
+db_username   = "admin"
+rds_multi_az  = true  # Enable Multi-AZ for HA (allows stopping instance)
 # db_password should be set via environment variable or prompt

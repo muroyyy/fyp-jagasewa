@@ -94,8 +94,8 @@ variable "domain_name" {
   default     = "jagasewa.cloud"
 }
 
-variable "create_rds_read_replica" {
-  description = "Whether to create an RDS read replica in another AZ"
+variable "rds_multi_az" {
+  description = "Enable Multi-AZ deployment for RDS (automatic failover, can be stopped)"
   type        = bool
   default     = false
 }
