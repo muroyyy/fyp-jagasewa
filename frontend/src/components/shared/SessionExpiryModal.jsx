@@ -37,7 +37,7 @@ const SessionExpiryModal = ({ isOpen, onExtend, onLogout, mode = 'warning', time
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
         <div className="text-center">
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -81,7 +81,7 @@ const SessionExpiryModal = ({ isOpen, onExtend, onLogout, mode = 'warning', time
           <div className="flex gap-3">
             <button
               onClick={onLogout}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               {mode === 'warning' ? 'Log In Again' : 'Go to Login'}
@@ -91,7 +91,7 @@ const SessionExpiryModal = ({ isOpen, onExtend, onLogout, mode = 'warning', time
               <button
                 onClick={handleExtend}
                 disabled={extending}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {extending ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
