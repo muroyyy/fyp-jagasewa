@@ -124,7 +124,7 @@ export default function LandlordDashboard() {
             <h2 className="text-base font-bold text-gray-900 mb-3">Financial Overview</h2>
 
             {/* Compact Bar Chart */}
-            <div className="flex items-end justify-center gap-6 h-20 mb-3">
+            <div className="flex items-end justify-center gap-6 mb-3">
               {(() => {
                 const revenue = stats?.monthly_revenue || 0;
                 const expenses = stats?.total_expenses || 0;
@@ -135,8 +135,8 @@ export default function LandlordDashboard() {
                 return (
                   <>
                     {/* Revenue Bar */}
-                    <div className="flex flex-col items-center gap-1 w-12">
-                      <div className="w-full flex flex-col justify-end h-12">
+                    <div className="flex flex-col items-center w-16">
+                      <div className="w-10 h-16 flex flex-col justify-end">
                         <div
                           className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-md transition-all duration-500"
                           style={{
@@ -145,15 +145,15 @@ export default function LandlordDashboard() {
                           }}
                         ></div>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center mt-1">
                         <p className="text-[10px] font-medium text-green-600">Revenue</p>
                         <p className="text-xs font-bold text-gray-900">RM {revenue.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
                     </div>
 
                     {/* Expenses Bar */}
-                    <div className="flex flex-col items-center gap-1 w-12">
-                      <div className="w-full flex flex-col justify-end h-12">
+                    <div className="flex flex-col items-center w-16">
+                      <div className="w-10 h-16 flex flex-col justify-end">
                         <div
                           className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-md transition-all duration-500"
                           style={{
@@ -162,7 +162,7 @@ export default function LandlordDashboard() {
                           }}
                         ></div>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center mt-1">
                         <p className="text-[10px] font-medium text-red-600">Expenses</p>
                         <p className="text-xs font-bold text-gray-900">RM {expenses.toLocaleString('en-MY', { maximumFractionDigits: 0 })}</p>
                       </div>
