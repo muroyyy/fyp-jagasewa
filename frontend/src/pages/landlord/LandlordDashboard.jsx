@@ -91,15 +91,15 @@ export default function LandlordDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-3 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
           {statsCards.map((stat, idx) => (
             <div key={idx} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5">{stat.label}</p>
-                  <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-600 mb-0.5 truncate">{stat.label}</p>
+                  <p className="text-base sm:text-lg font-bold text-gray-900 truncate">{stat.value}</p>
                 </div>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ml-2 ${
                   stat.color === 'blue' ? 'bg-blue-100' :
                   stat.color === 'green' ? 'bg-green-100' :
                   stat.color === 'purple' ? 'bg-purple-100' :
@@ -118,7 +118,7 @@ export default function LandlordDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Financial Overview */}
           <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-base font-bold text-gray-900 mb-3">Financial Overview</h2>
