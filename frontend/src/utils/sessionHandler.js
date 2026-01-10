@@ -8,7 +8,7 @@ export const setSessionExpiryCallback = (callback) => {
 };
 
 // Clear session data
-const clearSession = () => {
+export const clearSessionStorage = () => {
   localStorage.removeItem('session_token');
   localStorage.removeItem('user');
   localStorage.removeItem('userRole');
@@ -16,9 +16,14 @@ const clearSession = () => {
 };
 
 // Handle session expiry with modal
-export const handleSessionExpiry = (response, navigate) => {
+export const handleSessionExpiry = async (response, navigate) => {
   if (response.status === 401) {
-    const data = response.json ? response.json() : null;
+    let data = null;
+    try {
+      data = response.json ? await response.clone().json() : null;
+    } catch (error) {
+      data = null;
+    }
     
     // Check if it's a session warning (30 seconds left) or actual expiry
     if (data && data.session_warning && !sessionWarningShown) {
@@ -29,19 +34,35 @@ export const handleSessionExpiry = (response, navigate) => {
           timeLeft: data.time_left || 60,
           onExtend: () => extendSession(),
           onLogout: () => {
-            clearSession();
-            navigate('/login');
+            clearSessionStorage();
+            if (navigate) {
+              navigate('/login');
+            } else {
+              window.location.href = '/login';
+            }
           }
         });
       }
       return false; // Don't logout yet, show warning
     } else {
       // Actual session expiry
-      clearSession();
+      clearSessionStorage();
       if (sessionExpiryCallback) {
-        sessionExpiryCallback({ type: 'expired' });
+        sessionExpiryCallback({
+          type: 'expired',
+          onLogout: () => {
+            if (navigate) {
+              navigate('/login');
+            } else {
+              window.location.href = '/login';
+            }
+          }
+        });
+      } else if (navigate) {
+        navigate('/login');
+      } else {
+        window.location.href = '/login';
       }
-      navigate('/login');
       return true;
     }
   }
@@ -103,7 +124,7 @@ export const fetchWithAuth = async (url, options = {}, navigate) => {
           timeLeft: timeLeft,
           onExtend: () => extendSession(),
           onLogout: () => {
-            clearSession();
+            clearSessionStorage();
             navigate('/login');
           }
         });
@@ -111,7 +132,7 @@ export const fetchWithAuth = async (url, options = {}, navigate) => {
     }
     
     // Check for session expiry
-    if (handleSessionExpiry(response, navigate)) {
+    if (await handleSessionExpiry(response, navigate)) {
       return null;
     }
     
