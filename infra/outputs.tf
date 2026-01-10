@@ -13,8 +13,13 @@ output "backend_api_url" {
 }
 
 output "rds_endpoint" {
-  description = "RDS database endpoint"
+  description = "RDS primary database endpoint"
   value       = module.rds.db_endpoint
+}
+
+output "rds_replica_endpoint" {
+  description = "RDS read replica endpoint (null if not created)"
+  value       = module.rds.db_replica_endpoint
 }
 
 output "cloudfront_distribution_id" {

@@ -93,3 +93,9 @@ variable "domain_name" {
   type        = string
   default     = "jagasewa.cloud"
 }
+
+variable "create_rds_read_replica" {
+  description = "Whether to create an RDS read replica in another AZ"
+  type        = bool
+  default     = false
+}

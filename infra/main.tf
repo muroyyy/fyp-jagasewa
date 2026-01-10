@@ -117,14 +117,16 @@ module "secrets" {
 }
 
 module "rds" {
-  source             = "./modules/rds"
-  project_name       = var.project_name
-  environment        = var.environment
-  private_subnet_ids = module.vpc.private_subnet_ids
-  rds_sg_id          = module.security.rds_sg_id
-  db_name            = var.db_name
-  db_username        = var.db_username
-  db_password        = module.secrets.db_password
+  source              = "./modules/rds"
+  project_name        = var.project_name
+  environment         = var.environment
+  private_subnet_ids  = module.vpc.private_subnet_ids
+  rds_sg_id           = module.security.rds_sg_id
+  db_name             = var.db_name
+  db_username         = var.db_username
+  db_password         = module.secrets.db_password
+  create_read_replica = var.create_rds_read_replica
+  availability_zones  = var.availability_zones
 }
 
 module "ecr" {

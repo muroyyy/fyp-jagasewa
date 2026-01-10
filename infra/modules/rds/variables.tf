@@ -46,3 +46,21 @@ variable "instance_class" {
   type        = string
   default     = "db.t3.micro"
 }
+
+variable "create_read_replica" {
+  description = "Whether to create a read replica in another AZ"
+  type        = bool
+  default     = false
+}
+
+variable "replica_instance_class" {
+  description = "Instance type for read replica (defaults to same as primary)"
+  type        = string
+  default     = null
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+  default     = ["ap-southeast-1a", "ap-southeast-1b"]
+}
