@@ -51,9 +51,10 @@ try {
             t.move_out_date,
             pr.property_id,
             pr.property_name,
-            pr.monthly_rent
+            COALESCE(pu.monthly_rent, pr.monthly_rent) as monthly_rent
         FROM tenants t
-        JOIN properties pr ON t.property_id = pr.property_id
+        LEFT JOIN property_units pu ON t.unit_id = pu.unit_id
+        JOIN properties pr ON pr.property_id = COALESCE(t.property_id, pu.property_id)
         WHERE pr.landlord_id = ?
         AND t.move_in_date IS NOT NULL
         AND (t.move_out_date IS NULL OR t.move_out_date > NOW())

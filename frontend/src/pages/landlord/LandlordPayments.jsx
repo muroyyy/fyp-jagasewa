@@ -51,8 +51,9 @@ export default function LandlordPayments() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/api/landlord/payments.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/payments.php?ts=${Date.now()}`, {
         method: 'GET',
+        cache: 'no-store',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
           'Content-Type': 'application/json'
@@ -82,8 +83,9 @@ export default function LandlordPayments() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/api/landlord/payment-filters.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/payment-filters.php?ts=${Date.now()}`, {
         method: 'GET',
+        cache: 'no-store',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
           'Content-Type': 'application/json'
@@ -104,8 +106,9 @@ export default function LandlordPayments() {
     try {
       const sessionToken = localStorage.getItem('session_token');
       
-      const response = await fetch(`${API_BASE_URL}/api/landlord/pending-payments.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/landlord/pending-payments.php?ts=${Date.now()}`, {
         method: 'GET',
+        cache: 'no-store',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
           'Content-Type': 'application/json'
