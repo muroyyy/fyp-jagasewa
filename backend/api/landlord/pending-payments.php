@@ -68,9 +68,9 @@ try {
     foreach ($tenants as $tenant) {
         $moveInDate = new DateTime($tenant['move_in_date']);
 
-        // Start generating payments from the month after move-in
-        $firstPaymentMonth = clone $moveInDate;
-        $firstPaymentMonth->modify('first day of next month');
+        // Start generating payments from the move-in month
+        $firstPaymentMonth = new DateTime($moveInDate->format('Y-m-01'));
+        $moveInDay = (int)$moveInDate->format('d');
 
         // Generate expected payment months from first payment month to current date
         $expectedMonths = [];
@@ -107,9 +107,11 @@ try {
             // Find missing payments
             foreach ($expectedMonths as $expectedMonth) {
                 if (!in_array($expectedMonth, $paidMonths)) {
-                    // Calculate due date (5th of the month)
-                    $dueDate = DateTime::createFromFormat('Y-m', $expectedMonth);
-                    $dueDate->setDate($dueDate->format('Y'), $dueDate->format('m'), 5);
+                    // Calculate due date based on move-in day for the period
+                    $dueDate = DateTime::createFromFormat('Y-m-d', $expectedMonth . '-01');
+                    $daysInMonth = (int)$dueDate->format('t');
+                    $dueDay = min($moveInDay, $daysInMonth);
+                    $dueDate->setDate((int)$dueDate->format('Y'), (int)$dueDate->format('m'), $dueDay);
                     
                     // Check if payment is overdue (more than 5 days past due date)
                     $daysPastDue = $currentDate > $dueDate ? $currentDate->diff($dueDate)->days : 0;

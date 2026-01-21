@@ -145,39 +145,57 @@ try {
             'completed_requests' => (int)$stats['completed_requests']
         ];
 
-        // Calculate next payment
+        // Calculate next payment based on move-in billing day and paid periods
         $next_payment = null;
-        if ($tenant['property_id'] && ($tenant['unit_rent'] || $tenant['monthly_rent'])) {
+        if ($tenant['property_id'] && ($tenant['unit_rent'] || $tenant['monthly_rent']) && $tenant['move_in_date']) {
             $rent_amount = $tenant['unit_rent'] ?: $tenant['monthly_rent'];
-            $last_payment = $payment_stats['last_payment_date'];
-            if ($last_payment) {
-                $next_due = date('Y-m-d', strtotime($last_payment . ' +1 month'));
-            } else {
-                $move_in_date = $tenant['move_in_date'] ?: date('Y-m-d');
-                $next_due = date('Y-m-d', strtotime($move_in_date . ' +1 month'));
-            }
-            
-            $next_year = date('Y', strtotime($next_due));
-            $next_month = date('m', strtotime($next_due));
+            $moveInDate = new DateTime($tenant['move_in_date']);
+            $moveInDay = (int)$moveInDate->format('d');
+            $currentDate = new DateTime();
 
-            $stmt = $readConn->prepare("
-                SELECT COUNT(*) as count
+            $paidPeriodsStmt = $readConn->prepare("
+                SELECT DISTINCT payment_period
                 FROM payments
                 WHERE tenant_id = :tenant_id
-                AND YEAR(payment_date) = :next_year
-                AND MONTH(payment_date) = :next_month
                 AND status = 'completed'
+                AND payment_period IS NOT NULL
             ");
-            $stmt->bindParam(':tenant_id', $tenant_id);
-            $stmt->bindParam(':next_year', $next_year);
-            $stmt->bindParam(':next_month', $next_month);
-            $stmt->execute();
-            $payment_check = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($payment_check['count'] == 0) {
+            $paidPeriodsStmt->bindParam(':tenant_id', $tenant_id);
+            $paidPeriodsStmt->execute();
+            $paidPeriods = $paidPeriodsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            $nextPeriod = null;
+            $checkDate = new DateTime($moveInDate->format('Y-m-01'));
+
+            if ($moveInDate > $currentDate) {
+                $nextPeriod = $moveInDate->format('Y-m');
+            } else {
+                while ($checkDate <= $currentDate) {
+                    $period = $checkDate->format('Y-m');
+                    if (!in_array($period, $paidPeriods, true)) {
+                        $nextPeriod = $period;
+                        break;
+                    }
+                    $checkDate->add(new DateInterval('P1M'));
+                }
+
+                if ($nextPeriod === null) {
+                    $nextPeriod = $currentDate->format('Y-m');
+                    $nextPeriod = (new DateTime($nextPeriod . '-01'))
+                        ->modify('first day of next month')
+                        ->format('Y-m');
+                }
+            }
+
+            if ($nextPeriod) {
+                $periodDate = DateTime::createFromFormat('Y-m-d', $nextPeriod . '-01');
+                $daysInMonth = (int)$periodDate->format('t');
+                $dueDay = min($moveInDay, $daysInMonth);
+                $periodDate->setDate((int)$periodDate->format('Y'), (int)$periodDate->format('m'), $dueDay);
+
                 $next_payment = [
                     'amount' => $rent_amount,
-                    'due_date' => $next_due,
+                    'due_date' => $periodDate->format('Y-m-d'),
                     'property_name' => $tenant['property_name']
                 ];
             }
