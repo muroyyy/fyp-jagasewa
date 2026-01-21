@@ -136,10 +136,30 @@ try {
             UNION ALL
 
             (SELECT
+                CONCAT('system_payment_', sm.message_id) as id,
+                'payment_reminder' as type,
+                'Payment Reminder' as title,
+                sm.message as message,
+                p.property_name,
+                sm.created_at as created_at,
+                'medium' as priority,
+                '/tenant/payments' as link_url,
+                sm.reference_id as reference_id
+            FROM system_messages sm
+            LEFT JOIN properties p ON sm.property_id = p.property_id
+            WHERE sm.receiver_id = ?
+            AND sm.message_type = 'system_payment'
+            AND sm.created_at >= DATE_SUB(NOW(), INTERVAL {$dateInterval} DAY)
+            ORDER BY sm.created_at DESC
+            LIMIT {$paymentLimit})
+
+            UNION ALL
+
+            (SELECT
                 CONCAT('document_', d.document_id) as id,
                 'document_shared' as type,
                 'New Document Shared' as title,
-                CONCAT('A new document \"', d.document_name, '\" has been shared with you') as message,
+                CONCAT('A new document \"', d.file_name, '\" has been shared with you') as message,
                 p.property_name,
                 d.uploaded_at as created_at,
                 'medium' as priority,
@@ -157,7 +177,7 @@ try {
         ";
 
         $stmt = $readConn->prepare($notificationsQuery);
-        $stmt->execute([$tenantId, $tenantId, $propertyId ?: 0]);
+        $stmt->execute([$tenantId, $tenantId, $tenantId, $propertyId ?: 0]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $notifications = [];

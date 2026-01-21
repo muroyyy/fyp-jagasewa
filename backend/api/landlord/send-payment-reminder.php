@@ -6,10 +6,10 @@ ini_set('log_errors', 1);
 // Log the request
 error_log("Payment reminder request: " . $_SERVER['REQUEST_METHOD'] . " from " . ($_SERVER['HTTP_ORIGIN'] ?? 'unknown'));
 
-require_once __DIR__ . '/../config/cors.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/auth_helper.php';
-require_once __DIR__ . '/../config/sns_helper.php';
+require_once __DIR__ . '/../../config/cors.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/auth_helper.php';
+require_once __DIR__ . '/../../config/sns_helper.php';
 
 // Set CORS headers first
 setCorsHeaders();
