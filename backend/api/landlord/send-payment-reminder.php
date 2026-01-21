@@ -29,15 +29,34 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Verify landlord authentication
-$auth = verifyAuth();
-if (!$auth['valid'] || $auth['role'] !== 'landlord') {
-    error_log("Auth failed: " . json_encode($auth));
+$sessionToken = getBearerToken();
+if (empty($sessionToken)) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-$landlord_id = $auth['user_data']['landlord_id'];
+$database = new Database();
+$conn = $database->getConnection();           // Primary for session verification and writes
+$readConn = $database->getReadConnection();   // Replica for read-only queries
+
+$stmt = $conn->prepare("
+    SELECT s.user_id, u.user_role, l.landlord_id
+    FROM sessions s
+    JOIN users u ON s.user_id = u.user_id
+    JOIN landlords l ON u.user_id = l.user_id
+    WHERE s.session_token = ? AND s.expires_at > NOW() AND u.user_role = 'landlord'
+");
+$stmt->execute([$sessionToken]);
+$session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$session) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Invalid or expired session']);
+    exit;
+}
+
+$landlord_id = $session['landlord_id'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 // Validate required fields
@@ -53,10 +72,8 @@ $custom_message = $input['message'] ?? null;
 $send_email = $input['send_email'] ?? true; // Default to true
 
 try {
-    $pdo = getDBConnection();
-    
     // Verify tenant belongs to this landlord
-    $stmt = $pdo->prepare("
+    $stmt = $readConn->prepare("
         SELECT t.tenant_id, t.full_name, t.property_id, t.unit_id, u.email,
                p.property_name, pu.unit_number, p.monthly_rent
         FROM tenants t
@@ -75,7 +92,7 @@ try {
     }
     
     // Check if reminder was already sent today for this period
-    $stmt = $pdo->prepare("
+    $stmt = $readConn->prepare("
         SELECT COUNT(*) as count 
         FROM payment_reminders 
         WHERE tenant_id = ? AND payment_period = ? AND DATE(sent_at) = CURDATE()
@@ -90,7 +107,7 @@ try {
     }
     
     // Check payment status for this period
-    $stmt = $pdo->prepare("
+    $stmt = $readConn->prepare("
         SELECT status, amount 
         FROM payments 
         WHERE tenant_id = ? AND payment_period = ?
@@ -135,7 +152,7 @@ try {
     }
     
     // Insert reminder record
-    $stmt = $pdo->prepare("
+    $stmt = $conn->prepare("
         INSERT INTO payment_reminders 
         (tenant_id, property_id, unit_id, payment_period, reminder_type, sent_by, message, notification_method, sns_message_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -160,7 +177,7 @@ try {
     
     $final_message = $custom_message ?: $default_message;
     
-    $stmt = $pdo->prepare("
+    $stmt = $conn->prepare("
         INSERT INTO system_messages 
         (property_id, unit_id, sender_id, receiver_id, message, message_type, reference_type)
         VALUES (?, ?, ?, ?, ?, 'system_payment', 'payment')
@@ -175,7 +192,7 @@ try {
     
     // Update payment reminder_sent flag if payment exists
     if ($payment) {
-        $stmt = $pdo->prepare("
+        $stmt = $conn->prepare("
             UPDATE payments 
             SET reminder_sent = 1, last_reminder_sent = NOW() 
             WHERE tenant_id = ? AND payment_period = ?
