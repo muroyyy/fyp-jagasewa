@@ -318,56 +318,32 @@ export default function Landing() {
           </div>
 
           {painPoints.map((item, idx) => (
-            <div key={idx} className={`pain-point-content grid md:grid-cols-2 gap-12 items-center mb-24 ${idx % 2 !== 0 ? 'md:grid-flow-dense' : ''}`}>
-              
-              {/* Content Side */}
-              <div className={`text-center md:text-left ${idx % 2 !== 0 ? 'md:col-start-2' : ''}`}>
-                {/* Problem */}
-                <div className="mb-8">
-                  <div className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold mb-4">
-                    <X className="w-4 h-4 mr-1" />
-                    THE PROBLEM
-                  </div>
-                  <h3 className="text-3xl font-bold text-slate-800 mb-3">{item.problem}</h3>
-                  <p className="text-lg text-slate-500">{item.problemDesc}</p>
+            <div key={idx} className="pain-point-content max-w-4xl mx-auto text-center mb-24">
+              {/* Problem */}
+              <div className="mb-8">
+                <div className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold mb-4">
+                  <X className="w-4 h-4 mr-1" />
+                  THE PROBLEM
                 </div>
-                
-                {/* Solution */}
-                <div>
-                  <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-4">
-                    <Check className="w-4 h-4 mr-1" />
-                    THE SOLUTION
-                  </div>
-                  <h4 className="text-2xl font-bold text-slate-800 mb-4">{item.solution}</h4>
-                  <ul className="space-y-3">
-                    {item.benefits.map((benefit, bidx) => (
-                      <li key={bidx} className="flex items-start text-left">
-                        <Check className="w-5 h-5 text-green-500 mr-3 mt-1 flex-shrink-0" />
-                        <span className="text-slate-700">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className="text-3xl font-bold text-slate-800 mb-3">{item.problem}</h3>
+                <p className="text-lg text-slate-500">{item.problemDesc}</p>
               </div>
               
-              {/* Screenshot Placeholder Side */}
-              <div className={idx % 2 !== 0 ? 'md:col-start-1 md:row-start-1' : ''}>
-                <div className="relative group">
-                  {/* Placeholder for actual screenshot */}
-                  <div className="bg-slate-100 rounded-xl shadow-2xl border-2 border-slate-200 aspect-video flex items-center justify-center overflow-hidden">
-                    <div className="text-center p-8">
-                      <div className="w-16 h-16 bg-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <BarChart3 className="w-8 h-8 text-slate-500" />
-                      </div>
-                      <p className="text-slate-500 font-semibold text-sm">
-                        Screenshot Placeholder
-                      </p>
-                      <p className="text-slate-400 text-xs mt-2 max-w-xs mx-auto">
-                        {item.screenshotAlt}
-                      </p>
-                    </div>
-                  </div>
+              {/* Solution */}
+              <div>
+                <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-4">
+                  <Check className="w-4 h-4 mr-1" />
+                  THE SOLUTION
                 </div>
+                <h4 className="text-2xl font-bold text-slate-800 mb-4">{item.solution}</h4>
+                <ul className="space-y-3 max-w-2xl mx-auto">
+                  {item.benefits.map((benefit, bidx) => (
+                    <li key={bidx} className="flex items-start text-left">
+                      <Check className="w-5 h-5 text-green-500 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-slate-700">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           ))}
