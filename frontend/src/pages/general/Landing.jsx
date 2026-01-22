@@ -336,10 +336,10 @@ export default function Landing() {
                   THE SOLUTION
                 </div>
                 <h4 className="text-2xl font-bold text-slate-800 mb-4">{item.solution}</h4>
-                <ul className="space-y-3 max-w-2xl mx-auto">
+                <ul className="space-y-3 max-w-2xl mx-auto text-center">
                   {item.benefits.map((benefit, bidx) => (
-                    <li key={bidx} className="flex items-start text-left">
-                      <Check className="w-5 h-5 text-green-500 mr-3 mt-1 flex-shrink-0" />
+                    <li key={bidx} className="flex items-center justify-center">
+                      <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                       <span className="text-slate-700">{benefit}</span>
                     </li>
                   ))}
